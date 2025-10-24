@@ -1,0 +1,105 @@
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ranked4user
+      POSTGRES_PASSWORD: ranked4password
+      POSTGRES_DB: ranked4_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ranked4user -d ranked4_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka_broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    networks:
+      - app-network
+
+  gateway-service:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      AUTH_SERVICE_URL: http://auth-service:8081
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
+      SPRING_DATASOURCE_USERNAME: ranked4user
+      SPRING_DATASOURCE_PASSWORD: ranked4password
+      SPRING_REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
