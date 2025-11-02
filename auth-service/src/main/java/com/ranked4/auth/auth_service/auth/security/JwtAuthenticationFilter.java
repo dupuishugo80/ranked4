@@ -1,20 +1,13 @@
 package com.ranked4.auth.auth_service.auth.security;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ranked4.auth.auth_service.auth.model.User;
-import com.ranked4.auth.auth_service.auth.repository.UserRepository;
 import com.ranked4.auth.auth_service.auth.service.AuthService;
 
 import io.jsonwebtoken.io.IOException;
@@ -65,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (Exception e) {
-            logger.warn("Impossible de définir l'authentification utilisateur : " + e.getMessage());
+            logger.warn("Error : " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

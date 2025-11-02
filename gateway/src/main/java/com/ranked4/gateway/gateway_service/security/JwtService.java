@@ -43,9 +43,9 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public Long getUserIdFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         try {
-            return extractAllClaims(token).get("userId", Long.class);
+            return extractAllClaims(token).get("userId", String.class);
         } catch (Exception e) {
             return null;
         }

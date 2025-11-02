@@ -23,8 +23,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/login",
             "/api/auth/register",
             "/api/auth/refresh",
-            "/api/auth/logout",
-            "/api/auth/me"
+            "/api/auth/logout"
     );
 
     @Override
@@ -38,17 +37,20 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return this.onError(exchange, HttpStatus.UNAUTHORIZED);
         }
 
         String token = authHeader.substring(7);
+
         if (!jwtService.validateToken(token)) {
             return this.onError(exchange, HttpStatus.UNAUTHORIZED);
         }
 
-        Long userId = jwtService.getUserIdFromToken(token);
-        String userIdHeader = (userId != null) ? String.valueOf(userId) : null;
+        String userId = jwtService.getUserIdFromToken(token);
+
+        String userIdHeader = (userId != null) ? userId : null;
 
         if (userIdHeader == null) {
             return this.onError(exchange, HttpStatus.UNAUTHORIZED);

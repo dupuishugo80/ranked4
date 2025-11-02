@@ -1,13 +1,13 @@
 package com.ranked4.auth.auth_service.auth.service;
 
 import com.ranked4.auth.auth_service.auth.dto.AuthResponse;
-import com.ranked4.auth.auth_service.auth.dto.LoginRequest;
-import com.ranked4.auth.auth_service.auth.dto.RegisterRequest;
+import com.ranked4.auth.auth_service.auth.dto.UserRegisteredEvent;
 import com.ranked4.auth.auth_service.auth.model.RefreshToken;
 import com.ranked4.auth.auth_service.auth.model.User;
 import com.ranked4.auth.auth_service.auth.repository.RefreshTokenRepository;
 import com.ranked4.auth.auth_service.auth.repository.UserRepository;
 import com.ranked4.auth.auth_service.auth.security.JwtService;
+import com.ranked4.auth.auth_service.auth.util.KafkaProducerConfig;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,10 +15,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +31,7 @@ public class AuthService implements UserDetailsService {
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final long refreshTokenExpirationMs;
+    private final KafkaTemplate<String, UserRegisteredEvent> kafkaTemplate;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
@@ -46,12 +47,14 @@ public class AuthService implements UserDetailsService {
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        RefreshTokenRepository refreshTokenRepository,
-                       @Value("${jwt.refresh-token-expiration}") long refreshTokenExpirationMs) {
+                       @Value("${jwt.refresh-token-expiration}") long refreshTokenExpirationMs,
+                       KafkaTemplate<String, UserRegisteredEvent> kafkaTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -85,7 +88,18 @@ public class AuthService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(password));
         user.setRoles(List.of("ROLE_USER"));
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+         try {
+            UserRegisteredEvent event = new UserRegisteredEvent(
+                    savedUser.getId(),
+                    savedUser.getUsername(),
+                    savedUser.getEmail()
+            );
+            kafkaTemplate.send(KafkaProducerConfig.TOPIC_USER_REGISTERED, event);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send UserRegisteredEvent to Kafka", e);
+        }
     }
 
     @Transactional

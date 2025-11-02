@@ -76,6 +76,7 @@ services:
       - "8080:8080"
     depends_on:
       - auth-service
+      - userprofile-service
     networks:
       - app-network
     environment:
@@ -103,3 +104,21 @@ services:
       SPRING_DATASOURCE_PASSWORD: ranked4password
       SPRING_REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+  userprofile-service:
+    build:
+      context: ./userprofile-service
+      dockerfile: Dockerfile
+    container_name: userprofile_service
+    ports:
+      - "8082:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
+      SPRING_DATASOURCE_USERNAME: ranked4user
+      SPRING_DATASOURCE_PASSWORD: ranked4password
