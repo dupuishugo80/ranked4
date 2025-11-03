@@ -28,10 +28,16 @@ public class GameService {
     }
 
     @Transactional
-    public Game createGame(UUID playerOneId, UUID playerTwoId) {
-        log.info("New game created: {} vs {}", playerOneId, playerTwoId);
+    public Game createGame(UUID gameId, UUID playerOneId, UUID playerTwoId) {
+        log.info("Creating new game (ID: {}) for {} vs {}", gameId, playerOneId, playerTwoId);
+        
+        if (gameRepository.existsById(gameId)) {
+            log.warn("Attempting to create a game that already exists: {}", gameId);
+            return gameRepository.findById(gameId).get();
+        }
+
         Game game = new Game();
-        game.startGame(playerOneId, playerTwoId);
+        game.startGame(gameId, playerOneId, playerTwoId); 
         
         return gameRepository.save(game);
     }

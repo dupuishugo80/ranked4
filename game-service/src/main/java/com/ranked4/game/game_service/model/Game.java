@@ -7,8 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
@@ -19,7 +17,6 @@ import jakarta.persistence.Transient;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID gameId;
 
     @Column(nullable = false)
@@ -58,7 +55,8 @@ public class Game {
         this.gameLogic.deserializeGrid(this.boardState, this.nextPlayer);
     }
 
-    public void startGame(UUID playerOneId, UUID playerTwoId) {
+    public void startGame(UUID gameId, UUID playerOneId, UUID playerTwoId) {
+        this.gameId = gameId;
         this.playerOneId = playerOneId;
         this.playerTwoId = playerTwoId;
         this.status = GameStatus.IN_PROGRESS;

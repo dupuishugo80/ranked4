@@ -33,13 +33,19 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 - Validation centralisée des tokens JWT.  
 - Ajout du header `X-User-Id` vers les services internes après validation.
 
+### 🤝 Matchmaking (`matchmaking-service`)
+- Endpoints sécurisés : `/api/matchmaking/join` et `/leave`.
+- Logique de File d'attente : Utilise **Redis** (Sorted Set) pour stocker les joueurs en attente, triés par ELO.
+- Communication Inter-Service
+
+### 🕹️ Logique de jeu (`game-service`)
+- Logique de Jeu : Gestion complète de l'état du plateau, validation des coups, détection de victoire et de match nul.
+- Serveur WebSocket : Gère la partie en temps réel sur /ws.
 
 ## 🎯 Fonctionnalités Futures
-
-- 🕹️ **Game Service** : logique du jeu Puissance 4 (WebSocket temps réel).  
-- 🤝 **Matchmaking Service** : appariement des joueurs selon leur ELO.  
 - 💻 **Frontend Angular** : interface web pour jouer et suivre les stats.  
 - 🧠 **IA Service** : mode "Joueur vs IA".  
+- 🤝 **Partie entre amis** : mode "Joueur vs Joueur" non classé.  
 
 ## 🧑‍💻 Mise en Place en Local
 
@@ -65,7 +71,7 @@ Définissez une clé JWT commune dans :
 `jwt.secret=votre_super_cle_secrete_de_plus_de_256_bits_ici` 
 
 Assurez-vous que les ports suivants sont libres :  
-`8080, 8081, 8082, 5432, 9092, 6379`
+`8080, 8081, 8082, 8083, 8084, 5432, 9092, 6379`
 
 ### 4. Lancement
 
