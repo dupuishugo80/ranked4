@@ -23,13 +23,18 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/login",
             "/api/auth/register",
             "/api/auth/refresh",
-            "/api/auth/logout"
+            "/api/auth/logout",
+            "/ws/**"
     );
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+
+        if (isWebSocketUpgrade(request)) {
+            return chain.filter(exchange);
+        }
 
         boolean isPublicPath = publicPaths.stream().anyMatch(path::startsWith);
         if (isPublicPath) {
@@ -61,6 +66,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 .build();
 
         return chain.filter(exchange.mutate().request(modifiedRequest).build());
+    }
+
+    private boolean isWebSocketUpgrade(ServerHttpRequest request) {
+        String upgrade = request.getHeaders().getFirst("Upgrade");
+        String connection = request.getHeaders().getFirst("Connection");
+        
+        return "websocket".equalsIgnoreCase(upgrade) && 
+               connection != null && 
+               connection.toLowerCase().contains("upgrade");
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {

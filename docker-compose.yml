@@ -122,3 +122,22 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
       SPRING_DATASOURCE_USERNAME: ranked4user
       SPRING_DATASOURCE_PASSWORD: ranked4password
+
+  game-service:
+    build:
+      context: ./game-service
+      dockerfile: Dockerfile
+    container_name: game_service
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
+      SPRING_DATASOURCE_USERNAME: ranked4user
+      SPRING_DATASOURCE_PASSWORD: ranked4password
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
