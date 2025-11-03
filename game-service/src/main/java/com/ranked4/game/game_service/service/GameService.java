@@ -4,15 +4,18 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ranked4.game.game_service.dto.GameFinishedEvent;
 import com.ranked4.game.game_service.model.Disc;
 import com.ranked4.game.game_service.model.Game;
 import com.ranked4.game.game_service.model.GameStatus;
 import com.ranked4.game.game_service.model.Move;
 import com.ranked4.game.game_service.repository.GameRepository;
 import com.ranked4.game.game_service.repository.MoveRepository;
+import com.ranked4.game.game_service.util.KafkaConfig;
 
 @Service
 public class GameService {
@@ -22,9 +25,12 @@ public class GameService {
     private final GameRepository gameRepository;
     private final MoveRepository moveRepository;
 
-    public GameService(GameRepository gameRepository, MoveRepository moveRepository) {
+    private final KafkaTemplate<String, GameFinishedEvent> kafkaTemplate;
+
+    public GameService(GameRepository gameRepository, MoveRepository moveRepository, KafkaTemplate<String, GameFinishedEvent> kafkaTemplate) {
         this.gameRepository = gameRepository;
         this.moveRepository = moveRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
@@ -76,6 +82,20 @@ public class GameService {
 
         if (updatedGame.getStatus() == GameStatus.FINISHED) {
             log.info("Game finished: {}. Winner: {}", gameId, updatedGame.getWinner());
+
+            GameFinishedEvent event = new GameFinishedEvent(
+                updatedGame.getGameId(),
+                updatedGame.getPlayerOneId(),
+                updatedGame.getPlayerTwoId(),
+                updatedGame.getWinner()
+            );
+            
+            try {
+                kafkaTemplate.send(KafkaConfig.GAME_FINISHED_TOPIC, event.getGameId().toString(), event);
+                log.info("GameFinishedEvent sent to Kafka for game {}", gameId);
+            } catch (Exception e) {
+                log.error("Error sending GameFinishedEvent to Kafka", e);
+            }
         }
 
         return updatedGame;

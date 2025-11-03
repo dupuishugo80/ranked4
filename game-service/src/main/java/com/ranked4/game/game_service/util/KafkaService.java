@@ -12,13 +12,13 @@ import com.ranked4.game.game_service.model.Game;
 import com.ranked4.game.game_service.service.GameService;
 
 @Service
-public class KafkaConsumerService {
+public class KafkaService {
 
-    private static final Logger log = LoggerFactory.getLogger(KafkaConsumerService.class);
+    private static final Logger log = LoggerFactory.getLogger(KafkaService.class);
     private final GameService gameService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public KafkaConsumerService(GameService gameService, SimpMessagingTemplate messagingTemplate) {
+    public KafkaService(GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.gameService = gameService;
         this.messagingTemplate = messagingTemplate;
     }
