@@ -10,7 +10,7 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-FROM openjdk:21-jdk-slim
+FROM cimg/openjdk:21.0
 
 WORKDIR /app
 

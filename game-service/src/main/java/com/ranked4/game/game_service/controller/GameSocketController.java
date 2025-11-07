@@ -33,19 +33,31 @@ public class GameSocketController {
 
     @MessageMapping("/game.move/{gameId}")
     public void handleMove(@DestinationVariable UUID gameId, PlayerMoveDTO move) {
-        log.info("Move received for game {}: Player {} plays column {}", gameId, move.getPlayerId(), move.getColumn());
-        Game updatedGame = gameService.applyMove(
-            gameId,
-            move.getPlayerId(),
-            move.getColumn()
-        );
+        GameUpdateDTO gameUpdate;
+        try {
+            log.info("Move received for game {}: Player {} plays column {}", gameId, move.getPlayerId(), move.getColumn());
 
-        GameUpdateDTO gameUpdate = GameUpdateDTO.fromEntity(updatedGame);
+            Game updatedGame = gameService.applyMove(
+                gameId,
+                move.getPlayerId(),
+                move.getColumn()
+            );
+
+            gameUpdate = GameUpdateDTO.fromEntity(updatedGame);
+
+            log.info("Game {} state updated and broadcasted", gameId);
+        }
+        catch (IllegalStateException e) {
+            log.warn("Invalid move for game {}: {}", gameId, e.getMessage());
+            
+            Game currentGame = gameService.getGameState(gameId);
+            gameUpdate = GameUpdateDTO.fromEntity(currentGame);
+            
+            gameUpdate.setError(e.getMessage());
+        }
 
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
-
-        log.info("Game {} state updated and broadcasted.", gameId);
     }
 
     @MessageMapping("/game.join/{gameId}")
@@ -57,16 +69,5 @@ public class GameSocketController {
         
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
-    }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/errors")
-    public ErrorDTO handleException(Exception exception, Principal principal) {
-        String username = (principal != null) ? principal.getName() : "unknown";
-        String errorMessage = "Error: " + exception.getMessage();
-        
-        log.warn("Error for user {}: {}", username, errorMessage);
-
-        return new ErrorDTO(errorMessage);
     }
 }

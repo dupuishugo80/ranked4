@@ -15,20 +15,21 @@ public class GameUpdateDTO {
     private Disc winner;
     private UUID playerOneId;
     private UUID playerTwoId;
+    private String error;
 
-    public GameUpdateDTO() {
+    public GameUpdateDTO(Game game) {
+        this.gameId = game.getGameId();
+        this.boardState = game.getBoardState();
+        this.status = game.getStatus();
+        this.nextPlayer = game.getNextPlayer();
+        this.winner = game.getWinner();
+        this.playerOneId = game.getPlayerOneId();
+        this.playerTwoId = game.getPlayerTwoId();
+        this.error = null;
     }
 
     public static GameUpdateDTO fromEntity(Game game) {
-        GameUpdateDTO dto = new GameUpdateDTO();
-        dto.setGameId(game.getGameId());
-        dto.setBoardState(game.getBoardState());
-        dto.setStatus(game.getStatus());
-        dto.setNextPlayer(game.getNextPlayer());
-        dto.setWinner(game.getWinner());
-        dto.setPlayerOneId(game.getPlayerOneId());
-        dto.setPlayerTwoId(game.getPlayerTwoId());
-        return dto;
+        return new GameUpdateDTO(game);
     }
 
     public UUID getGameId() {
@@ -85,5 +86,13 @@ public class GameUpdateDTO {
 
     public void setPlayerTwoId(UUID playerTwoId) {
         this.playerTwoId = playerTwoId;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }
