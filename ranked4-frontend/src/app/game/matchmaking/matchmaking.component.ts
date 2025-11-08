@@ -15,8 +15,10 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
   public gameService = inject(GameService);
   private router = inject(Router);
   private statusSub: Subscription | null = null;
+  private timeSub: Subscription | null = null;
 
   status: string = 'Connecting...';
+  public elapsedTime: string = '00:00';
 
 ngOnInit(): void {
     this.statusSub = this.gameService.gameStatus$.subscribe(status => {
@@ -33,6 +35,10 @@ ngOnInit(): void {
       }
     });
 
+    this.timeSub = this.gameService.queueTime$.subscribe(seconds => {
+      this.elapsedTime = this.formatTime(seconds);
+    });
+
     if (this.gameService.gameStatus$.value === 'IDLE') {
       this.status = 'Connecting to matchmaking service...';
       this.gameService.joinQueue();
@@ -43,10 +49,21 @@ ngOnInit(): void {
 
   ngOnDestroy(): void {
     this.statusSub?.unsubscribe();
+    this.timeSub?.unsubscribe();
     if (this.gameService.gameStatus$.value === 'QUEUEING') {
       console.log("Annulation du matchmaking (l'utilisateur a quitté la page)");
       this.gameService.leaveGame();
     }
+  }
+
+  private formatTime(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${this.pad(minutes)}:${this.pad(seconds)}`;
+  }
+  
+  private pad(num: number): string {
+    return num < 10 ? '0' + num : '' + num;
   }
 
   cancelMatchmaking(): void {

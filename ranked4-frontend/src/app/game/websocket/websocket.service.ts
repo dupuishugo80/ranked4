@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, filter, Observable, Subject, switchMap, take } from 'rxjs';
 
 type WsConnectionState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED';
 
@@ -12,6 +12,8 @@ export class WebSocketService {
   private readonly WEBSOCKET_URL = 'ws://localhost:8080/ws';
 
   private connectionState$ = new BehaviorSubject<WsConnectionState>('DISCONNECTED');
+
+  public connectionState = this.connectionState$.asObservable();
 
   constructor() {
     this.stompClient = new Client({
@@ -51,10 +53,13 @@ export class WebSocketService {
   }
 
   subscribeToTopic(topic: string): Observable<IMessage> {
-    return new Observable<IMessage>(observer => {
-      const sub = this.connectionState$.subscribe(state => {
-        if (state === 'CONNECTED') {
+    return this.connectionState$.pipe(
+      filter(state => state === 'CONNECTED'),
+      take(1),
+      switchMap(() => {
+        return new Observable<IMessage>(observer => {
           console.log(`[WS] Abonnement à ${topic}`);
+          
           const subscription: StompSubscription = this.stompClient.subscribe(topic, (message) => {
             observer.next(message);
           });
@@ -63,11 +68,9 @@ export class WebSocketService {
             console.log(`[WS] Désabonnement de ${topic}`);
             subscription.unsubscribe();
           };
-        }
-        return;
-      });
-      return () => sub.unsubscribe();
-    });
+        });
+      })
+    );
   }
 
   publishMessage(destination: string, body: any): void {
