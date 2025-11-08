@@ -23,6 +23,7 @@ import com.ranked4.game.game_service.dto.MatchFoundEvent;
 public class KafkaConfig {
 
     public static final String GAME_FINISHED_TOPIC = "game.finished";
+    public static final String PLAYER_DISCONNECTED_TOPIC = "player.disconnected";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -38,7 +39,7 @@ public class KafkaConfig {
 
         JsonDeserializer<MatchFoundEvent> deserializer = new JsonDeserializer<>(MatchFoundEvent.class);
         deserializer.setUseTypeHeaders(false);
-        deserializer.addTrustedPackages("com.ranked4.game.dto");
+        deserializer.addTrustedPackages("com*");
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -58,6 +59,14 @@ public class KafkaConfig {
     @Bean
     public NewTopic gameFinishedTopic() {
         return TopicBuilder.name(GAME_FINISHED_TOPIC)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic playerDisconnectedTopic() {
+        return TopicBuilder.name(PLAYER_DISCONNECTED_TOPIC)
                 .partitions(1)
                 .replicas(1)
                 .build();

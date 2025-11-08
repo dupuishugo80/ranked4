@@ -79,4 +79,17 @@ public class GameSocketController {
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
     }
+
+    @MessageMapping("/lobby.register")
+    public void registerLobbyPresence(PlayerJoinDTO joinMessage, SimpMessageHeaderAccessor headerAccessor) {
+        String sessionId = headerAccessor.getSessionId();
+        UUID playerId = joinMessage.getPlayerId();
+        
+        if (playerId == null || sessionId == null) {
+            log.warn("Invalid attempt to register to the lobby.");
+            return;
+        }
+        
+        gameSessionRegistry.registerLobbySession(sessionId, playerId);
+    }
 }

@@ -20,6 +20,7 @@ export class GameService {
   private readonly API_URL_MATCHMAKING_JOIN = 'http://localhost:8080/api/matchmaking/join';
   private readonly API_URL_MATCHMAKING_LEAVE = 'http://localhost:8080/api/matchmaking/leave';
   private readonly LOBBY_TOPIC = '/topic/lobby';
+  private readonly LOBBY_REGISTER_DEST = '/app/lobby.register';
 
   private lobbySub: Subscription | null = null;
   private gameSub: Subscription | null = null;
@@ -41,42 +42,47 @@ export class GameService {
     this.myUserId = this.authService.getUserId();
   }
 
-  joinQueue(): void {
+joinQueue(): void {
     if (this.gameStatus$.value === 'QUEUEING') return;
 
-    console.log('[HTTP] Tentative de rejoindre la file d\'attente...');
+    console.log('[WS] Tentative de connexion au WebSocket AVANT de rejoindre la file...');
     this.gameStatus$.next('QUEUEING');
-    
     this.startQueueTimer();
+    this.wsService.connect();
 
-    this.http.post(this.API_URL_MATCHMAKING_JOIN, {}).subscribe({
-      next: () => {
-        console.log('[HTTP] En file d\'attente !');
-        
-        this.wsService.connect();
+    this.wsService.connectionState.pipe(
+      filter(state => state === 'CONNECTED'),
+      take(1)
+    ).subscribe(() => {
+      console.log('[WS] Connexion établie, abonnement au lobby...');
 
-        this.wsService.connectionState.pipe(
-          filter(state => state === 'CONNECTED'),
-          take(1)
-        ).subscribe(() => {
-          console.log('[WS] Connexion établie, abonnement au lobby...');
-          this.subscribeToLobby();
-        });
+      this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
+        playerId: this.myUserId
+      });
+      console.log(`[WS] Présence enregistrée pour ${this.myUserId}`);
+      this.subscribeToLobby();
 
-
-        this.matchmakingTimeout = setTimeout(() => {
-          if (this.gameStatus$.value === 'QUEUEING') {
-            console.warn('[Timeout] Le matchmaking a expiré (5 minutes).');
-            this.gameError$.next("Aucun adversaire trouvé. Le matchmaking a expiré.");
-            this.leaveGame();
+      setTimeout(() => {
+        console.log('[HTTP] Tentative de rejoindre la file d\'attente...');
+        this.http.post(this.API_URL_MATCHMAKING_JOIN, {}).subscribe({
+          next: () => {
+            console.log('[HTTP] En file d\'attente ! (et nous sommes déjà à l\'écoute)');
+            
+            this.matchmakingTimeout = setTimeout(() => {
+              if (this.gameStatus$.value === 'QUEUEING') {
+                console.warn('[Timeout] Le matchmaking a expiré (5 minutes).');
+                this.gameError$.next("Aucun adversaire trouvé. Le matchmaking a expiré.");
+                this.leaveGame();
+              }
+            }, 300000);
+          },
+          error: (err) => {
+            console.error('[HTTP] Erreur pour rejoindre la file:', err);
+            this.gameStatus$.next('IDLE'); 
+            this.cleanUp();
           }
-        }, 300000);
-
-      },
-      error: (err) => {
-        console.error('[HTTP] Erreur pour rejoindre la file:', err);
-        this.gameStatus$.next('IDLE');
-      }
+        });
+      }, 1000);
     });
   }
 
@@ -217,7 +223,7 @@ export class GameService {
     this.gameSub?.unsubscribe();
     this.lobbySub = null;
     this.gameSub = null;
-    
+
     this.wsService.disconnect();
     
     this.myGameId = null;
