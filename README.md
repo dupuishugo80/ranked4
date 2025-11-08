@@ -1,7 +1,6 @@
-
 # 🟡 Ranked4 — Puissance 4 en Microservices
 
-**Ranked4** est un projet de portfolio visant à créer un **vrai jeu complet multijoueur en temps réel** de **Puissance 4 (Connect Four)**, avec un **système de classement ELO** et un **mode Joueur vs IA** dont l’intelligence artificielle sera développée spécifiquement pour le projet.  
+**Ranked4** est un projet de portfolio visant à créer un **vrai jeu complet multijoueur en temps réel** de **Puissance 4 (Connect Four)**, avec un **système de classement ELO**, un mode **non classé** et un **mode Joueur vs IA**.  
 Il sert également de démonstration d’une **architecture microservices complète**, **asynchrone** et **résiliente**.  
 Chaque service est indépendant (authentification, profil, logique de jeu, matchmaking, IA) et communique via **API REST** et **Kafka**.  
 Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile.
@@ -16,9 +15,15 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 | **Cache (prévu)** | Redis |
 | **Authentification** | JWT : Access + Refresh Tokens |
 | **Conteneurisation** | Docker|
-| **Frontend (prévu)** | Angular |
+| **Frontend** | Angular 19|
 
 ## ⚙️ Fonctionnalités Actuelles
+
+### 🖥️ Frontend (`ranked4-frontend`)
+- Inscription
+- Connexion
+- Rejoindre la file d'attente classée.
+- Jouer une partie complète.
 
 ### 🧩 Authentification (`auth-service`)
 - Inscription et connexion sécurisées (JWT : Access + Refresh Tokens).  
@@ -26,7 +31,7 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 
 ### 👤 Gestion de Profil (`userprofile-service`)
 - Stockage des informations utilisateur (ELO, statistiques, nom d’affichage).  
-- Endpoint sécurisé : `/api/profiles/me`.  
+- Endpoint sécurisé : `/api/profiles/me`, `/api/profiles/{id}`.  
 
 ### 🔐 Sécurité & Routage (`gateway-service`)
 - **API Gateway** unique pour toutes les requêtes.  
@@ -36,14 +41,12 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 ### 🤝 Matchmaking (`matchmaking-service`)
 - Endpoints sécurisés : `/api/matchmaking/join` et `/leave`.
 - Logique de File d'attente : Utilise **Redis** (Sorted Set) pour stocker les joueurs en attente, triés par ELO.
-- Communication Inter-Service
 
 ### 🕹️ Logique de jeu (`game-service`)
 - Logique de Jeu : Gestion complète de l'état du plateau, validation des coups, détection de victoire et de match nul.
-- Serveur WebSocket : Gère la partie en temps réel sur /ws.
+- Serveur WebSocket : Gère la partie en temps réel sur `/ws`.
 
-## 🎯 Fonctionnalités Futures
-- 💻 **Frontend Angular** : interface web pour jouer et suivre les stats.  
+## 🎯 Fonctionnalités Futures 
 - 🧠 **IA Service** : mode "Joueur vs IA".  
 - 🤝 **Partie entre amis** : mode "Joueur vs Joueur" non classé.  
 
