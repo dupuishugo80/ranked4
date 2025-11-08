@@ -1,6 +1,5 @@
 package com.ranked4.game.game_service.controller;
 
-import java.security.Principal;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -8,15 +7,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 import com.ranked4.game.game_service.dto.ErrorDTO;
 import com.ranked4.game.game_service.dto.GameUpdateDTO;
+import com.ranked4.game.game_service.dto.PlayerJoinDTO;
 import com.ranked4.game.game_service.dto.PlayerMoveDTO;
 import com.ranked4.game.game_service.model.Game;
 import com.ranked4.game.game_service.service.GameService;
+import com.ranked4.game.game_service.util.GameSessionRegistry;
 
 @Controller
 public class GameSocketController {
@@ -25,10 +27,12 @@ public class GameSocketController {
 
     private final GameService gameService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final GameSessionRegistry gameSessionRegistry;
 
-    public GameSocketController(GameService gameService, SimpMessagingTemplate messagingTemplate) {
+    public GameSocketController(GameService gameService, SimpMessagingTemplate messagingTemplate, GameSessionRegistry gameSessionRegistry) {
         this.gameService = gameService;
         this.messagingTemplate = messagingTemplate;
+        this.gameSessionRegistry = gameSessionRegistry;
     }
 
     @MessageMapping("/game.move/{gameId}")
@@ -61,8 +65,13 @@ public class GameSocketController {
     }
 
     @MessageMapping("/game.join/{gameId}")
-    public void joinGame(@DestinationVariable UUID gameId, Principal principal) {
-        log.info("Player {} joined the room for game {}", (principal != null ? principal.getName() : "unknown"), gameId);
+    public void joinGame(@DestinationVariable UUID gameId, PlayerJoinDTO joinMessage, SimpMessageHeaderAccessor headerAccessor) {
+        String sessionId = headerAccessor.getSessionId();
+        UUID playerId = joinMessage.getPlayerId();
+
+        log.info("Player {} (Session: {}) has joined the room for game {}", playerId, sessionId, gameId);
+
+        gameSessionRegistry.registerSession(sessionId, gameId, playerId);
 
         Game currentGame = gameService.getGameState(gameId);
         GameUpdateDTO gameUpdate = GameUpdateDTO.fromEntity(currentGame);

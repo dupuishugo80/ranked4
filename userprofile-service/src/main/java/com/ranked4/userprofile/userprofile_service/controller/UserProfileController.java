@@ -1,5 +1,6 @@
 package com.ranked4.userprofile.userprofile_service.controller;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ranked4.userprofile.userprofile_service.dto.LeaderboardEntryDTO;
 import com.ranked4.userprofile.userprofile_service.dto.UserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.service.UserProfileService;
 
@@ -58,6 +60,12 @@ public class UserProfileController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
         }
+    }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<List<LeaderboardEntryDTO>> getLeaderboard() {
+        List<LeaderboardEntryDTO> leaderboard = userProfileService.getLeaderboard();
+        return ResponseEntity.ok(leaderboard);
     }
 
 }

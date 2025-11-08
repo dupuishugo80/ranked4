@@ -1,5 +1,6 @@
 package com.ranked4.userprofile.userprofile_service.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +18,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
 
     Optional<UserProfile> findByDisplayName(String displayName);
 
+    List<UserProfile> findTop5ByOrderByEloDesc();
 }

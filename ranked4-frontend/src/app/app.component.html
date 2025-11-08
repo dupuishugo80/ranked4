@@ -1,0 +1,33 @@
+<header class="app-header">
+  <div class="container header-content">
+    
+    <div class="header-left">
+      <a routerLink="/" class="logo">
+        Ranked4
+      </a>
+    </div>
+    
+    <div class="header-center">
+      @if (authService.isAuthenticated()) {
+        <button class="btn btn-primary btn-join-queue" (click)="playGame()">
+          Find a ranked match
+        </button>
+      }
+    </div>
+
+    <div class="header-right">
+      <nav>
+        @if (authService.isAuthenticated()) {
+          <button (click)="logout()" class="btn btn-outline">
+            Logout
+          </button>
+        }
+      </nav>
+    </div>
+
+  </div>
+</header>
+
+<main class="content-wrapper">
+  <router-outlet></router-outlet>
+</main>

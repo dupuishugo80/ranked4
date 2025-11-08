@@ -136,6 +136,8 @@ public class GameBoard {
 
     public Disc[][] getGrid() { return grid; }
     public GameStatus getStatus() { return status; }
+    public void setStatus(GameStatus status) { this.status = status; }
     public Disc getNextPlayer() { return nextPlayer; }
     public Disc getWinner() { return winner; }
+    public void setWinner(Disc winner) { this.winner = winner; }
 }

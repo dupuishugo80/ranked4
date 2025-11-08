@@ -101,6 +101,50 @@ public class GameService {
         return updatedGame;
     }
 
+    @Transactional
+    public Game forfeitGame(UUID gameId, UUID disconnectedPlayerId) {
+        log.warn("Traitement du forfait pour le joueur {} dans la partie {}", disconnectedPlayerId, gameId);
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalStateException("Partie non trouvée: " + gameId));
+
+        if (game.getStatus() == GameStatus.FINISHED) {
+            log.info("La partie {} est déjà terminée. Aucun forfait traité.", gameId);
+            return game;
+        }
+
+        Disc forfeitingDisc;
+        if (disconnectedPlayerId.equals(game.getPlayerOneId())) {
+            forfeitingDisc = Disc.PLAYER_ONE;
+        } else if (disconnectedPlayerId.equals(game.getPlayerTwoId())) {
+            forfeitingDisc = Disc.PLAYER_TWO;
+        } else {
+            throw new IllegalStateException("Le joueur déconnecté " + disconnectedPlayerId + " n'appartient pas à la partie " + gameId);
+        }
+
+        game.forfeit(forfeitingDisc);
+        Game updatedGame = gameRepository.save(game);
+
+        sendGameFinishedEvent(updatedGame);
+
+        return updatedGame;
+    }
+
+    private void sendGameFinishedEvent(Game finishedGame) {
+        GameFinishedEvent event = new GameFinishedEvent(
+            finishedGame.getGameId(),
+            finishedGame.getPlayerOneId(),
+            finishedGame.getPlayerTwoId(),
+            finishedGame.getWinner()
+        );
+        
+        try {
+            kafkaTemplate.send(KafkaConfig.GAME_FINISHED_TOPIC, event.getGameId().toString(), event);
+            log.info("Événement GameFinishedEvent envoyé sur Kafka pour la partie {}", finishedGame.getGameId());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'événement GameFinishedEvent sur Kafka", e);
+        }
+    }
+
     @Transactional(readOnly = true)
     public Game getGameState(UUID gameId) {
         return gameRepository.findById(gameId)

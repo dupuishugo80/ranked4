@@ -1,0 +1,64 @@
+<div class="home-container">
+
+  @if (userProfile$ | async; as user) {
+    <div class="home-layout">
+      <div class="home-column home-column-left">
+        <app-leaderboard 
+        [currentUserId]="user.userId"
+        [reloadTrigger]="reloadTrigger$">
+      </app-leaderboard>
+      </div>
+
+      <div class="home-column home-column-right">
+        <header class="home-header">
+          
+          <div class="avatar-container">
+            @if (user.avatarUrl) {
+              <img [src]="user.avatarUrl" alt="Avatar" class="avatar">
+            }
+          </div>
+          
+          <div class="user-info">
+            <h2>Welcome, {{ user.displayName }} !</h2>
+            <p class="elo-rating">ELO : {{ user.elo }}</p>
+          </div>
+        </header>
+
+        <section class="profile-stats">
+          <h4>Game Statistics</h4>
+          <div class="stats-grid">
+            
+            <div class="stat-item">
+              <span class="value">{{ user.gamesPlayed }}</span>
+              <span class="label">Games Played</span>
+            </div>
+            
+            <div class="stat-item win">
+              <span class="value">{{ user.wins }}</span>
+              <span class="label">Wins</span>
+            </div>
+            
+            <div class="stat-item loss">
+              <span class="value">{{ user.losses }}</span>
+              <span class="label">Losses</span>
+            </div>
+            
+            <div class="stat-item draw">
+              <span class="value">{{ user.draws }}</span>
+              <span class="label">Draws</span>
+            </div>
+
+          </div>
+        </section>
+      </div>
+    </div>
+
+  } @else if (userProfile$) {
+    <p>Loading profile...</p>
+  } @else {
+    <div class="error-message">
+      Unable to load profile.
+    </div>
+  }
+
+</div>

@@ -89,6 +89,20 @@ public class Game {
         return success;
     }
 
+    public void forfeit(Disc forfeitingPlayer) {
+        if (this.status != GameStatus.IN_PROGRESS) {
+            return;
+        }
+
+        this.status = GameStatus.FINISHED;
+        this.finishedAt = Instant.now();
+        
+        this.winner = (forfeitingPlayer == Disc.PLAYER_ONE) ? Disc.PLAYER_TWO : Disc.PLAYER_ONE;
+        
+        this.gameLogic.setStatus(GameStatus.FINISHED);
+        this.gameLogic.setWinner(this.winner);
+    }
+
     public UUID getGameId() {
         return gameId;
     }

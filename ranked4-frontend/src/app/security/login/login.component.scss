@@ -1,0 +1,128 @@
+.login-container,
+.register-container {
+  width: 400px;
+  margin: 0px auto;
+  padding: 2.5rem 3rem;
+  background-color: var(--surface-color, #fff);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+  color: var(--text-color, #333);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color, #007bff);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  }
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--primary-color-hover, #0056b3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  }
+
+  &:disabled {
+    background-color: #b0c4de;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+p {
+  text-align: center;
+  margin-top: 2rem;
+  color: #666;
+
+  a {
+    color: var(--primary-color, #007bff);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.error-message {
+  color: var(--error-color, #dc3545);
+  background-color: #fbebed;
+  border: 1px solid #f9c5c5;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.success-message {
+  color: #28a745;
+  background-color: #eaf7ed;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.error-validation-list {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background-color: #fef0f0;
+  border: 1px solid #f9c5c5;
+  border-radius: 4px;
+
+  .error-validation {
+    color: #c0392b;
+    font-size: 0.9em;
+    margin-top: 4px;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
