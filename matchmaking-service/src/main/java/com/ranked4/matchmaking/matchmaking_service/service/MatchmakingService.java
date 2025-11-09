@@ -51,6 +51,10 @@ public class MatchmakingService {
     }
 
     public void joinQueue(UUID userId) {
+        String userIdStr = userId.toString();
+        zSetOps.remove(MATCHMAKING_QUEUE_KEY, userIdStr);
+        hashOps.delete(MATCHMAKING_TIMESTAMPS_KEY, userIdStr);
+
         fetchUserProfile(userId)
             .flatMap(profile -> {
                 log.info("Recovered profile for {}: ELO={}", profile.getDisplayName(), profile.getElo());

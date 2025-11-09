@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public class MatchFoundEvent {
 
+    private boolean ranked = true;
+    private String origin = "RANKED";
     private UUID matchId;
     private UUID playerOneId;
     private UUID playerTwoId;
@@ -12,9 +14,15 @@ public class MatchFoundEvent {
     }
 
     public MatchFoundEvent(UUID playerOneId, UUID playerTwoId) {
+        this(playerOneId, playerTwoId, true, "RANKED");
+    }
+
+    public MatchFoundEvent(UUID playerOneId, UUID playerTwoId, boolean ranked, String origin) {
         this.matchId = UUID.randomUUID();
         this.playerOneId = playerOneId;
         this.playerTwoId = playerTwoId;
+        this.ranked = ranked;
+        this.origin = origin;
     }
 
     public UUID getMatchId() {
@@ -31,6 +39,22 @@ public class MatchFoundEvent {
 
     public void setPlayerOneId(UUID playerOneId) {
         this.playerOneId = playerOneId;
+    }
+
+    public boolean isRanked() {
+        return ranked;
+    }
+
+    public void setRanked(boolean ranked) {
+        this.ranked = ranked;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     public UUID getPlayerTwoId() {

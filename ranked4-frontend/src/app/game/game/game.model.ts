@@ -9,4 +9,5 @@ export interface GameUpdate {
   status: 'IN_PROGRESS' | 'FINISHED';
   winner: PlayerDisc | 'DRAW' | null;
   error: string | null;
+  origin?: string;
 }

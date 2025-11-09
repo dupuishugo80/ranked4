@@ -8,6 +8,8 @@ public class GameFinishedEvent {
     private UUID playerOneId;
     private UUID playerTwoId;
     private String winner;
+    private boolean ranked = true;
+    private String origin = "RANKED";
 
     public UUID getGameId() {
         return gameId;
@@ -41,6 +43,22 @@ public class GameFinishedEvent {
         this.winner = winner;
     }
 
+    public boolean isRanked() {
+        return ranked;
+    }
+
+    public void setRanked(boolean ranked) {
+        this.ranked = ranked;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
     @Override
     public String toString() {
         return "GameFinishedEvent{" +
@@ -48,6 +66,8 @@ public class GameFinishedEvent {
                 ", playerOneId=" + playerOneId +
                 ", playerTwoId=" + playerTwoId +
                 ", winner='" + winner + '\'' +
+                ", ranked=" + ranked +
+                ", origin='" + origin + '\'' +
                 '}';
     }
 }

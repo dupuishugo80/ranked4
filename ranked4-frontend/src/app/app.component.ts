@@ -20,7 +20,11 @@ export class AppComponent {
     this.router.navigate(['/login']);
   }
 
-  playGame(): void {
+  playRankedGame(): void {
     this.router.navigate(['/matchmaking']);
+  }
+
+  playPrivateGame(): void {
+    this.router.navigate(['/private-game']);
   }
 }

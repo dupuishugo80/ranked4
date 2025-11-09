@@ -39,11 +39,9 @@ ngOnInit(): void {
       this.elapsedTime = this.formatTime(seconds);
     });
 
-    if (this.gameService.gameStatus$.value === 'IDLE') {
-      this.status = 'Connecting to matchmaking service...';
+    if(this.gameService.gameStatus$.value !== 'QUEUEING') {
+      this.gameService.leaveGame();
       this.gameService.joinQueue();
-    } else if (this.gameService.gameStatus$.value === 'QUEUEING') {
-      this.status = 'Already in queue. Searching...';
     }
   }
 
@@ -68,5 +66,6 @@ ngOnInit(): void {
 
   cancelMatchmaking(): void {
     this.gameService.leaveGame();
+    this.router.navigate(['/home']);
   }
 }

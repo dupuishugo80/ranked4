@@ -16,6 +16,7 @@ public class GameUpdateDTO {
     private UUID playerOneId;
     private UUID playerTwoId;
     private String error;
+    private String origin;
 
     public GameUpdateDTO(Game game) {
         this.gameId = game.getGameId();
@@ -26,6 +27,7 @@ public class GameUpdateDTO {
         this.playerOneId = game.getPlayerOneId();
         this.playerTwoId = game.getPlayerTwoId();
         this.error = null;
+        this.origin = game.getOrigin();
     }
 
     public static GameUpdateDTO fromEntity(Game game) {
@@ -94,5 +96,13 @@ public class GameUpdateDTO {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 }

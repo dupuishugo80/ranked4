@@ -29,6 +29,9 @@
   
   .header-center {
     justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
   
   .header-right {

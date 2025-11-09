@@ -9,8 +9,12 @@
     
     <div class="header-center">
       @if (authService.isAuthenticated()) {
-        <button class="btn btn-primary btn-join-queue" (click)="playGame()">
+        <button class="btn btn-primary btn-join-queue" (click)="playRankedGame()">
           Find a ranked match
+        </button>
+        
+        <button class="btn btn-primary" (click)="playPrivateGame()">
+          Private match
         </button>
       }
     </div>

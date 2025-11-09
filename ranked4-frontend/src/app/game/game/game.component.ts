@@ -95,6 +95,12 @@ private updateGameMessage(state: GameUpdate): void {
 
     if (state.status === 'FINISHED') {
       this.isLoser = false;
+
+      if (state.origin === 'CANCELLED_NO_SHOW') {
+        this.gameMessage = "Connection issues for the other player, the match is canceled.";
+        return;
+      }
+
       if (state.winner === this.myDisc) {
         this.gameMessage = "You won!";
       } else if (state.winner === null) {
@@ -105,7 +111,7 @@ private updateGameMessage(state: GameUpdate): void {
       }
       return;
     }
-    
+
     if (this.isMyTurn) {
       this.gameMessage = "It's your turn!";
     } else {
@@ -148,6 +154,11 @@ private updateGameMessage(state: GameUpdate): void {
 
   isLastMove(r: number, c: number): boolean {
     return !!this.lastMove && this.lastMove.row === r && this.lastMove.col === c;
+  }
+
+  returnToProfile(): void {
+    this.gameService.leaveGame();
+    this.router.navigate(['/home']);
   }
   
   ngOnDestroy(): void {

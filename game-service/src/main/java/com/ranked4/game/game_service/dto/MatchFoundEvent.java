@@ -7,6 +7,8 @@ public class MatchFoundEvent {
     private UUID matchId;
     private UUID playerOneId;
     private UUID playerTwoId;
+    private boolean ranked = true;
+    private String origin = "RANKED";
 
     public UUID getMatchId() {
         return matchId;
@@ -32,12 +34,30 @@ public class MatchFoundEvent {
         this.playerTwoId = playerTwoId;
     }
 
+    public boolean isRanked() {
+        return ranked;
+    }
+
+    public void setRanked(boolean ranked) {
+        this.ranked = ranked;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
     @Override
     public String toString() {
         return "MatchFoundEvent{" +
                 "matchId=" + matchId +
                 ", playerOneId=" + playerOneId +
                 ", playerTwoId=" + playerTwoId +
+                ", ranked=" + ranked +
+                ", origin='" + origin + '\'' +
                 '}';
     }
 }

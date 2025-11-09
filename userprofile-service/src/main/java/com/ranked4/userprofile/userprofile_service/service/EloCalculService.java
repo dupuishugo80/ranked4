@@ -34,6 +34,11 @@ public class EloCalculService {
     public void handleGameFinished(GameFinishedEvent event) {
         log.info("GameFinishedEvent event received: {}", event);
 
+        if (!event.isRanked() || (event.getOrigin() != null && !"RANKED".equals(event.getOrigin()))) {
+            log.info("Skipping Elo update for non-ranked game {}", event.getGameId());
+            return;
+        }
+
         try {
             UserProfile profile1 = userProfileRepository.findByUserId(event.getPlayerOneId())
                 .orElseThrow(() -> new IllegalStateException("Profile not found for player 1: " + event.getPlayerOneId()));

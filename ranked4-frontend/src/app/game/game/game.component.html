@@ -126,11 +126,11 @@
 
   </div> <footer class="game-footer">
     @if (gameStatus === 'FINISHED') {
-      <button class="btn btn-primary" (click)="leaveGame()">
+      <button class="btn btn-primary" (click)="returnToProfile()">
         Return to Profile
       </button>
     } @else {
-      <button class="btn btn-outline" (click)="leaveGame()">
+      <button class="btn btn-outline" (click)="returnToProfile()">
         Forfeit
       </button>
     }

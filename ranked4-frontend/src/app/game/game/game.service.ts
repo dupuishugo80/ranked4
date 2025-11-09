@@ -19,6 +19,11 @@ export class GameService {
 
   private readonly API_URL_MATCHMAKING_JOIN = 'http://localhost:8080/api/matchmaking/join';
   private readonly API_URL_MATCHMAKING_LEAVE = 'http://localhost:8080/api/matchmaking/leave';
+  private readonly API_URL_PRIVATE_CREATE = 'http://localhost:8080/api/private-matches';
+  private readonly API_URL_PRIVATE_JOIN = 'http://localhost:8080/api/private-matches/join';
+  private readonly API_URL_PRIVATE_START = 'http://localhost:8080/api/private-matches/start';
+  private readonly API_URL_PRIVATE_LOBBY = 'http://localhost:8080/api/private-matches';
+  
   private readonly LOBBY_TOPIC = '/topic/lobby';
   private readonly LOBBY_REGISTER_DEST = '/app/lobby.register';
 
@@ -27,11 +32,15 @@ export class GameService {
   private matchmakingTimeout: any = null;
   private queueTimerSub: Subscription | null = null;
   private queueTimerInterval: any = null; 
+  private initialJoinTimeout: any = null;
 
   public gameState$ = new BehaviorSubject<GameUpdate | null>(null);
   public gameStatus$ = new BehaviorSubject<GameStatus>('IDLE');
   public gameError$ = new Subject<string>();
   public queueTime$ = new BehaviorSubject<number>(0);
+  private currentPrivateCodeSubject = new BehaviorSubject<string | null>(null);
+  public hasGuestJoined$ = new BehaviorSubject<boolean>(false);
+  public currentPrivateCode$ = this.currentPrivateCodeSubject.asObservable();
 
   private myUserId: string | null = null;
   private myGameId: string | null = null;
@@ -42,89 +51,210 @@ export class GameService {
     this.myUserId = this.authService.getUserId();
   }
 
-joinQueue(): void {
-    if (this.gameStatus$.value === 'QUEUEING') return;
+  joinQueue(): void {
+    if (this.gameStatus$.value === 'QUEUEING' || this.gameStatus$.value === 'IN_GAME') {
+      return;
+    }
 
     console.log('[WS] Tentative de connexion au WebSocket AVANT de rejoindre la file...');
     this.gameStatus$.next('QUEUEING');
     this.startQueueTimer();
     this.wsService.connect();
 
-    this.wsService.connectionState.pipe(
-      filter(state => state === 'CONNECTED'),
-      take(1)
-    ).subscribe(() => {
-      console.log('[WS] Connexion établie, abonnement au lobby...');
+    this.wsService.connectionState
+      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .subscribe(() => {
+        console.log('[WS] Connexion établie, abonnement au lobby...');
 
-      this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
-        playerId: this.myUserId
+        this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
+          playerId: this.myUserId
+        });
+        console.log(`[WS] Présence enregistrée pour ${this.myUserId}`);
+
+        this.subscribeToLobby();
+
+        this.initialJoinTimeout = setTimeout(() => {
+          if (this.gameStatus$.value !== 'QUEUEING') {
+            return;
+          }
+
+          console.log('[HTTP] Tentative de rejoindre la file d\'attente...');
+          this.http.post(this.API_URL_MATCHMAKING_JOIN, {}).subscribe({
+            next: () => {
+              console.log('[HTTP] En file d\'attente ! (et nous sommes déjà à l\'écoute)');
+              this.matchmakingTimeout = setTimeout(() => {
+                if (this.gameStatus$.value === 'QUEUEING') {
+                  console.warn('[Timeout] Le matchmaking a expiré (5 minutes).');
+                  this.gameError$.next('Aucun adversaire trouvé. Le matchmaking a expiré.');
+                  this.leaveGame();
+                }
+              }, 300000);
+            },
+            error: (err) => {
+              console.error('[HTTP] Erreur pour rejoindre la file:', err);
+              this.gameStatus$.next('IDLE');
+              this.cleanUp();
+            }
+          });
+        }, 200);
       });
-      console.log(`[WS] Présence enregistrée pour ${this.myUserId}`);
-      this.subscribeToLobby();
+  }
 
-      setTimeout(() => {
-        console.log('[HTTP] Tentative de rejoindre la file d\'attente...');
-        this.http.post(this.API_URL_MATCHMAKING_JOIN, {}).subscribe({
-          next: () => {
-            console.log('[HTTP] En file d\'attente ! (et nous sommes déjà à l\'écoute)');
-            
-            this.matchmakingTimeout = setTimeout(() => {
-              if (this.gameStatus$.value === 'QUEUEING') {
-                console.warn('[Timeout] Le matchmaking a expiré (5 minutes).');
-                this.gameError$.next("Aucun adversaire trouvé. Le matchmaking a expiré.");
-                this.leaveGame();
-              }
-            }, 300000);
+  createPrivateMatch(): void {
+    if (this.gameStatus$.value !== 'IDLE') return;
+
+    this.gameStatus$.next('QUEUEING');
+    this.wsService.connect();
+
+    this.wsService.connectionState
+      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .subscribe(() => {
+        this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
+          playerId: this.myUserId
+        });
+
+        this.subscribeToLobby();
+
+        this.http.post<{ code: string; expiresInSeconds: number }>(
+          this.API_URL_PRIVATE_CREATE,
+          {}
+        ).subscribe({
+          next: (res) => {
+            console.log('[PRIVATE] Lobby created with code', res.code);
+            this.currentPrivateCodeSubject.next(res.code);
           },
           error: (err) => {
-            console.error('[HTTP] Erreur pour rejoindre la file:', err);
-            this.gameStatus$.next('IDLE'); 
+            console.error('[PRIVATE] Failed to create private match', err);
+            this.gameStatus$.next('IDLE');
             this.cleanUp();
           }
         });
-      }, 1000);
+      });
+  }
+
+  joinPrivateMatch(code: string): void {
+    if (this.gameStatus$.value !== 'IDLE') return;
+
+    const normalized = code.trim().toUpperCase();
+    if (!normalized) return;
+
+    this.gameStatus$.next('QUEUEING');
+    this.wsService.connect();
+
+    this.wsService.connectionState
+      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .subscribe(() => {
+        this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
+          playerId: this.myUserId
+        });
+
+        this.subscribeToLobby();
+
+        this.http.post(
+          this.API_URL_PRIVATE_JOIN,
+          { code: normalized }
+        ).subscribe({
+          next: (res: any) => {
+            console.log('[PRIVATE] Joined lobby', res);
+          },
+          error: (err) => {
+            console.error('[PRIVATE] Failed to join private lobby', err);
+            this.gameStatus$.next('IDLE');
+            this.cleanUp();
+          }
+        });
+      });
+  }
+
+  startPrivateMatch(): void {
+    const code = this.currentPrivateCodeSubject.value;
+    if (!code) {
+      console.warn('[PRIVATE] No code to start');
+      return;
+    }
+
+    this.http.post<{ matchId: string }>(
+      this.API_URL_PRIVATE_START,
+      { code }
+    ).subscribe({
+      next: (res) => {
+        console.log('[PRIVATE] Start requested, matchId:', res.matchId);
+      },
+      error: (err) => {
+        console.error('[PRIVATE] Failed to start private match', err);
+      }
     });
   }
 
-  private subscribeToLobby(): void {
-    if (this.lobbySub) return;
+  checkPrivateLobby(): void {
+    const code = this.currentPrivateCodeSubject.value;
+    if (!code) return;
 
-    this.lobbySub = this.wsService.subscribeToTopic(this.LOBBY_TOPIC).subscribe(message => {
-      console.log('--- [LOBBY] Notification de match reçue ---');
-      const gameUpdate: GameUpdate = JSON.parse(message.body);
+    this.http.get<{ hostUserId: string; guestUserId: string | null }>(
+      `${this.API_URL_PRIVATE_LOBBY}/${code}`
+    ).subscribe({
+      next: (res) => {
+        this.hasGuestJoined$.next(!!res.guestUserId);
+      },
+      error: () => {
+        this.hasGuestJoined$.next(false);
+      }
+    });
+  }
+
+ private subscribeToLobby(): void {
+    if (this.lobbySub) {
+      return;
+    }
+
+    this.lobbySub = this.wsService.subscribeToTopic(this.LOBBY_TOPIC)
+      .subscribe(message => {
+        console.log('--- [LOBBY] Notification de match reçue ---');
+        const gameUpdate: GameUpdate = JSON.parse(message.body);
 
         if (!this.myUserId) {
-          console.error("myUserId est null, impossible de confirmer le match.");
+          console.error('myUserId est null, impossible de confirmer le match.');
           return;
         }
 
-        if (String(gameUpdate.playerOneId) === String(this.myUserId) || 
-          String(gameUpdate.playerTwoId) === String(this.myUserId)) {
+        const isMe =
+          String(gameUpdate.playerOneId) === String(this.myUserId) ||
+          String(gameUpdate.playerTwoId) === String(this.myUserId);
 
-          if (this.matchmakingTimeout) {
-            clearTimeout(this.matchmakingTimeout);
-            this.matchmakingTimeout = null;
-          }
-          
-          this.myGameId = gameUpdate.gameId;
-          this.myPlayerDisc = (gameUpdate.playerOneId === this.myUserId) ? 'PLAYER_ONE' : 'PLAYER_TWO';
+        console.log('[LOBBY] myUserId =', this.myUserId,
+                    'p1 =', gameUpdate.playerOneId,
+                    'p2 =', gameUpdate.playerTwoId,
+                    '=> isMe =', isMe);
 
-          console.log(`🎉 [MATCH] C'est notre match ! ID: ${this.myGameId}`);
-          console.log(`Nous sommes ${this.myPlayerDisc}.`);
-
-          this.gameStatus$.next('IN_GAME');
-          this.gameState$.next(gameUpdate);
-
-          this.sendJoinMessage(this.myGameId, this.myUserId!);
-          
-          this.subscribeToGameTopic(this.myGameId);
-
-          this.router.navigate(['/game', this.myGameId]);
-
-          this.lobbySub?.unsubscribe();
-          this.lobbySub = null;
+        if (!isMe) {
+          return;
         }
-    });
+
+        if (this.matchmakingTimeout) {
+          clearTimeout(this.matchmakingTimeout);
+          this.matchmakingTimeout = null;
+        }
+
+        this.myGameId = gameUpdate.gameId;
+        this.myPlayerDisc =
+          String(gameUpdate.playerOneId) === String(this.myUserId)
+            ? 'PLAYER_ONE'
+            : 'PLAYER_TWO';
+
+        console.log(`🎉 [MATCH] C'est notre match ! ID: ${this.myGameId}`);
+        console.log(`Nous sommes ${this.myPlayerDisc}.`);
+
+        this.gameStatus$.next('IN_GAME');
+        this.gameState$.next(gameUpdate);
+
+        this.sendJoinMessage(this.myGameId, this.myUserId!);
+        this.subscribeToGameTopic(this.myGameId);
+
+        this.router.navigate(['/game', this.myGameId]);
+
+        this.lobbySub?.unsubscribe();
+        this.lobbySub = null;
+      });
   }
 
   private startQueueTimer(): void {
@@ -143,7 +273,7 @@ joinQueue(): void {
   }
 
   private sendJoinMessage(gameId: string, playerId: string): void {
-    if (!this.myGameId || !this.myUserId) {
+    if (!gameId || !playerId) {
       console.error("Impossible de rejoindre, ID de partie ou d'utilisateur manquant.");
       return;
     }
@@ -189,27 +319,38 @@ joinQueue(): void {
     });
   }
 
+  startNewMatchmakingSession(): void {
+    this.cleanUp();
+    this.gameStatus$.next('IDLE');
+    this.gameState$.next(null);
+  }
+
   leaveGame(): void {
     if (this.gameStatus$.value === 'QUEUEING') {
-      console.log('[HTTP] Tentative de quitter la file d\'attente...');
-      
       this.http.post(this.API_URL_MATCHMAKING_LEAVE, {}).subscribe({
-        next: () => {
-          console.log('[HTTP] Quitté la file d\'attente.');
-        },
-        error: (err) => {
-          console.error('[HTTP] Erreur pour quitter la file:', err);
-        }
+        next: () => console.log('[HTTP] Quitté la file d\'attente.'),
+        error: (err) => console.error('[HTTP] Erreur pour quitter la file:', err)
       });
     }
 
     this.cleanUp();
     this.gameStatus$.next('IDLE');
     this.gameState$.next(null);
-    this.router.navigate(['/home']);
   }
-  
+
+  resetState(): void {
+    this.cleanUp();
+    this.gameStatus$.next('IDLE');
+    this.gameState$.next(null);
+    this.currentPrivateCodeSubject.next(null);
+  }
+
   private cleanUp(): void {
+    if (this.initialJoinTimeout) {
+      clearTimeout(this.initialJoinTimeout);
+      this.initialJoinTimeout = null;
+    }
+
     if (this.matchmakingTimeout) {
       clearTimeout(this.matchmakingTimeout);
       this.matchmakingTimeout = null;
@@ -225,7 +366,7 @@ joinQueue(): void {
     this.gameSub = null;
 
     this.wsService.disconnect();
-    
+
     this.myGameId = null;
     this.myPlayerDisc = null;
   }

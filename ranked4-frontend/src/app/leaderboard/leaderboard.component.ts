@@ -19,6 +19,8 @@ export class LeaderboardComponent implements OnInit {
   @Input() currentUserId: string | null = null;
   @Input() reloadTrigger: Observable<void> = new Observable<void>();
 
+  playerTrack = (index: number, player: UserProfile) => player.userId ?? index;
+
   ngOnInit(): void {
     this.fetchLeaderboard();
 

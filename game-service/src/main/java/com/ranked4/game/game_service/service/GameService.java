@@ -35,6 +35,11 @@ public class GameService {
 
     @Transactional
     public Game createGame(UUID gameId, UUID playerOneId, UUID playerTwoId) {
+        return createGame(gameId, playerOneId, playerTwoId, true, "RANKED");
+    }
+
+    @Transactional
+    public Game createGame(UUID gameId, UUID playerOneId, UUID playerTwoId, boolean ranked, String origin) {
         log.info("Creating new game (ID: {}) for {} vs {}", gameId, playerOneId, playerTwoId);
         
         if (gameRepository.existsById(gameId)) {
@@ -43,8 +48,10 @@ public class GameService {
         }
 
         Game game = new Game();
-        game.startGame(gameId, playerOneId, playerTwoId); 
-        
+        game.startGame(gameId, playerOneId, playerTwoId);
+        game.setRanked(ranked);
+        game.setOrigin(origin);
+
         return gameRepository.save(game);
     }
 
@@ -87,7 +94,9 @@ public class GameService {
                 updatedGame.getGameId(),
                 updatedGame.getPlayerOneId(),
                 updatedGame.getPlayerTwoId(),
-                updatedGame.getWinner()
+                updatedGame.getWinner(),
+                updatedGame.isRanked(),
+                updatedGame.getOrigin()
             );
             
             try {
@@ -134,7 +143,9 @@ public class GameService {
             finishedGame.getGameId(),
             finishedGame.getPlayerOneId(),
             finishedGame.getPlayerTwoId(),
-            finishedGame.getWinner()
+            finishedGame.getWinner(),
+            finishedGame.isRanked(),
+            finishedGame.getOrigin()
         );
         
         try {
@@ -149,5 +160,21 @@ public class GameService {
     public Game getGameState(UUID gameId) {
         return gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalStateException("Game not found: " + gameId));
+    }
+
+    @Transactional
+    public Game cancelGameNoShow(UUID gameId) {
+        Game game = gameRepository.findById(gameId)
+            .orElseThrow(() -> new IllegalStateException("Game not found: " + gameId));
+
+        if (!game.isRanked() || game.getStatus() != GameStatus.IN_PROGRESS) {
+            return game;
+        }
+
+        log.warn("Cancelling ranked game {} due to missing player(s) after grace period.", gameId);
+        game.setRanked(false);
+        game.setOrigin("CANCELLED_NO_SHOW");
+        game.setStatus(GameStatus.FINISHED);
+        return gameRepository.save(game);
     }
 }

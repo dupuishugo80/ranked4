@@ -44,6 +44,12 @@ public class Game {
 
     private Instant finishedAt;
 
+    @Column(nullable = false)
+    private boolean ranked = true;
+
+    @Column(nullable = false, length = 32)
+    private String origin = "RANKED";
+
     @Transient
     private GameBoard gameLogic = new GameBoard();
 
@@ -173,6 +179,22 @@ public class Game {
 
     public void setFinishedAt(Instant finishedAt) {
         this.finishedAt = finishedAt;
+    }
+
+    public boolean isRanked() {
+        return ranked;
+    }
+
+    public void setRanked(boolean ranked) {
+        this.ranked = ranked;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     public GameBoard getGameLogic() {

@@ -75,4 +75,9 @@ public class GameSessionRegistry {
         }
         return info;
     }
+
+    public boolean isPlayerConnectedToGame(UUID playerId, UUID gameId) {
+        return activeSessions.values().stream()
+            .anyMatch(info -> playerId.equals(info.getPlayerId()) && gameId.equals(info.getGameId()));
+    }
 }

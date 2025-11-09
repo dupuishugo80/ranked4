@@ -5,6 +5,7 @@ import { authGuard } from './guards/auth.guard';
 import { MatchmakingComponent } from './game/matchmaking/matchmaking.component';
 import { GameComponent } from './game/game/game.component';
 import { HomeComponent } from './home/home.component';
+import { PrivateGameComponent } from './game/private-game/private-game.component';
 
 export const routes: Routes = [
     { 
@@ -33,6 +34,11 @@ export const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'private-game',
+    component: PrivateGameComponent,
     canActivate: [authGuard]
   }
 ];
