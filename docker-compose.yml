@@ -143,20 +143,32 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   matchmaking-service:
-      build:
-        context: ./matchmaking-service
-        dockerfile: Dockerfile
-      container_name: matchmaking_service
-      ports:
-        - "8084:8080"
-      depends_on:
-        - redis
-        - kafka
-        - userprofile-service
-      networks:
-        - app-network
-      environment:
-        SPRING_PROFILES_ACTIVE: docker
-        SPRING_DATA_REDIS_HOST: redis
-        KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-        USER_PROFILE_SERVICE_URL: http://userprofile-service:8080
+    build:
+      context: ./matchmaking-service
+      dockerfile: Dockerfile
+    container_name: matchmaking_service
+    ports:
+      - "8084:8080"
+    depends_on:
+      - redis
+      - kafka
+      - userprofile-service
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      USER_PROFILE_SERVICE_URL: http://userprofile-service:8080
+  
+  frontend:
+    build:
+      context: ./ranked4-frontend
+      dockerfile: Dockerfile
+    container_name: ranked4_frontend
+    depends_on:
+      - gateway-service
+    ports:
+      - "4200:80"
+    networks:
+      - app-network
