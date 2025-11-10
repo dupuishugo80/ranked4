@@ -15,16 +15,25 @@ export class AppComponent {
   authService = inject(LoginService);
   private router = inject(Router);
 
+  public isMenuOpen = false;
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+    this.isMenuOpen = false;
   }
 
   playRankedGame(): void {
     this.router.navigate(['/matchmaking']);
+    this.isMenuOpen = false;
   }
 
   playPrivateGame(): void {
     this.router.navigate(['/private-game']);
+    this.isMenuOpen = false;
   }
 }

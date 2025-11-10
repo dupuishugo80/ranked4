@@ -291,3 +291,62 @@
     }
   }
 }
+
+@media (max-width: 600px) {
+
+  :host {
+    --cell-size: 10.5vw;
+    --gap-size: 2.5vw;
+  }
+  
+  .game-header .game-message {
+    font-size: 1.25rem;
+    text-align: center;
+    width: 100%;
+  }
+
+  .game-players {
+    max-width: 100%;
+    padding: 0 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .player-info {
+    padding: 0.5rem;
+    
+    .player-name {
+      font-size: 0.9rem;
+    }
+    .player-elo {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .player-info-vs {
+    font-size: 0.9rem;
+  }
+}
+
+
+@media (max-width: 370px) {
+  
+  :host {
+    --cell-size: 11vw;
+    --gap-size: 2vw;
+  }
+  
+  .player-info {
+    .player-avatar, .player-avatar-placeholder {
+      display: none;
+    }
+    
+    .player-name, .player-elo {
+      font-size: 0.8rem;
+    }
+    
+    .piece-indicator {
+      width: 15px;
+      height: 15px;
+    }
+  }
+}
