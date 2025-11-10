@@ -115,7 +115,7 @@
             @if (cell !== '_') {
               <div 
                 class="piece"
-                [class.piece-p1]="cell === '1'" [class.piece-p2]="cell === '2'" [class.drop-animation]="isLastMove(r, c)">
+                [class.piece-p1]="cell === '1'" [class.piece-p2]="cell === '2'" [class.last-move-piece]="isLastMove(r, c)">
               </div>
             }
           </div>

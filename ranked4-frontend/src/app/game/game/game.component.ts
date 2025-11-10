@@ -135,18 +135,18 @@ private updateGameMessage(state: GameUpdate): void {
   private updateLastMove(newBoardState: string): void {
     const newBoard = newBoardState.split('');
     const oldBoard = this.board.flat();
-    
-    if (oldBoard.length === 0) return; 
+
+    if (oldBoard.length === 0) {
+      this.lastMove = null;
+      return;
+    }
 
     for (let i = 0; i < newBoard.length; i++) {
-      if (newBoard[i] !== '_' && oldBoard[i] === '_') {
+      if (newBoard[i] !== '_' && oldBoard[i] !== newBoard[i]) {
         this.lastMove = {
           row: Math.floor(i / 7),
           col: i % 7
         };
-        setTimeout(() => {
-          this.lastMove = null;
-        }, 500);
         return;
       }
     }
