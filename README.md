@@ -23,6 +23,7 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 - Inscription
 - Connexion
 - Rejoindre la file d'attente classée.
+- Créer et rejoindre des parties entre amis (non classé).
 - Jouer une partie complète.
 
 ### 🧩 Authentification (`auth-service`)
@@ -41,14 +42,14 @@ Le tout est conteneurisé avec **Docker** pour un déploiement unifié et facile
 ### 🤝 Matchmaking (`matchmaking-service`)
 - Endpoints sécurisés : `/api/matchmaking/join` et `/leave`.
 - Logique de File d'attente : Utilise **Redis** (Sorted Set) pour stocker les joueurs en attente, triés par ELO.
+- Mode "Joueur vs Joueur" non classé
 
 ### 🕹️ Logique de jeu (`game-service`)
 - Logique de Jeu : Gestion complète de l'état du plateau, validation des coups, détection de victoire et de match nul.
 - Serveur WebSocket : Gère la partie en temps réel sur `/ws`.
 
 ## 🎯 Fonctionnalités Futures 
-- 🧠 **IA Service** : mode "Joueur vs IA".  
-- 🤝 **Partie entre amis** : mode "Joueur vs Joueur" non classé.  
+- 🧠 **IA Service** : mode "Joueur vs IA".
 
 ## 🧑‍💻 Mise en Place en Local
 
@@ -74,13 +75,15 @@ Définissez une clé JWT commune dans :
 `jwt.secret=votre_super_cle_secrete_de_plus_de_256_bits_ici` 
 
 Assurez-vous que les ports suivants sont libres :  
-`8080, 8081, 8082, 8083, 8084, 5432, 9092, 6379`
+`4200, 8080, 8081, 8082, 8083, 8084, 5432, 9092, 6379`
 
 ### 4. Lancement
 
 `docker-compose up --build` 
 
 Services accessibles :
+
+-   🖥️ **Frontend** → [http://localhost:4200](http://localhost:4200)
 
 -   🌐 **Gateway** → [http://localhost:8080](http://localhost:8080)
     
