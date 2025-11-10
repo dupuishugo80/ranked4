@@ -26,6 +26,7 @@ public class GatewayConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedOrigin("https://ranked4.socoolmen.me");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
