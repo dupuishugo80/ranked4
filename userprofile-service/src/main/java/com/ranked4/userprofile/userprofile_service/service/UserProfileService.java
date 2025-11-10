@@ -46,7 +46,7 @@ public class UserProfileService {
 
     @Transactional(readOnly = true)
     public List<LeaderboardEntryDTO> getLeaderboard() {
-        List<UserProfile> topProfiles = userProfileRepository.findTop5ByOrderByEloDesc();
+        List<UserProfile> topProfiles = userProfileRepository.findTop10ByOrderByEloDesc();
 
         return IntStream.range(0, topProfiles.size())
                 .mapToObj(index -> {
