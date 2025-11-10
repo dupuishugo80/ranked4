@@ -4,6 +4,7 @@
   margin: 0 auto;
   padding: 0 1rem;
 }
+
 .home-header {
   display: flex;
   align-items: center;
@@ -132,14 +133,20 @@
   gap: 2rem;
 }
 
-.home-column-left {
-  flex: 1;
+.home-column-left,
+.home-column-right {
+  flex: 1 1 100%;
   min-width: 300px;
 }
 
-.home-column-right {
-  flex: 2;
-  min-width: 300px;
+@media (min-width: 1140px) {
+  .home-column-left {
+    flex: 1;
+  }
+
+  .home-column-right {
+    flex: 1;
+  }
 }
 
 header.home-header,

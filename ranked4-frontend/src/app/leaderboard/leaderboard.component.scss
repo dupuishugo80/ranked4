@@ -50,6 +50,13 @@
       color: #333;
     }
 
+    .winrate {
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
     .avatar-small, .avatar-placeholder-small {
       width: 28px;
       height: 28px;
@@ -69,9 +76,12 @@
     &.is-you {
       background-color: #e6f2ff;
       border: 1px solid var(--primary-color);
-      .name, .elo {
+      .name, .elo, .winrate {
         color: var(--primary-color);
         font-weight: 700;
+      }
+      .winrate {
+        font-weight: 600;
       }
       .avatar-placeholder-small {
         background-color: var(--primary-color);

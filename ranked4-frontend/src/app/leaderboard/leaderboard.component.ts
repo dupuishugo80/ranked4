@@ -32,4 +32,12 @@ export class LeaderboardComponent implements OnInit {
   fetchLeaderboard(): void {
     this.leaderboard$ = this.leaderboardService.getLeaderboard();
   }
+
+  getWinRate(player: UserProfile): number {
+    const totalGames = player.wins + player.losses;
+    if (totalGames === 0) {
+      return 0;
+    }
+    return Math.round((player.wins / totalGames) * 100);
+  }
 }

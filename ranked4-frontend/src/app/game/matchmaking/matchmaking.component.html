@@ -1,18 +1,20 @@
-<div class="matchmaking-container">
-  <div class="spinner"></div>
-  <h2>Searching for a match...</h2>
+<div class="matchmaking-wrapper">
+  <div class="matchmaking-container">
+    <div class="spinner"></div>
+    <h2>Searching for a match...</h2>
 
-  <div class="timer">
-    {{ elapsedTime }}
+    <div class="timer">
+      {{ elapsedTime }}
+    </div>
+
+    <p class="status-message">{{ status }}</p>
+
+    <p class="timeout-info">
+      Matchmaking will automatically cancel if no opponent is found after 5 minutes.
+    </p>
+
+    <button class="btn btn-cancel" (click)="cancelMatchmaking()">
+      Cancel
+    </button>
   </div>
-
-  <p class="status-message">{{ status }}</p>
-
-  <p class="timeout-info">
-    Matchmaking will automatically cancel if no opponent is found after 5 minutes.
-  </p>
-
-  <button class="btn btn-cancel" (click)="cancelMatchmaking()">
-    Cancel
-  </button>
 </div>

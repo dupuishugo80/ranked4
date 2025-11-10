@@ -14,7 +14,8 @@
           }
 
           <span class="name">{{ player.displayName }}</span>
-          <span class="elo">{{ player.elo }} Elo</span>
+          <span class="elo">{{ player.elo }} R4P</span>
+          <span class="winrate">({{ getWinRate(player) }}%)</span>
         </li>
       }
     </ol>
