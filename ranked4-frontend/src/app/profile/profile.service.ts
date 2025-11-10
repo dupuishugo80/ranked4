@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { UserProfile } from "./profile.model";
+import { API_ENDPOINTS } from "../core/config/api.config";
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { UserProfile } from "./profile.model";
 export class ProfileService {
   private http = inject(HttpClient);
   
-  private readonly API_URL = 'http://localhost:8080/api/profiles';
+  private readonly API_URL = API_ENDPOINTS.PROFILES;
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.API_URL}/me`);

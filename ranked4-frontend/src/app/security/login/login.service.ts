@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { BehaviorSubject, catchError, filter, Observable, switchMap, take, tap, throwError } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest } from './login.model';
+import { API_ENDPOINTS } from '../../core/config/api.config';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 
@@ -17,7 +18,7 @@ interface JwtPayload {
   providedIn: 'root'
 })
 export class LoginService {
-  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly API_URL = API_ENDPOINTS.AUTH;
 
   private http = inject(HttpClient);
   private router = inject(Router);

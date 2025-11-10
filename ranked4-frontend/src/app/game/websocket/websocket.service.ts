@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { BehaviorSubject, filter, Observable, Subject, switchMap, take } from 'rxjs';
+import { WEBSOCKET_URL } from '../../core/config/api.config';
 
 type WsConnectionState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED';
 
@@ -9,7 +10,7 @@ type WsConnectionState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED';
 })
 export class WebSocketService {
   private stompClient: Client;
-  private readonly WEBSOCKET_URL = 'ws://localhost:8080/ws';
+  private readonly WEBSOCKET_URL = WEBSOCKET_URL;
 
   private connectionState$ = new BehaviorSubject<WsConnectionState>('DISCONNECTED');
 

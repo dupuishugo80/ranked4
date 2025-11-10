@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Subject, Subscription, filter, interval, take } from 'rxjs';
 import { WebSocketService } from '../websocket/websocket.service';
 import { GameUpdate, PlayerDisc } from './game.model';
+import { API_ENDPOINTS } from '../../core/config/api.config';
 import { LoginService } from '../../security/login/login.service';
 
 type GameStatus = 'IDLE' | 'QUEUEING' | 'IN_GAME' | 'FINISHED';
@@ -17,12 +18,12 @@ export class GameService {
   private authService = inject(LoginService);
   private router = inject(Router);
 
-  private readonly API_URL_MATCHMAKING_JOIN = 'http://localhost:8080/api/matchmaking/join';
-  private readonly API_URL_MATCHMAKING_LEAVE = 'http://localhost:8080/api/matchmaking/leave';
-  private readonly API_URL_PRIVATE_CREATE = 'http://localhost:8080/api/private-matches';
-  private readonly API_URL_PRIVATE_JOIN = 'http://localhost:8080/api/private-matches/join';
-  private readonly API_URL_PRIVATE_START = 'http://localhost:8080/api/private-matches/start';
-  private readonly API_URL_PRIVATE_LOBBY = 'http://localhost:8080/api/private-matches';
+  private readonly API_URL_MATCHMAKING_JOIN = API_ENDPOINTS.MATCHMAKING_JOIN;
+  private readonly API_URL_MATCHMAKING_LEAVE = API_ENDPOINTS.MATCHMAKING_LEAVE;
+  private readonly API_URL_PRIVATE_CREATE = API_ENDPOINTS.PRIVATE_MATCHES;
+  private readonly API_URL_PRIVATE_JOIN = API_ENDPOINTS.PRIVATE_MATCHES_JOIN;
+  private readonly API_URL_PRIVATE_START = API_ENDPOINTS.PRIVATE_MATCHES_START;
+  private readonly API_URL_PRIVATE_LOBBY = API_ENDPOINTS.PRIVATE_MATCHES_LOBBY;
   
   private readonly LOBBY_TOPIC = '/topic/lobby';
   private readonly LOBBY_REGISTER_DEST = '/app/lobby.register';
