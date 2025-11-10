@@ -46,6 +46,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.myDisc = this.gameService.getMyPlayerDisc();
     this.myProfile$ = this.profileService.getProfile();
 
+    this.playSound('match-found.mp3');
+
     this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
       if (state && !this.opponentIdSet) {
         const playerOneId = state.playerOneId;
@@ -60,7 +62,14 @@ export class GameComponent implements OnInit, OnDestroy {
       }
 
       this.gameStatus = state.status;
-      this.isMyTurn = state.nextPlayer === this.myDisc && state.status === 'IN_PROGRESS';
+      const newIsMyTurn = state.nextPlayer === this.myDisc && state.status === 'IN_PROGRESS';
+      
+      if (newIsMyTurn && !this.isMyTurn) {
+        if (this.board.length > 0) {
+          this.playSound('your-turn.mp3');
+        }
+      }
+      this.isMyTurn = newIsMyTurn;
       
       if (this.board.flat().join('') !== state.boardState) {
         this.updateLastMove(state.boardState);
@@ -159,6 +168,19 @@ private updateGameMessage(state: GameUpdate): void {
   returnToProfile(): void {
     this.gameService.leaveGame();
     this.router.navigate(['/home']);
+  }
+
+  playSound(soundFile: string): void {
+    try {
+      const audio = new Audio(`assets/sounds/${soundFile}`);
+      audio.volume = 0.05;
+      
+      audio.play().catch(e => {
+        console.warn(`[Audio] N'a pas pu jouer le son "${soundFile}". Une interaction utilisateur est peut-être requise.`, e);
+      });
+    } catch (e) {
+      console.error(`[Audio] Erreur lors de l'initialisation du son "${soundFile}".`, e);
+    }
   }
   
   ngOnDestroy(): void {
