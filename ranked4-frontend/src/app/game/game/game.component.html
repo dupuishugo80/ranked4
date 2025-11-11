@@ -1,14 +1,15 @@
 <div class="game-container">
 
-  <div class="game-players">
-    
+<div class="game-players">
+
+  <div class="player-column player-column-me">
     <div 
       class="player-info player-info-me"
       [class.is-player-one]="myDisc === 'PLAYER_ONE'"
       [class.is-player-two]="myDisc === 'PLAYER_TWO'"
       [class.is-active-turn]="isMyTurn && gameStatus === 'IN_PROGRESS'">
       
-@if (myProfile$ | async; as user) {
+      @if (myProfile$ | async; as user) {
         
         @if (user.avatarUrl) {
           <img [src]="user.avatarUrl" alt="Avatar" class="player-avatar">
@@ -38,11 +39,22 @@
         </div>
       }
     </div>
-
-    <div class="player-info-vs">
-      <span>VS</span>
+    
+    <div class="gif-bubble-container">
+      @if (myProfile$ | async; as me) {
+        @if (lastReactionsByPlayer[me.userId]; as r) {
+          <div class="gif-bubble"> <img [src]="r.assetPath" [alt]="r.gifCode" />
+          </div>
+        }
+      }
     </div>
+  </div>
 
+  <div class="player-info-vs">
+    <span>VS</span>
+  </div>
+
+  <div class="player-column player-column-opponent">
     <div 
       class="player-info player-info-opponent"
       [class.is-player-one]="isOpponentP1()"
@@ -77,7 +89,18 @@
       }
     </div>
 
-  </div> 
+    <div class="gif-bubble-container">
+      @if (opponentProfile$ | async; as opp) {
+        @if (lastReactionsByPlayer[opp.userId]; as r) {
+          <div class="gif-bubble"> <img [src]="r.assetPath" [alt]="r.gifCode" />
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+</div>
+
   <header class="game-header">
     <h2 
       class="game-message"
@@ -87,44 +110,57 @@
     </h2>
   </header>
 
-  <div class="board-area">
-    
-    <div class="game-controls">
-      @for (col of [0, 1, 2, 3, 4, 5, 6]; track $index) {
-        <div 
-          class="control-col"
-          (click)="playMove($index)"
-          [class.disabled]="!isMyTurn || gameStatus === 'FINISHED'">
-        </div>
-      }
-    </div>
+  <div class="game-board-layout">
 
-    <div class="game-board-visual">
-      @for (row of [0, 1, 2, 3, 4, 5]; track $index) {
+    <div class="board-area">
+      
+      <div class="game-controls">
         @for (col of [0, 1, 2, 3, 4, 5, 6]; track $index) {
-          <div class="board-cell-hole"></div>
-        }
-      }
-    </div>
-
-    <div class="game-board-pieces">
-      @for (row of board; track r; let r = $index) {
-        @for (cell of row; track c; let c = $index) {
-          
-          <div class="board-cell-piece">
-            @if (cell !== '_') {
-              <div 
-                class="piece"
-                [class.piece-p1]="cell === '1'" [class.piece-p2]="cell === '2'" [class.last-move-piece]="isLastMove(r, c)">
-              </div>
-            }
+          <div 
+            class="control-col"
+            (click)="playMove($index)"
+            [class.disabled]="!isMyTurn || gameStatus === 'FINISHED'">
           </div>
-
         }
-      }
+      </div>
+
+      <div class="game-board-visual">
+        @for (row of [0, 1, 2, 3, 4, 5]; track $index) {
+          @for (col of [0, 1, 2, 3, 4, 5, 6]; track $index) {
+            <div class="board-cell-hole"></div>
+          }
+        }
+      </div>
+
+      <div class="game-board-pieces">
+        @for (row of board; track r; let r = $index) {
+          @for (cell of row; track c; let c = $index) {
+            
+            <div class="board-cell-piece">
+              @if (cell !== '_') {
+                <div 
+                  class="piece"
+                  [class.piece-p1]="cell === '1'" [class.piece-p2]="cell === '2'" [class.last-move-piece]="isLastMove(r, c)">
+                </div>
+              }
+            </div>
+
+          }
+        }
+      </div>
+
     </div>
 
-  </div> <footer class="game-footer">
+    <div class="gif-menu" *ngIf="gameStatus === 'IN_PROGRESS' && gifs?.length">
+      <div
+        class="gif-menu-item"
+        *ngFor="let gif of gifs"
+        (click)="onGifClick(gif)">
+        <img [src]="gif.assetPath" [alt]="gif.description || gif.code" />
+      </div>
+    </div>
+  </div>
+  <footer class="game-footer">
     @if (gameStatus === 'FINISHED') {
       <button class="btn btn-primary" (click)="returnToProfile()">
         Return to Profile

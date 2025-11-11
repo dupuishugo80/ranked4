@@ -6,6 +6,7 @@ import { WebSocketService } from '../websocket/websocket.service';
 import { GameUpdate, PlayerDisc } from './game.model';
 import { API_ENDPOINTS } from '../../core/config/api.config';
 import { LoginService } from '../../security/login/login.service';
+import { GifReactionEvent } from '../gif/gif.model';
 
 type GameStatus = 'IDLE' | 'QUEUEING' | 'IN_GAME' | 'FINISHED';
 
@@ -42,6 +43,8 @@ export class GameService {
   private currentPrivateCodeSubject = new BehaviorSubject<string | null>(null);
   public hasGuestJoined$ = new BehaviorSubject<boolean>(false);
   public currentPrivateCode$ = this.currentPrivateCodeSubject.asObservable();
+  private gifReactionsSubject = new Subject<GifReactionEvent>();
+  public gifReactions$ = this.gifReactionsSubject.asObservable();
 
   private myUserId: string | null = null;
   private myGameId: string | null = null;
@@ -304,6 +307,16 @@ export class GameService {
       
       this.gameState$.next(gameUpdate);
     });
+    this.wsService
+      .subscribeToTopic(`/topic/game/${gameId}/gif`)
+      .subscribe((message) => {
+        try {
+          const event = JSON.parse(message.body) as GifReactionEvent;
+          this.gifReactionsSubject.next(event);
+        } catch (e) {
+          console.error('Invalid GIF reaction event', e);
+        }
+    });
   }
 
   makeMove(column: number): void {
@@ -318,6 +331,25 @@ export class GameService {
       playerId: this.myUserId,
       column: column
     });
+  }
+
+  sendGifReaction(gifCode: string): void {
+    const gameId = this.myGameId;
+    const playerId = this.myUserId;
+
+    if (!gameId || !playerId || this.gameStatus$.value !== 'IN_GAME') {
+      return;
+    }
+
+    this.wsService.connectionState
+      .pipe(filter(state => state !== 'CONNECTED'), take(1))
+      .subscribe(() => {
+        console.warn('[GIF] WebSocket non connecté, réaction ignorée');
+        return;
+      });
+
+    const payload = { gameId, playerId, gifCode };
+    this.wsService.publishMessage(`/app/game.gif/${gameId}`, payload);
   }
 
   startNewMatchmakingSession(): void {

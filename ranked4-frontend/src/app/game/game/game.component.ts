@@ -1,11 +1,13 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { filter, Observable, Subscription } from 'rxjs';
+import { filter, Observable, Subscription, timer } from 'rxjs';
 import { GameUpdate, PlayerDisc } from './game.model';
 import { GameService } from './game.service';
 import { UserProfile } from '../../profile/profile.model';
 import { ProfileService } from '../../profile/profile.service';
+import { Gif, GifReactionEvent } from '../gif/gif.model';
+import { GifService } from '../gif/gif.service';
 
 @Component({
   selector: 'app-game',
@@ -19,6 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public gameService = inject(GameService);
   private router = inject(Router);
   private profileService = inject(ProfileService);
+  private gifService = inject(GifService);
 
   public myProfile$: Observable<UserProfile> | null = null;
   public opponentProfile$: Observable<UserProfile> | null = null;
@@ -40,12 +43,37 @@ export class GameComponent implements OnInit, OnDestroy {
 
   public isLoser: boolean = false;
 
+  gifs: Gif[] = [];
+  lastReactionsByPlayer: { [playerId: string]: GifReactionEvent | null } = {};
+  private subs: Subscription[] = [];
+
   ngOnInit(): void {
+    const gifsSub = this.gifService.getGifs().subscribe(gifs => {
+      this.gifs = gifs;
+    });
+    this.subs.push(gifsSub);
+
+    const gifReactSub = this.gameService.gifReactions$
+      .pipe(filter((event): event is GifReactionEvent => !!event))
+      .subscribe(event => {
+        this.lastReactionsByPlayer[event.playerId] = event;
+
+        const currentTimestamp = event.timestamp;
+        const clearSub = timer(3000).subscribe(() => {
+          const current = this.lastReactionsByPlayer[event.playerId];
+          if (current && current.timestamp === currentTimestamp) {
+            this.lastReactionsByPlayer[event.playerId] = null;
+          }
+        });
+        this.subs.push(clearSub);
+      });
+    this.subs.push(gifReactSub);
+
     this.gameState$ = this.gameService.gameState$;
     
     this.myDisc = this.gameService.getMyPlayerDisc();
     this.myProfile$ = this.profileService.getProfile();
-
+    
     this.playSound('match-found.mp3');
 
     this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
@@ -170,6 +198,10 @@ private updateGameMessage(state: GameUpdate): void {
     this.router.navigate(['/home']);
   }
 
+  onGifClick(gif: Gif): void {
+    this.gameService.sendGifReaction(gif.code);
+  }
+
   playSound(soundFile: string): void {
     try {
       const audio = new Audio(`assets/sounds/${soundFile}`);
@@ -182,8 +214,9 @@ private updateGameMessage(state: GameUpdate): void {
       console.error(`[Audio] Erreur lors de l'initialisation du son "${soundFile}".`, e);
     }
   }
-  
+
   ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
     this.stateSub?.unsubscribe();
     this.errorSub?.unsubscribe();
   
