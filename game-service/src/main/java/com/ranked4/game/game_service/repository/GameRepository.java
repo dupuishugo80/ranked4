@@ -13,4 +13,5 @@ import com.ranked4.game.game_service.model.GameStatus;
 public interface GameRepository extends JpaRepository<Game, UUID> {
     List<Game> findByStatusAndPlayerOneIdOrPlayerTwoId(GameStatus status, UUID playerOneId, UUID playerTwoId);
     List<Game> findByStatus(GameStatus status);
+    List<Game> findTop5ByRankedTrueAndStatusOrderByFinishedAtDesc(GameStatus status);
 }

@@ -1,14 +1,24 @@
 package com.ranked4.game.game_service.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.ranked4.game.game_service.dto.GameFinishedEvent;
+import com.ranked4.game.game_service.dto.GameHistoryDTO;
+import com.ranked4.game.game_service.dto.SimpleUserProfileDTO;
 import com.ranked4.game.game_service.model.Disc;
 import com.ranked4.game.game_service.model.Game;
 import com.ranked4.game.game_service.model.GameStatus;
@@ -27,10 +37,14 @@ public class GameService {
 
     private final KafkaTemplate<String, GameFinishedEvent> kafkaTemplate;
 
-    public GameService(GameRepository gameRepository, MoveRepository moveRepository, KafkaTemplate<String, GameFinishedEvent> kafkaTemplate) {
+    private final RestTemplate restTemplate;
+    private final String USER_PROFILE_SERVICE_URL = "http://userprofile-service:8080/api/profiles/usernamefromids";
+
+    public GameService(GameRepository gameRepository, MoveRepository moveRepository, KafkaTemplate<String, GameFinishedEvent> kafkaTemplate, RestTemplate restTemplate) {
         this.gameRepository = gameRepository;
         this.moveRepository = moveRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.restTemplate = restTemplate;
     }
 
     @Transactional
@@ -176,5 +190,54 @@ public class GameService {
         game.setOrigin("CANCELLED_NO_SHOW");
         game.setStatus(GameStatus.FINISHED);
         return gameRepository.save(game);
+    }
+
+@Transactional(readOnly = true)
+    public List<GameHistoryDTO> getGameHistory() {        
+        List<Game> games = gameRepository.findTop5ByRankedTrueAndStatusOrderByFinishedAtDesc(GameStatus.FINISHED);
+        Set<UUID> playerIds = games.stream()
+                .flatMap(game -> Stream.of(game.getPlayerOneId(), game.getPlayerTwoId()))
+                .collect(Collectors.toSet());
+        Map<UUID, String> nameMap = getPlayerNameMap(playerIds);
+        return games.stream()
+                .map(game -> new GameHistoryDTO(
+                        game.getGameId(),
+                        game.getPlayerOneId(),
+                        nameMap.getOrDefault(game.getPlayerOneId(), "Inconnu"),
+                        game.getPlayerTwoId(),
+                        nameMap.getOrDefault(game.getPlayerTwoId(), "Inconnu"),
+                        game.getWinner(),
+                        game.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private Map<UUID, String> getPlayerNameMap(Set<UUID> playerIds) {
+        if (playerIds.isEmpty()) {
+            return Map.of();
+        }
+
+        try {
+            ParameterizedTypeReference<List<SimpleUserProfileDTO>> responseType = 
+                new ParameterizedTypeReference<>() {};
+
+            List<SimpleUserProfileDTO> profiles = restTemplate.exchange(
+                USER_PROFILE_SERVICE_URL,
+                HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(playerIds),
+                responseType
+            ).getBody();
+
+            if (profiles == null) {
+                return Map.of();
+            }
+            
+            return profiles.stream()
+                .collect(Collectors.toMap(SimpleUserProfileDTO::getUserId, SimpleUserProfileDTO::getDisplayName));
+
+        } catch (Exception e) {
+            log.error("Impossible de récupérer les profils utilisateur", e);
+            return Map.of();
+        }
     }
 }

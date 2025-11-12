@@ -5,11 +5,12 @@ import { BehaviorSubject, filter, Observable, Subject, Subscription, takeUntil }
 import { LeaderboardComponent } from "../leaderboard/leaderboard.component";
 import { ProfileService } from "../profile/profile.service";
 import { UserProfile } from "../profile/profile.model";
+import { GameHistoryComponent } from "../game-history/game-history.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, LeaderboardComponent],
+  imports: [CommonModule, LeaderboardComponent, GameHistoryComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

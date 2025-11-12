@@ -19,4 +19,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     Optional<UserProfile> findByDisplayName(String displayName);
 
     List<UserProfile> findTop10ByOrderByEloDesc();
+    List<UserProfile> findAllByUserIdIn(List<UUID> userIds);
 }

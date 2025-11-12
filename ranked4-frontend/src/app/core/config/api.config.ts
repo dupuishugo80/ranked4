@@ -11,4 +11,5 @@ export const API_ENDPOINTS = {
   PRIVATE_MATCHES_JOIN: `${API_BASE_URL}/private-matches/join`,
   PRIVATE_MATCHES_START: `${API_BASE_URL}/private-matches/start`,
   PRIVATE_MATCHES_LOBBY: `${API_BASE_URL}/private-matches`,
+  GAME: `${API_BASE_URL}/game`,
 } as const;

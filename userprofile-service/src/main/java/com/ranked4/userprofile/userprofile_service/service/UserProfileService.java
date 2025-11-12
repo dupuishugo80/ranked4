@@ -57,4 +57,11 @@ public class UserProfileService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<UserProfileDTO> getProfilesByUserIds(List<UUID> userIds) {
+        return userProfileRepository.findAllByUserIdIn(userIds).stream()
+                .map(UserProfileDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

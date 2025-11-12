@@ -4,9 +4,9 @@
     <div class="home-layout">
       <div class="home-column home-column-left">
         <app-leaderboard 
-        [currentUserId]="user.userId"
-        [reloadTrigger]="reloadTrigger$">
-      </app-leaderboard>
+          [currentUserId]="user.userId"
+          [reloadTrigger]="reloadTrigger$">
+        </app-leaderboard>
       </div>
 
       <div class="home-column home-column-right">
@@ -50,6 +50,11 @@
 
           </div>
         </section>
+        <app-game-history
+          [mode]="'global'"
+          [currentUserId]="user.userId"
+          [reloadTrigger]="reloadTrigger$">
+        </app-game-history>
       </div>
     </div>
 
