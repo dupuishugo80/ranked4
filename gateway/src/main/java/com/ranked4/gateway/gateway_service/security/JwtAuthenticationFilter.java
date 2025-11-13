@@ -12,6 +12,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
@@ -61,8 +62,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return this.onError(exchange, HttpStatus.UNAUTHORIZED);
         }
 
+        List<String> roles = jwtService.getRolesFromToken(token);
+
+        String rolesHeader = roles.stream().collect(Collectors.joining(","));
+
         ServerHttpRequest modifiedRequest = request.mutate()
                 .header("X-User-Id", userIdHeader)
+                .header("X-User-Roles", rolesHeader)
                 .build();
 
         return chain.filter(exchange.mutate().request(modifiedRequest).build());

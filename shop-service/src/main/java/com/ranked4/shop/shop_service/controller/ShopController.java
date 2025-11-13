@@ -1,17 +1,28 @@
 package com.ranked4.shop.shop_service.controller;
 
+import org.springframework.security.access.AccessDeniedException;
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ranked4.shop.shop_service.DTO.ProductDTO;
+import com.ranked4.shop.shop_service.DTO.ProductRequestDTO;
+import com.ranked4.shop.shop_service.model.Product;
 import com.ranked4.shop.shop_service.model.Purchase;
 import com.ranked4.shop.shop_service.service.ShopService;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/shop")
@@ -32,4 +43,34 @@ public class ShopController {
         Purchase purchase = shopService.buyProduct(userId, productId);
         return ResponseEntity.ok(purchase);
     }
+
+    @GetMapping("/products")
+    public ResponseEntity<Page<ProductDTO>> getProducts(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        
+        Page<ProductDTO> products = shopService.getProducts(pageable);
+        return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/products")
+    public Product createProduct(@RequestHeader(value = "X-User-Roles") String userRoles, @RequestBody ProductRequestDTO productRequestDTO) {
+        List<String> roles = List.of(userRoles.split(","));
+        if (!roles.contains("ROLE_ADMIN")) {
+            throw new AccessDeniedException("Access denied: requires the ROLE_ADMIN role.");
+        }
+        
+        if(productRequestDTO.getName() == null || productRequestDTO.getImageUrl() == null) {
+            throw new IllegalArgumentException("Product name and imageUrl cannot be null");
+        }
+
+        Product product = new Product();
+        product.setName(productRequestDTO.getName());
+        product.setDescription(productRequestDTO.getDescription());
+        product.setImageUrl(productRequestDTO.getImageUrl());
+        product.setPrice(productRequestDTO.getPrice());
+        
+        Product createdProduct = shopService.createProduct(product);
+        return createdProduct;
+    }
+    
 }

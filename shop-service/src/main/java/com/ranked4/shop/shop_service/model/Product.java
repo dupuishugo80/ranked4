@@ -22,13 +22,17 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
+    private String imageUrl;
+
+    @Column(nullable = false)
     private int price;
 
     public Product() {}
 
-    public Product(String name, String description, int price) {
+    public Product(String name, String description, String imageUrl, int price) {
         this.name = name;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.price = price;
     }
 
@@ -54,6 +58,14 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public int getPrice() {

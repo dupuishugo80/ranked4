@@ -2,12 +2,15 @@ package com.ranked4.shop.shop_service.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.ranked4.shop.shop_service.DTO.ProductDTO;
 import com.ranked4.shop.shop_service.model.Product;
 import com.ranked4.shop.shop_service.model.Purchase;
 import com.ranked4.shop.shop_service.repository.ProductRepository;
@@ -62,5 +65,16 @@ public class ShopService {
         newPurchase.setPriceAtPurchase(price);
         
         return purchaseRepository.save(newPurchase);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getProducts(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(pageable);
+        return productPage.map(ProductDTO::fromEntity);
+    }
+
+    @Transactional
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
     }
 }
