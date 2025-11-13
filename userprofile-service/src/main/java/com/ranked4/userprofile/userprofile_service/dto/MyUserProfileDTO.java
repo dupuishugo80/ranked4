@@ -1,7 +1,9 @@
 package com.ranked4.userprofile.userprofile_service.dto;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.ranked4.userprofile.userprofile_service.model.UserProfile;
 
@@ -16,6 +18,8 @@ public class MyUserProfileDTO {
     private int losses;
     private int draws;
     private int gold;
+    private DiscCustomizationDTO equippedDisc;
+    private List<DiscCustomizationDTO> ownedDiscs;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -29,6 +33,10 @@ public class MyUserProfileDTO {
         this.losses = entity.getLosses();
         this.draws = entity.getDraws();
         this.gold = entity.getGold();
+        this.equippedDisc = DiscCustomizationDTO.fromEntity(entity.getEquippedDisc());
+        this.ownedDiscs = entity.getOwnedDiscs().stream()
+                                .map(DiscCustomizationDTO::fromEntity)
+                                .collect(Collectors.toList());
         this.createdAt = entity.getCreatedAt();
         this.updatedAt = entity.getUpdatedAt();
     }
@@ -110,6 +118,22 @@ public class MyUserProfileDTO {
 
     public void setGold(int gold) {
         this.gold = gold;
+    }
+
+    public DiscCustomizationDTO getEquippedDisc() {
+        return equippedDisc;
+    }
+
+    public void setEquippedDisc(DiscCustomizationDTO equippedDisc) {
+        this.equippedDisc = equippedDisc;
+    }
+    
+    public List<DiscCustomizationDTO> getOwnedDiscs() {
+        return ownedDiscs;
+    }
+
+    public void setOwnedDiscs(List<DiscCustomizationDTO> ownedDiscs) {
+        this.ownedDiscs = ownedDiscs;
     }
 
     public Instant getCreatedAt() {

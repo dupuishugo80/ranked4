@@ -18,7 +18,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.ranked4.game.game_service.dto.GameFinishedEvent;
 import com.ranked4.game.game_service.dto.GameHistoryDTO;
-import com.ranked4.game.game_service.dto.SimpleUserProfileDTO;
+import com.ranked4.game.game_service.dto.GameUpdateDTO;
+import com.ranked4.game.game_service.dto.PlayerInfoDTO;
+import com.ranked4.game.game_service.dto.UserProfileDataDTO;
 import com.ranked4.game.game_service.model.Disc;
 import com.ranked4.game.game_service.model.Game;
 import com.ranked4.game.game_service.model.GameStatus;
@@ -38,7 +40,7 @@ public class GameService {
     private final KafkaTemplate<String, GameFinishedEvent> kafkaTemplate;
 
     private final RestTemplate restTemplate;
-    private final String USER_PROFILE_SERVICE_URL = "http://userprofile-service:8080/api/profiles/usernamefromids";
+    private final String USER_PROFILE_SERVICE_URL = "http://userprofile-service:8080/api/profiles/fullprofilesbyids";
 
     public GameService(GameRepository gameRepository, MoveRepository moveRepository, KafkaTemplate<String, GameFinishedEvent> kafkaTemplate, RestTemplate restTemplate) {
         this.gameRepository = gameRepository;
@@ -192,36 +194,47 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<GameHistoryDTO> getGameHistory() {        
         List<Game> games = gameRepository.findTop5ByRankedTrueAndStatusOrderByFinishedAtDesc(GameStatus.FINISHED);
         Set<UUID> playerIds = games.stream()
                 .flatMap(game -> Stream.of(game.getPlayerOneId(), game.getPlayerTwoId()))
                 .collect(Collectors.toSet());
-        Map<UUID, String> nameMap = getPlayerNameMap(playerIds);
+        Map<UUID, PlayerInfoDTO> infoMap = getPlayerInfoMap(playerIds);
         return games.stream()
-                .map(game -> new GameHistoryDTO(
+            .map(game -> {
+                PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
+                PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
+                String p1Name = (p1Info != null && p1Info.getDisplayName() != null) 
+                                ? p1Info.getDisplayName() 
+                                : "Inconnu";
+                
+                String p2Name = (p2Info != null && p2Info.getDisplayName() != null) 
+                                ? p2Info.getDisplayName() 
+                                : "Inconnu";
+                return new GameHistoryDTO(
                         game.getGameId(),
                         game.getPlayerOneId(),
-                        nameMap.getOrDefault(game.getPlayerOneId(), "Inconnu"),
+                        p1Name,
                         game.getPlayerTwoId(),
-                        nameMap.getOrDefault(game.getPlayerTwoId(), "Inconnu"),
+                        p2Name,
                         game.getWinner(),
                         game.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                );
+            })
+            .collect(Collectors.toList());
     }
 
-    private Map<UUID, String> getPlayerNameMap(Set<UUID> playerIds) {
+    public Map<UUID, PlayerInfoDTO> getPlayerInfoMap(Set<UUID> playerIds) {
         if (playerIds.isEmpty()) {
             return Map.of();
         }
 
         try {
-            ParameterizedTypeReference<List<SimpleUserProfileDTO>> responseType = 
+            ParameterizedTypeReference<List<UserProfileDataDTO>> responseType = 
                 new ParameterizedTypeReference<>() {};
 
-            List<SimpleUserProfileDTO> profiles = restTemplate.exchange(
+            List<UserProfileDataDTO> profiles = restTemplate.exchange(
                 USER_PROFILE_SERVICE_URL,
                 HttpMethod.POST,
                 new org.springframework.http.HttpEntity<>(playerIds),
@@ -233,11 +246,33 @@ public class GameService {
             }
             
             return profiles.stream()
-                .collect(Collectors.toMap(SimpleUserProfileDTO::getUserId, SimpleUserProfileDTO::getDisplayName));
+                .collect(Collectors.toMap(
+                    UserProfileDataDTO::getUserId, 
+                    UserProfileDataDTO::toPlayerInfoDTO
+                ));
 
         } catch (Exception e) {
             log.error("Impossible de récupérer les profils utilisateur", e);
             return Map.of();
         }
+    }
+
+    public GameUpdateDTO createGameUpdateDTO(Game game) {
+        Set<UUID> playerIds = Set.of(game.getPlayerOneId(), game.getPlayerTwoId());
+        Map<UUID, PlayerInfoDTO> infoMap = getPlayerInfoMap(playerIds);
+
+        PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
+        PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
+        
+        if (p1Info == null) {
+            p1Info = new PlayerInfoDTO();
+            p1Info.setUserId(game.getPlayerOneId());
+        }
+        if (p2Info == null) {
+            p2Info = new PlayerInfoDTO();
+            p2Info.setUserId(game.getPlayerTwoId());
+        }
+
+        return new GameUpdateDTO(game, p1Info, p2Info);
     }
 }

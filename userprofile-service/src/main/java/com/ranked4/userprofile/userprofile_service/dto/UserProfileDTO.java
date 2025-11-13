@@ -15,6 +15,7 @@ public class UserProfileDTO {
     private int wins;
     private int losses;
     private int draws;
+    private DiscCustomizationDTO equippedDisc;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -27,6 +28,7 @@ public class UserProfileDTO {
         this.wins = entity.getWins();
         this.losses = entity.getLosses();
         this.draws = entity.getDraws();
+        this.equippedDisc = DiscCustomizationDTO.fromEntity(entity.getEquippedDisc());
         this.createdAt = entity.getCreatedAt();
         this.updatedAt = entity.getUpdatedAt();
     }
@@ -100,6 +102,14 @@ public class UserProfileDTO {
 
     public void setDraws(int draws) {
         this.draws = draws;
+    }
+
+    public DiscCustomizationDTO getEquippedDisc() {
+        return equippedDisc;
+    }
+
+    public void setEquippedDisc(DiscCustomizationDTO equippedDisc) {
+        this.equippedDisc = equippedDisc;
     }
 
     public Instant getCreatedAt() {

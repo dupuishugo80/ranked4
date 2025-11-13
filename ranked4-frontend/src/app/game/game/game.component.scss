@@ -1,9 +1,6 @@
 :host {
   --board-color: #007bff;
   --hole-color: var(--bg-color);
-  --player-one-color: #dc3545;
-  --player-two-color: #ffc107;
-  
   --cell-size: 70px;
   --gap-size: 10px;
 }
@@ -110,13 +107,9 @@
       border-radius: 50%;
       box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2), 
                   inset 0 2px 3px rgba(255,255,255,0.3);
-
-      &.piece-p1 {
-        background-color: var(--player-one-color);
-      }
-      &.piece-p2 {
-        background-color: var(--player-two-color);
-      }
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
 
       &.last-move-piece {
         transform: scale(1.05);
@@ -343,13 +336,9 @@ margin: 0.25rem 0 0.75rem;
     flex-shrink: 0;
     border: 2px solid var(--surface-color); 
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
-
-    &.piece-p1 {
-      background-color: var(--player-one-color);
-    }
-    &.piece-p2 {
-      background-color: var(--player-two-color);
-    }
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
   
   &.is-active-turn {

@@ -1,19 +1,19 @@
 package com.ranked4.game.game_service.controller;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-import com.ranked4.game.game_service.dto.ErrorDTO;
 import com.ranked4.game.game_service.dto.GameUpdateDTO;
+import com.ranked4.game.game_service.dto.PlayerInfoDTO;
 import com.ranked4.game.game_service.dto.PlayerJoinDTO;
 import com.ranked4.game.game_service.dto.PlayerMoveDTO;
 import com.ranked4.game.game_service.model.Game;
@@ -38,27 +38,21 @@ public class GameSocketController {
     @MessageMapping("/game.move/{gameId}")
     public void handleMove(@DestinationVariable UUID gameId, PlayerMoveDTO move) {
         GameUpdateDTO gameUpdate;
+        Game game;
         try {
-            log.info("Move received for game {}: Player {} plays column {}", gameId, move.getPlayerId(), move.getColumn());
-
-            Game updatedGame = gameService.applyMove(
+            game = gameService.applyMove(
                 gameId,
                 move.getPlayerId(),
                 move.getColumn()
             );
-
-            gameUpdate = GameUpdateDTO.fromEntity(updatedGame);
-
-            log.info("Game {} state updated and broadcasted", gameId);
         }
         catch (IllegalStateException e) {
-            log.warn("Invalid move for game {}: {}", gameId, e.getMessage());
-            
-            Game currentGame = gameService.getGameState(gameId);
-            gameUpdate = GameUpdateDTO.fromEntity(currentGame);
-            
+            game = gameService.getGameState(gameId);
+            gameUpdate = createGameUpdateDTO(game);
             gameUpdate.setError(e.getMessage());
         }
+
+        gameUpdate = createGameUpdateDTO(game);
 
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
@@ -74,10 +68,23 @@ public class GameSocketController {
         gameSessionRegistry.registerSession(sessionId, gameId, playerId);
 
         Game currentGame = gameService.getGameState(gameId);
-        GameUpdateDTO gameUpdate = GameUpdateDTO.fromEntity(currentGame);
+        GameUpdateDTO gameUpdate = createGameUpdateDTO(currentGame);
         
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
+    }
+
+    private GameUpdateDTO createGameUpdateDTO(Game game) {
+        Set<UUID> playerIds = Set.of(game.getPlayerOneId(), game.getPlayerTwoId());
+        Map<UUID, PlayerInfoDTO> infoMap = gameService.getPlayerInfoMap(playerIds);
+
+        PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
+        PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
+        
+        if (p1Info == null) p1Info = new PlayerInfoDTO();
+        if (p2Info == null) p2Info = new PlayerInfoDTO();
+
+        return new GameUpdateDTO(game, p1Info, p2Info);
     }
 
     @MessageMapping("/lobby.register")

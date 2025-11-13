@@ -9,28 +9,27 @@
       [class.is-player-two]="myDisc === 'PLAYER_TWO'"
       [class.is-active-turn]="isMyTurn && gameStatus === 'IN_PROGRESS'">
       
-      @if (myProfile$ | async; as user) {
-        
-        @if (user.avatarUrl) {
-          <img [src]="user.avatarUrl" alt="Avatar" class="player-avatar">
+      @if (myPlayerInfo) {
+          
+          @if (myPlayerInfo.avatarUrl) {
+          <img [src]="myPlayerInfo.avatarUrl" alt="Avatar" class="player-avatar">
         } @else {
           <div class="player-avatar-placeholder">
-            {{ user.displayName.substring(0, 1) | uppercase }}
+            {{ myPlayerInfo.displayName.substring(0, 1) | uppercase }}
           </div>
         }
 
         <div class="player-details">
           <span class="player-name">
-            {{ user.displayName }}
+            {{ myPlayerInfo.displayName }}
             <span class="you-indicator">(You)</span>
           </span>
-          <span class="player-elo">{{ user.elo }} R4P</span>
+          <span class="player-elo">{{ myPlayerInfo.elo }} R4P</span>
         </div>
         
         <div 
           class="piece-indicator piece"
-          [class.piece-p1]="myDisc === 'PLAYER_ONE'"
-          [class.piece-p2]="myDisc === 'PLAYER_TWO'">
+          [ngStyle]="myDisc === 'PLAYER_ONE' ? playerOneDiscStyle : playerTwoDiscStyle">
         </div>
         
       } @else {
@@ -41,12 +40,9 @@
     </div>
     
     <div class="gif-bubble-container">
-      @if (myProfile$ | async; as me) {
-        @if (lastReactionsByPlayer[me.userId]; as r) {
-          <div class="gif-bubble"> <img [src]="r.assetPath" [alt]="r.gifCode" />
-          </div>
+      @if (myPlayerInfo && lastReactionsByPlayer[myPlayerInfo.userId]; as r) {
+          <div class="gif-bubble"> <img [src]="r.assetPath" [alt]="r.gifCode" /></div>
         }
-      }
     </div>
   </div>
 
@@ -61,25 +57,24 @@
       [class.is-player-two]="!isOpponentP1()"
       [class.is-active-turn]="!isMyTurn && gameStatus === 'IN_PROGRESS'">
       
-      @if (opponentProfile$ | async; as opponent) {
+      @if (opponentPlayerInfo) {
 
-        @if (opponent.avatarUrl) {
-          <img [src]="opponent.avatarUrl" alt="Avatar" class="player-avatar">
+        @if (opponentPlayerInfo.avatarUrl) {
+          <img [src]="opponentPlayerInfo.avatarUrl" alt="Avatar" class="player-avatar">
         } @else {
           <div class="player-avatar-placeholder">
-            {{ opponent.displayName.substring(0, 1) | uppercase }}
+            {{ opponentPlayerInfo.displayName.substring(0, 1) | uppercase }}
           </div>
         }
 
         <div class="player-details">
-          <span class="player-name">{{ opponent.displayName }}</span>
-          <span class="player-elo">{{ opponent.elo }} R4P</span>
+          <span class="player-name">{{ opponentPlayerInfo.displayName }}</span>
+          <span class="player-elo">{{ opponentPlayerInfo.elo }} R4P</span>
         </div>
 
         <div 
           class="piece-indicator piece"
-          [class.piece-p1]="isOpponentP1()"
-          [class.piece-p2]="!isOpponentP1()">
+          [ngStyle]="isOpponentP1() ? playerOneDiscStyle : playerTwoDiscStyle">
         </div>
         
       } @else {
@@ -90,12 +85,10 @@
     </div>
 
     <div class="gif-bubble-container">
-      @if (opponentProfile$ | async; as opp) {
-        @if (lastReactionsByPlayer[opp.userId]; as r) {
+      @if (opponentPlayerInfo && lastReactionsByPlayer[opponentPlayerInfo.userId]; as r) {
           <div class="gif-bubble"> <img [src]="r.assetPath" [alt]="r.gifCode" />
           </div>
         }
-      }
     </div>
   </div>
 
@@ -140,7 +133,8 @@
               @if (cell !== '_') {
                 <div 
                   class="piece"
-                  [class.piece-p1]="cell === '1'" [class.piece-p2]="cell === '2'" [class.last-move-piece]="isLastMove(r, c)">
+                  [ngStyle]="cell === '1' ? playerOneDiscStyle : playerTwoDiscStyle"
+                  [class.last-move-piece]="isLastMove(r, c)">
                 </div>
               }
             </div>

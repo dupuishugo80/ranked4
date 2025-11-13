@@ -1,6 +1,8 @@
 package com.ranked4.userprofile.userprofile_service.model;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -9,6 +11,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -48,6 +54,18 @@ public class UserProfile {
 
     @Column(nullable = false)
     private int gold = 0;
+
+    @ManyToOne
+    @JoinColumn(name = "equipped_disc_id", nullable = true)
+    private DiscCustomization equippedDisc;
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_owned_discs",
+        joinColumns = @JoinColumn(name = "user_profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "disc_customization_id")
+    )
+    private Set<DiscCustomization> ownedDiscs = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
@@ -152,6 +170,22 @@ public class UserProfile {
 
     public void setGold(int gold) {
         this.gold = gold;
+    }
+
+    public DiscCustomization getEquippedDisc() {
+        return equippedDisc;
+    }
+
+    public void setEquippedDisc(DiscCustomization equippedDisc) {
+        this.equippedDisc = equippedDisc;
+    }
+
+    public Set<DiscCustomization> getOwnedDiscs() {
+        return ownedDiscs;
+    }
+
+    public void setOwnedDiscs(Set<DiscCustomization> ownedDiscs) {
+        this.ownedDiscs = ownedDiscs;
     }
 
     public Instant getCreatedAt() {

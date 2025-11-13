@@ -47,7 +47,7 @@ public class WebSocketEventListener implements ApplicationListener<SessionDiscon
                 try {
                     Game updatedGame = gameService.forfeitGame(sessionInfo.getGameId(), sessionInfo.getPlayerId());
 
-                    GameUpdateDTO gameUpdate = GameUpdateDTO.fromEntity(updatedGame);
+                    GameUpdateDTO gameUpdate = gameService.createGameUpdateDTO(updatedGame);
                     String destination = "/topic/game/" + updatedGame.getGameId();
                     messagingTemplate.convertAndSend(destination, gameUpdate);
 

@@ -9,4 +9,10 @@ export interface UserProfile {
   wins: number;
   losses: number;
   draws: number;
+  disc: DiscCustomization | null;
+}
+
+export interface DiscCustomization {
+  type: 'color' | 'image';
+  value: string;
 }

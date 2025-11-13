@@ -9,19 +9,24 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ranked4.userprofile.userprofile_service.dto.DiscCustomizationDTO;
 import com.ranked4.userprofile.userprofile_service.dto.LeaderboardEntryDTO;
 import com.ranked4.userprofile.userprofile_service.dto.MyUserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.dto.UserProfileDTO;
+import com.ranked4.userprofile.userprofile_service.model.DiscCustomization;
 import com.ranked4.userprofile.userprofile_service.model.UserProfile;
+import com.ranked4.userprofile.userprofile_service.repository.DiscCustomizationRepository;
 import com.ranked4.userprofile.userprofile_service.repository.UserProfileRepository;
 
 @Service
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final DiscCustomizationRepository discCustomizationRepository;
 
-    public UserProfileService(UserProfileRepository userProfileRepository) {
+     public UserProfileService(UserProfileRepository userProfileRepository, DiscCustomizationRepository discCustomizationRepository) {
         this.userProfileRepository = userProfileRepository;
+        this.discCustomizationRepository = discCustomizationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -88,5 +93,42 @@ public class UserProfileService {
         } else {
             return false;
         }
+    }
+
+    @Transactional
+    public DiscCustomizationDTO createDiscCustomization(DiscCustomizationDTO dto) {
+        discCustomizationRepository.findByItemCode(dto.getItemCode())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("DiscCustomization with this itemCode already exists");
+                });
+
+        DiscCustomization entity = new DiscCustomization();
+        entity.setItemCode(dto.getItemCode());
+        entity.setDisplayName(dto.getDisplayName());
+        entity.setType(dto.getType());
+        entity.setValue(dto.getValue());
+
+        DiscCustomization saved = discCustomizationRepository.save(entity);
+        return new DiscCustomizationDTO(saved);
+    }
+
+    @Transactional
+    public MyUserProfileDTO addDiscToUser(UUID userId, String itemCode, boolean equip) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+        DiscCustomization disc = discCustomizationRepository.findByItemCode(itemCode)
+                .orElseThrow(() -> new RuntimeException("DiscCustomization not found"));
+
+        if (!profile.getOwnedDiscs().contains(disc)) {
+            profile.getOwnedDiscs().add(disc);
+        }
+
+        if (equip) {
+            profile.setEquippedDisc(disc);
+        }
+
+        UserProfile saved = userProfileRepository.save(profile);
+        return MyUserProfileDTO.fromEntity(saved);
     }
 }

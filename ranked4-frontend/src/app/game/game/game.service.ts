@@ -222,12 +222,12 @@ export class GameService {
         }
 
         const isMe =
-          String(gameUpdate.playerOneId) === String(this.myUserId) ||
-          String(gameUpdate.playerTwoId) === String(this.myUserId);
+          String(gameUpdate.playerOne.userId) === String(this.myUserId) ||
+          String(gameUpdate.playerTwo.userId) === String(this.myUserId);
 
         console.log('[LOBBY] myUserId =', this.myUserId,
-                    'p1 =', gameUpdate.playerOneId,
-                    'p2 =', gameUpdate.playerTwoId,
+                    'p1 =', gameUpdate.playerOne.userId,
+                    'p2 =', gameUpdate.playerTwo.userId,
                     '=> isMe =', isMe);
 
         if (!isMe) {
@@ -241,7 +241,7 @@ export class GameService {
 
         this.myGameId = gameUpdate.gameId;
         this.myPlayerDisc =
-          String(gameUpdate.playerOneId) === String(this.myUserId)
+          String(gameUpdate.playerOne.userId) === String(this.myUserId)
             ? 'PLAYER_ONE'
             : 'PLAYER_TWO';
 

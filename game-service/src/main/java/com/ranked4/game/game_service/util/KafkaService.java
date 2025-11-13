@@ -45,7 +45,7 @@ public class KafkaService {
 
             log.info("Send initial game state for match {} to players", event.getMatchId());
 
-            GameUpdateDTO gameUpdate = GameUpdateDTO.fromEntity(newGame);
+            GameUpdateDTO gameUpdate = gameService.createGameUpdateDTO(newGame);
             String lobbyDestination = "/topic/lobby";
             messagingTemplate.convertAndSend(lobbyDestination, gameUpdate);
 
@@ -78,7 +78,7 @@ public class KafkaService {
                 }
 
                 if (updated.getOrigin() != null && updated.getOrigin().equals("CANCELLED_NO_SHOW")) {
-                    GameUpdateDTO updateDTO = GameUpdateDTO.fromEntity(updated);
+                    GameUpdateDTO updateDTO = gameService.createGameUpdateDTO(updated);
                     messagingTemplate.convertAndSend("/topic/game/" + gameId, updateDTO);
                     log.warn("Ranked game {} cancelled due to no-show (p1Connected={}, p2Connected={}).", gameId, p1Connected, p2Connected);
                 }

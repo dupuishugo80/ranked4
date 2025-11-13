@@ -17,8 +17,10 @@ public class GameUpdateDTO {
     private UUID playerTwoId;
     private String error;
     private String origin;
+    private PlayerInfoDTO playerOne;
+    private PlayerInfoDTO playerTwo;
 
-    public GameUpdateDTO(Game game) {
+    public GameUpdateDTO(Game game, PlayerInfoDTO playerOne, PlayerInfoDTO playerTwo) {
         this.gameId = game.getGameId();
         this.boardState = game.getBoardState();
         this.status = game.getStatus();
@@ -28,12 +30,10 @@ public class GameUpdateDTO {
         this.playerTwoId = game.getPlayerTwoId();
         this.error = null;
         this.origin = game.getOrigin();
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
     }
-
-    public static GameUpdateDTO fromEntity(Game game) {
-        return new GameUpdateDTO(game);
-    }
-
+    
     public UUID getGameId() {
         return gameId;
     }
@@ -104,5 +104,21 @@ public class GameUpdateDTO {
 
     public void setOrigin(String origin) {
         this.origin = origin;
+    }
+
+    public PlayerInfoDTO getPlayerOne() {
+        return playerOne;
+    }
+
+    public void setPlayerOne(PlayerInfoDTO playerOne) {
+        this.playerOne = playerOne;
+    }
+
+    public PlayerInfoDTO getPlayerTwo() {
+        return playerTwo;
+    }
+
+    public void setPlayerTwo(PlayerInfoDTO playerTwo) {
+        this.playerTwo = playerTwo;
     }
 }

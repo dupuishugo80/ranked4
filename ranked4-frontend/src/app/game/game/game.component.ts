@@ -2,10 +2,9 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { filter, Observable, Subscription, timer } from 'rxjs';
-import { GameUpdate, PlayerDisc } from './game.model';
+import { GameUpdate, PlayerDisc, PlayerInfo } from './game.model';
 import { GameService } from './game.service';
-import { UserProfile } from '../../profile/profile.model';
-import { ProfileService } from '../../profile/profile.service';
+import { DiscCustomization, UserProfile } from '../../profile/profile.model';
 import { Gif, GifReactionEvent } from '../gif/gif.model';
 import { GifService } from '../gif/gif.service';
 
@@ -20,11 +19,16 @@ export class GameComponent implements OnInit, OnDestroy {
   
   public gameService = inject(GameService);
   private router = inject(Router);
-  private profileService = inject(ProfileService);
   private gifService = inject(GifService);
 
-  public myProfile$: Observable<UserProfile> | null = null;
-  public opponentProfile$: Observable<UserProfile> | null = null;
+  public playerOneDiscStyle: { [key: string]: string } = {};
+  public playerTwoDiscStyle: { [key: string]: string } = {};
+
+  public myPlayerInfo: PlayerInfo | null = null;
+  public opponentPlayerInfo: PlayerInfo | null = null;
+
+  private readonly DEFAULT_P1_COLOR = '#dc3545';
+  private readonly DEFAULT_P2_COLOR = '#ffc107';
 
   public gameState$!: Observable<GameUpdate | null>;
   public gameError$!: Observable<string>;
@@ -70,24 +74,22 @@ export class GameComponent implements OnInit, OnDestroy {
     this.subs.push(gifReactSub);
 
     this.gameState$ = this.gameService.gameState$;
-    
     this.myDisc = this.gameService.getMyPlayerDisc();
-    this.myProfile$ = this.profileService.getProfile();
     
     this.playSound('match-found.mp3');
 
     this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
-      if (state && !this.opponentIdSet) {
-        const playerOneId = state.playerOneId;
-        const playerTwoId = state.playerTwoId;
-
-        const opponentId = (this.myDisc === 'PLAYER_ONE') ? playerTwoId : playerOneId;
-          
-        if (opponentId) {
-          this.opponentProfile$ = this.profileService.getProfileById(opponentId);
-          this.opponentIdSet = true;
-        }
+      if (!state) return;
+      if (this.myDisc === 'PLAYER_ONE') {
+        this.myPlayerInfo = state.playerOne;
+        this.opponentPlayerInfo = state.playerTwo;
+      } else {
+        this.myPlayerInfo = state.playerTwo;
+        this.opponentPlayerInfo = state.playerOne;
       }
+
+      this.playerOneDiscStyle = this.createDiscStyle(state.playerOne.disc, 'P1');
+      this.playerTwoDiscStyle = this.createDiscStyle(state.playerTwo.disc, 'P2');
 
       this.gameStatus = state.status;
       const newIsMyTurn = state.nextPlayer === this.myDisc && state.status === 'IN_PROGRESS';
@@ -113,11 +115,13 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private parseBoardState(boardState: string): string[][] {
-    const rows = boardState.match(/.{1,7}/g) || [];
+    const frontendBoardState = boardState.replace(/0/g, '_');
+    const rows = frontendBoardState.match(/.{1,7}/g) || [];
     return rows.map(row => row.split(''));
   }
 
-private updateGameMessage(state: GameUpdate): void {
+  private updateGameMessage(state: GameUpdate): void {
+    console.log('[GAME STATE]', state);
     if (state.error && state.nextPlayer === this.myDisc) {
       this.gameMessage = `Error: ${state.error}`;
       this.isLoser = false;
@@ -170,7 +174,7 @@ private updateGameMessage(state: GameUpdate): void {
   }
 
   private updateLastMove(newBoardState: string): void {
-    const newBoard = newBoardState.split('');
+    const newBoardParsed = newBoardState.replace(/0/g, '_').split('');
     const oldBoard = this.board.flat();
 
     if (oldBoard.length === 0) {
@@ -178,8 +182,8 @@ private updateGameMessage(state: GameUpdate): void {
       return;
     }
 
-    for (let i = 0; i < newBoard.length; i++) {
-      if (newBoard[i] !== '_' && oldBoard[i] !== newBoard[i]) {
+  for (let i = 0; i < newBoardParsed.length; i++) {
+      if (newBoardParsed[i] !== '_' && oldBoard[i] !== newBoardParsed[i]) {
         this.lastMove = {
           row: Math.floor(i / 7),
           col: i % 7
@@ -213,6 +217,29 @@ private updateGameMessage(state: GameUpdate): void {
     } catch (e) {
       console.error(`[Audio] Erreur lors de l'initialisation du son "${soundFile}".`, e);
     }
+  }
+
+  private createDiscStyle(
+    disc: DiscCustomization | null, 
+    defaultPlayer: 'P1' | 'P2'
+  ): { [key: string]: string } {
+    if (!disc) {
+      const defaultColor = defaultPlayer === 'P1' ? this.DEFAULT_P1_COLOR : this.DEFAULT_P2_COLOR;
+      return { 'background-color': defaultColor };
+    }
+    if (disc.type === 'color') {
+      return { 'background-color': disc.value };
+    }
+    if (disc.type === 'image') {
+      return {
+        'background-image': `url(${disc.value})`,
+        'background-size': 'cover',
+        'background-position': 'center',
+        'background-repeat': 'no-repeat'
+      };
+    }
+    const defaultColor = defaultPlayer === 'P1' ? this.DEFAULT_P1_COLOR : this.DEFAULT_P2_COLOR;
+    return { 'background-color': defaultColor };
   }
 
   ngOnDestroy(): void {
