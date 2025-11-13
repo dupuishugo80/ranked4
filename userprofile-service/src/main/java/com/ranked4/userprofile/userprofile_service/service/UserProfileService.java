@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ranked4.userprofile.userprofile_service.dto.LeaderboardEntryDTO;
+import com.ranked4.userprofile.userprofile_service.dto.MyUserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.dto.UserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.model.UserProfile;
 import com.ranked4.userprofile.userprofile_service.repository.UserProfileRepository;
@@ -27,6 +28,12 @@ public class UserProfileService {
     public Optional<UserProfileDTO> getUserProfileByUserId(UUID userId) {
         return userProfileRepository.findByUserId(userId)
                 .map(UserProfileDTO::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<MyUserProfileDTO> getMyUserProfileByUserId(UUID userId) {
+        return userProfileRepository.findByUserId(userId)
+                .map(MyUserProfileDTO::fromEntity);
     }
 
     @Transactional
@@ -63,5 +70,23 @@ public class UserProfileService {
         return userProfileRepository.findAllByUserIdIn(userIds).stream()
                 .map(UserProfileDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean debitGold(UUID userId, int amountToDebit) {
+        if (amountToDebit <= 0) {
+            throw new IllegalArgumentException("Le montant à débiter doit être positif.");
+        }
+
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalStateException("Profil non trouvé pour l'utilisateur: " + userId));
+
+        if (profile.getGold() >= amountToDebit) {
+            profile.setGold(profile.getGold() - amountToDebit);
+            userProfileRepository.save(profile);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

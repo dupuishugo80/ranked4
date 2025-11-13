@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ranked4.userprofile.userprofile_service.dto.LeaderboardEntryDTO;
+import com.ranked4.userprofile.userprofile_service.dto.MyUserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.dto.UserProfileDTO;
 import com.ranked4.userprofile.userprofile_service.service.UserProfileService;
 
@@ -37,7 +39,7 @@ public class UserProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user ID format");
         }
 
-        Optional<UserProfileDTO> profileOpt = userProfileService.getUserProfileByUserId(userId);
+        Optional<MyUserProfileDTO> profileOpt = userProfileService.getMyUserProfileByUserId(userId);
 
         if (profileOpt.isPresent()) {
             return ResponseEntity.ok(profileOpt.get());
@@ -77,5 +79,32 @@ public class UserProfileController {
         }
         List<UserProfileDTO> profiles = userProfileService.getProfilesByUserIds(userIds);
         return ResponseEntity.ok(profiles);
+    }
+
+    @PostMapping("/debit-gold")
+    public ResponseEntity<?> debitGold(
+            @RequestHeader(value = "X-User-Id", required = true) String userIdHeader,
+            @RequestParam("amount") int amount) {
+        
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdHeader);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user ID format");
+        }
+
+        try {
+            boolean success = userProfileService.debitGold(userId, amount);
+            
+            if (success) {
+                return ResponseEntity.ok().build(); 
+            } else {
+                return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body("Insufficient funds");
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

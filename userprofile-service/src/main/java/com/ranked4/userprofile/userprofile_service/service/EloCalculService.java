@@ -19,6 +19,8 @@ public class EloCalculService {
     private final UserProfileRepository userProfileRepository;
 
     private static final int K_FACTOR = 30;
+    private static final int GOLD_ON_WIN = 30;
+    private static final int GOLD_ON_DRAW = 15;
 
     public EloCalculService(UserProfileRepository userProfileRepository) {
         this.userProfileRepository = userProfileRepository;
@@ -54,6 +56,8 @@ public class EloCalculService {
                 scorePlayer2 = 0.5;
                 profile1.setDraws(profile1.getDraws() + 1);
                 profile2.setDraws(profile2.getDraws() + 1);
+                profile1.setGold(profile1.getGold() + GOLD_ON_DRAW);
+                profile2.setGold(profile2.getGold() + GOLD_ON_DRAW);
                 log.info("Result: Draw");
 
             } else if (event.getWinner().equals("PLAYER_ONE")) {
@@ -61,6 +65,7 @@ public class EloCalculService {
                 scorePlayer2 = 0.0;
                 profile1.setWins(profile1.getWins() + 1);
                 profile2.setLosses(profile2.getLosses() + 1);
+                profile1.setGold(profile1.getGold() + GOLD_ON_WIN);
                 log.info("Result: Player 1 wins");
 
             } else {
@@ -68,6 +73,7 @@ public class EloCalculService {
                 scorePlayer2 = 1.0;
                 profile1.setLosses(profile1.getLosses() + 1);
                 profile2.setWins(profile2.getWins() + 1);
+                profile2.setGold(profile2.getGold() + GOLD_ON_WIN);
                 log.info("Result: Player 2 wins");
             }
             
@@ -78,10 +84,10 @@ public class EloCalculService {
 
             userProfileRepository.saveAll(List.of(profile1, profile2));
 
-            log.info("ELO updated. Player 1: {} ({} ELO), Player 2: {} ({} ELO)",
-
-            profile1.getDisplayName(), profile1.getElo(),
-            profile2.getDisplayName(), profile2.getElo());
+            log.info("ELO and Gold updated. Player 1: {} ({} ELO, {} Gold), Player 2: {} ({} ELO, {} Gold)",
+                profile1.getDisplayName(), profile1.getElo(), profile1.getGold(),
+                profile2.getDisplayName(), profile2.getElo(), profile2.getGold()
+            );
 
         } catch (Exception e) {
             log.error("Failed to calculate ELO for gameId {}: {}", event.getGameId(), e.getMessage());

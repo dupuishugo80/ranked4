@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "userprofile.service.base-url",
+  "type": "java.lang.String",
+  "description": "A description for 'userprofile.service.base-url'"
+}]}

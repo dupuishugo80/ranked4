@@ -46,6 +46,9 @@ public class UserProfile {
     @Column(nullable = false)
     private int draws = 0;
 
+    @Column(nullable = false)
+    private int gold = 0;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -53,7 +56,7 @@ public class UserProfile {
     private Instant updatedAt = Instant.now();
 
     public UserProfile(Long id, UUID userId, String displayName, String avatarUrl, int elo, int gamesPlayed, int wins,
-            int losses, int draws, Instant createdAt, Instant updatedAt) {
+            int losses, int draws, int gold, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.userId = userId;
         this.displayName = displayName;
@@ -63,6 +66,7 @@ public class UserProfile {
         this.wins = wins;
         this.losses = losses;
         this.draws = draws;
+        this.gold = gold;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -140,6 +144,14 @@ public class UserProfile {
 
     public void setDraws(int draws) {
         this.draws = draws;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public void setGold(int gold) {
+        this.gold = gold;
     }
 
     public Instant getCreatedAt() {
