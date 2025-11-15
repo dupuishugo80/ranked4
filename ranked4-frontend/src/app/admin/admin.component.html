@@ -1,0 +1,24 @@
+<div class="admin-container">
+  <h2>Administration</h2>
+
+  <div class="admin-grid">
+    <div class="admin-card">
+      <h3>Manage Users</h3>
+      <p>Access the list of users to edit their information or delete them.</p>
+      
+      <a [routerLink]="['/admin-users']" class="btn btn-primary">
+        Manage users
+      </a>
+    </div>
+
+    <div class="admin-card">
+      <h3>Manage Lootboxes</h3>
+      <p>Create, edit, or delete lootbox types, their contents, and their appearance probabilities.</p>
+      
+      <a [routerLink]="['/admin/lootbox']" class="btn btn-primary">
+        Manage lootboxes
+      </a>
+    </div>
+  </div>
+
+</div>

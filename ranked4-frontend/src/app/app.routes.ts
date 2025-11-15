@@ -6,6 +6,10 @@ import { MatchmakingComponent } from './game/matchmaking/matchmaking.component';
 import { GameComponent } from './game/game/game.component';
 import { HomeComponent } from './home/home.component';
 import { PrivateGameComponent } from './game/private-game/private-game.component';
+import { AdminComponent } from './admin/admin.component';
+import { adminGuard } from './guards/admin.guard';
+import { publicGuard } from './guards/public.guard';
+import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 
 export const routes: Routes = [
     { 
@@ -15,11 +19,13 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
+    canActivate: [publicGuard]
   },
   {
     path: 'register',
-    component: RegisterComponent
+    component: RegisterComponent,
+    canActivate: [publicGuard]
   },
   {
     path: 'matchmaking',
@@ -40,5 +46,15 @@ export const routes: Routes = [
     path: 'private-game',
     component: PrivateGameComponent,
     canActivate: [authGuard]
+  },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin-users',
+    component: AdminUsersComponent,
+    canActivate: [adminGuard]
   }
 ];

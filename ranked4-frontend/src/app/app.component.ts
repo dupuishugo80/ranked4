@@ -17,6 +17,10 @@ export class AppComponent {
 
   public isMenuOpen = false;
 
+  public get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
@@ -34,6 +38,11 @@ export class AppComponent {
 
   playPrivateGame(): void {
     this.router.navigate(['/private-game']);
+    this.isMenuOpen = false;
+  }
+
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
     this.isMenuOpen = false;
   }
 }

@@ -43,9 +43,10 @@ export class LoginService {
         error: () => console.error('Échec de la déconnexion API')
       });
     }
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    console.log('Déconnecté');
+    this.router.navigate(['/login']);
   }
 
   private storeTokens(tokens: AuthResponse): void {
@@ -63,6 +64,22 @@ export class LoginService {
 
   isAuthenticated(): boolean {
     return !!this.getAccessToken();
+  }
+
+  isAdmin(): boolean {
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const decodedToken = jwtDecode<JwtPayload & { roles?: string[] }>(token);
+      const roles = decodedToken.roles || [];
+      return roles.includes("ROLE_ADMIN");
+    } catch (error) {
+      console.error("Erreur lors du décodage du token", error);
+      return false;
+    }
   }
 
   getUserId(): string | null {
@@ -91,7 +108,6 @@ export class LoginService {
   }
 
   handle401Error(request: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> {
-    
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);

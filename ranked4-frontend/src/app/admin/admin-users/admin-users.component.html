@@ -1,0 +1,48 @@
+<div class="admin-container">
+  <h2>Admin - User Management</h2>
+
+  <div class="user-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>ELO</th>
+          <th>Stats (W/L/D)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of (users$ | async); track user.userId) {
+          <tr>
+            <td>
+              <div class="user-info-cell">
+                @if (user.avatarUrl) {
+                  <img [src]="user.avatarUrl" alt="Avatar" class="avatar">
+                } @else {
+                  <div class="avatar-placeholder">
+                    {{ user.displayName.charAt(0).toUpperCase() }}
+                  </div>
+                }
+                <span>{{ user.displayName }}</span>
+              </div>
+            </td>
+            <td>{{ user.elo }}</td>
+            <td>{{ user.wins }} / {{ user.losses }} / {{ user.draws }}</td>
+            <td class="actions-cell">
+              <button class="btn btn-secondary">
+                Edit
+              </button>
+              <button class="btn btn-danger">
+                Delete
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">No users found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

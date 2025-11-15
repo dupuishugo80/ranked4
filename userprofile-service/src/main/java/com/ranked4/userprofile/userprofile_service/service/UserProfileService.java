@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +73,11 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
+    public Page<UserProfileDTO> getAdminUserList(Pageable pageable) {
+        return userProfileRepository.findAll(pageable).map(UserProfileDTO::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
     public List<UserProfileDTO> getProfilesByUserIds(List<UUID> userIds) {
         return userProfileRepository.findAllByUserIdIn(userIds).stream()
                 .map(UserProfileDTO::fromEntity)
@@ -93,23 +100,6 @@ public class UserProfileService {
         } else {
             return false;
         }
-    }
-
-    @Transactional
-    public DiscCustomizationDTO createDiscCustomization(DiscCustomizationDTO dto) {
-        discCustomizationRepository.findByItemCode(dto.getItemCode())
-                .ifPresent(existing -> {
-                    throw new IllegalArgumentException("DiscCustomization with this itemCode already exists");
-                });
-
-        DiscCustomization entity = new DiscCustomization();
-        entity.setItemCode(dto.getItemCode());
-        entity.setDisplayName(dto.getDisplayName());
-        entity.setType(dto.getType());
-        entity.setValue(dto.getValue());
-
-        DiscCustomization saved = discCustomizationRepository.save(entity);
-        return new DiscCustomizationDTO(saved);
     }
 
     @Transactional

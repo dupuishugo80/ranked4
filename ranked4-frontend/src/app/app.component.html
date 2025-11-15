@@ -21,7 +21,12 @@
     <div class="header-right desktop-only">
       <nav>
         @if (authService.isAuthenticated()) {
-          <button (click)="logout()" class="btn btn-outline">
+          @if (isAdmin) {
+            <button (click)="goToAdmin()" class="btn btn-outline left-button">
+              Admin
+            </button>
+          }
+          <button (click)="logout()" class="btn btn-outline right-button">
             Logout
           </button>
         }
@@ -51,6 +56,12 @@
     </button>
     
     <hr class="menu-divider"> 
+
+    @if (isAdmin) {
+      <button (click)="goToAdmin()" class="btn btn-outline">
+        Admin
+      </button>
+    }
     
     <button (click)="logout()" class="btn btn-outline">
       Logout

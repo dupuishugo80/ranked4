@@ -37,6 +37,12 @@
   .header-right {
     justify-self: end;
   }
+
+  .header-right nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
   
   .btn-menu-toggle.mobile-only {
     display: none;

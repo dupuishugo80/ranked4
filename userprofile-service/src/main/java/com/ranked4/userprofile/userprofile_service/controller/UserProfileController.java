@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -69,6 +73,22 @@ public class UserProfileController {
         }
     }
 
+    @GetMapping("/adminUserList")
+    public ResponseEntity<?> getAdminUserList(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader(value = "X-User-Roles") String userRoles
+    ) {
+        isAdmin(userRoles);
+
+        Page<UserProfileDTO> profiles = userProfileService.getAdminUserList(pageable);
+
+        if (!profiles.isEmpty()) {
+            return ResponseEntity.ok(profiles);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No profiles found");
+        }
+    }
+
     @GetMapping("/leaderboard")
     public ResponseEntity<List<LeaderboardEntryDTO>> getLeaderboard() {
         List<LeaderboardEntryDTO> leaderboard = userProfileService.getLeaderboard();
@@ -111,30 +131,14 @@ public class UserProfileController {
         }
     }
 
-    @PostMapping("/discs")
-    public ResponseEntity<DiscCustomizationDTO> createDiscCustomization(
-            @RequestHeader(value = "X-User-Roles") String userRoles,
-            @RequestBody DiscCustomizationDTO request
-    ) {
+    public boolean isAdmin(String userRoles) {
+        if (userRoles == null || userRoles.isEmpty()) {
+            throw new AccessDeniedException("Access denied: requires the ROLE_ADMIN role.");
+        }
         List<String> roles = List.of(userRoles.split(","));
         if (!roles.contains("ROLE_ADMIN")) {
             throw new AccessDeniedException("Access denied: requires the ROLE_ADMIN role.");
         }
-
-        DiscCustomizationDTO created = userProfileService.createDiscCustomization(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @PostMapping("/discs/attach")
-    public ResponseEntity<MyUserProfileDTO> addDiscToCurrentUser(
-            @RequestHeader("X-User-Id") UUID userId,
-            @RequestBody AddDiscToUserRequestDTO request
-    ) {
-        MyUserProfileDTO updated = userProfileService.addDiscToUser(
-                userId,
-                request.getItemCode(),
-                request.isEquip()
-        );
-        return ResponseEntity.ok(updated);
+        return true;
     }
 }
