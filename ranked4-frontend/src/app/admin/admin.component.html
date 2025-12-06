@@ -4,7 +4,7 @@
   <div class="admin-grid">
     <div class="admin-card">
       <h3>Manage Users</h3>
-      <p>Access the list of users to edit their information or delete them.</p>
+      <p>Create, edit or delete users.</p>
       
       <a [routerLink]="['/admin-users']" class="btn btn-primary">
         Manage users
@@ -12,10 +12,19 @@
     </div>
 
     <div class="admin-card">
-      <h3>Manage Lootboxes</h3>
-      <p>Create, edit, or delete lootbox types, their contents, and their appearance probabilities.</p>
+      <h3>Manage Skins</h3>
+      <p>Create, edit or delete skins.</p>
       
-      <a [routerLink]="['/admin/lootbox']" class="btn btn-primary">
+      <a [routerLink]="['/admin-skins']" class="btn btn-primary">
+        Manage skins
+      </a>
+    </div>
+
+    <div class="admin-card">
+      <h3>Manage Lootboxes</h3>
+      <p>Create, edit or delete lootbox types.</p>
+      
+      <a [routerLink]="['/admin-lootboxes']" class="btn btn-primary">
         Manage lootboxes
       </a>
     </div>

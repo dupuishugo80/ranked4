@@ -160,6 +160,24 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       USER_PROFILE_SERVICE_URL: http://userprofile-service:8080
+
+  shop-service:
+    build:
+      context: ./shop-service
+      dockerfile: Dockerfile
+    container_name: shop_service
+    ports:
+      - "8085:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
+      SPRING_DATASOURCE_USERNAME: ranked4user
+      SPRING_DATASOURCE_PASSWORD: ranked4password
   
   frontend:
     build:

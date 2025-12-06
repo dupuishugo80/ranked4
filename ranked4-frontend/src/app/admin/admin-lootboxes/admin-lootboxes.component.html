@@ -1,0 +1,38 @@
+<div class="admin-container">
+  <h2>Admin - Lootbox Management</h2>
+
+  <div class="user-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (lootbox of (lootboxes$ | async); track lootbox.id) {
+          <tr>
+            <td>{{ lootbox.id }}</td>
+            <td>{{ lootbox.name }}</td>
+            <td>{{ lootbox.description }}</td>
+            <td>{{ lootbox.price }}</td> <td class="actions-cell">
+              <button class="btn btn-secondary">
+                Edit
+              </button>
+              <button class="btn btn-danger">
+                Delete
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">No lootboxes found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

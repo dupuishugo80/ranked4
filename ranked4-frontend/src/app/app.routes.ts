@@ -10,6 +10,8 @@ import { AdminComponent } from './admin/admin.component';
 import { adminGuard } from './guards/admin.guard';
 import { publicGuard } from './guards/public.guard';
 import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
+import { AdminLootboxesComponent } from './admin/admin-lootboxes/admin-lootboxes.component';
+import { AdminSkinsComponent } from './admin/admin-skin/admin-skins.component';
 
 export const routes: Routes = [
     { 
@@ -55,6 +57,16 @@ export const routes: Routes = [
   {
     path: 'admin-users',
     component: AdminUsersComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin-lootboxes',
+    component: AdminLootboxesComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin-skins',
+    component: AdminSkinsComponent,
     canActivate: [adminGuard]
   }
 ];
