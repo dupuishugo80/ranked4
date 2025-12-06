@@ -65,8 +65,8 @@ public class DiscCustomController {
     ) {
         MyUserProfileDTO updated = userProfileService.addDiscToUser(
                 userId,
-                request.getItemCode(),
-                request.isEquip()
+                request.itemCode(),
+                request.equip()
         );
         return ResponseEntity.ok(updated);
     }

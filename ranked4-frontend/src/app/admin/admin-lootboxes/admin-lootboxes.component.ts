@@ -10,7 +10,7 @@ import { AdminLootboxesService } from "./admin-lootboxes.service";
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-lootboxes.component.html',
-  styleUrls: ['./admin-lootboxes.component.scss']
+  styleUrl: './admin-lootboxes.component.scss'
 })
 export class AdminLootboxesComponent implements OnInit {
 

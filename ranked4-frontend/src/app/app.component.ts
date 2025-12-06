@@ -7,7 +7,7 @@ import { LoginService } from './security/login/login.service';
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule, RouterLink],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'ranked4-frontend';

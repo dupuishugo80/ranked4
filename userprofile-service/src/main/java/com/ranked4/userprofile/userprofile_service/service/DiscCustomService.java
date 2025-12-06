@@ -30,16 +30,16 @@ public class DiscCustomService {
 
     @Transactional
     public DiscCustomizationDTO createDiscCustomization(DiscCustomizationDTO dto) {
-        discCustomizationRepository.findByItemCode(dto.getItemCode())
+        discCustomizationRepository.findByItemCode(dto.itemCode())
                 .ifPresent(existing -> {
                     throw new IllegalArgumentException("DiscCustomization with this itemCode already exists");
                 });
 
         DiscCustomization entity = new DiscCustomization();
-        entity.setItemCode(dto.getItemCode());
-        entity.setDisplayName(dto.getDisplayName());
-        entity.setType(dto.getType());
-        entity.setValue(dto.getValue());
+        entity.setItemCode(dto.itemCode());
+        entity.setDisplayName(dto.displayName());
+        entity.setType(dto.type());
+        entity.setValue(dto.value());
 
         DiscCustomization saved = discCustomizationRepository.save(entity);
         return new DiscCustomizationDTO(saved);

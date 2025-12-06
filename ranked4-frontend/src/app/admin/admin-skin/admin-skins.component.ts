@@ -7,7 +7,7 @@ import { Observable } from "rxjs";
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-skins.component.html',
-  styleUrls: ['./admin-skins.component.scss']
+  styleUrl: './admin-skins.component.scss'
 })
 export class AdminSkinsComponent implements OnInit {
   ngOnInit(): void {}

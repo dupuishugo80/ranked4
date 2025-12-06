@@ -22,13 +22,11 @@ public class GifController {
     @GetMapping
     public List<GifDTO> getGifs() {
         return gifService.getActiveGifs().stream()
-            .map(gif -> {
-                GifDTO dto = new GifDTO();
-                dto.setId(gif.getId());
-                dto.setCode(gif.getCode());
-                dto.setAssetPath(gif.getAssetPath());
-                return dto;
-            })
+            .map(gif -> new GifDTO(
+                gif.getId(),
+                gif.getCode(),
+                gif.getAssetPath()
+            ))
             .toList();
     }
 }

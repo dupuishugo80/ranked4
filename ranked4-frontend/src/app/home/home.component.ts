@@ -12,7 +12,7 @@ import { GameHistoryComponent } from "../game-history/game-history.component";
   standalone: true,
   imports: [CommonModule, LeaderboardComponent, GameHistoryComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
   private profileService = inject(ProfileService);

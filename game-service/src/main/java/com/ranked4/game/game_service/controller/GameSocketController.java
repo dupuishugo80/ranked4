@@ -42,17 +42,15 @@ public class GameSocketController {
         try {
             game = gameService.applyMove(
                 gameId,
-                move.getPlayerId(),
-                move.getColumn()
+                move.playerId(),
+                move.column()
             );
+            gameUpdate = createGameUpdateDTO(game);
         }
         catch (IllegalStateException e) {
             game = gameService.getGameState(gameId);
-            gameUpdate = createGameUpdateDTO(game);
-            gameUpdate.setError(e.getMessage());
+            gameUpdate = createGameUpdateDTO(game).withError(e.getMessage());
         }
-
-        gameUpdate = createGameUpdateDTO(game);
 
         String destination = "/topic/game/" + gameId;
         messagingTemplate.convertAndSend(destination, gameUpdate);
@@ -61,7 +59,7 @@ public class GameSocketController {
     @MessageMapping("/game.join/{gameId}")
     public void joinGame(@DestinationVariable UUID gameId, PlayerJoinDTO joinMessage, SimpMessageHeaderAccessor headerAccessor) {
         String sessionId = headerAccessor.getSessionId();
-        UUID playerId = joinMessage.getPlayerId();
+        UUID playerId = joinMessage.playerId();
 
         log.info("Player {} (Session: {}) has joined the room for game {}", playerId, sessionId, gameId);
 
@@ -81,8 +79,8 @@ public class GameSocketController {
         PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
         PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
         
-        if (p1Info == null) p1Info = new PlayerInfoDTO();
-        if (p2Info == null) p2Info = new PlayerInfoDTO();
+        if (p1Info == null) p1Info = new PlayerInfoDTO(game.getPlayerOneId(), "Unknown", null, 0, null);
+        if (p2Info == null) p2Info = new PlayerInfoDTO(game.getPlayerTwoId(), "Unknown", null, 0, null);
 
         return new GameUpdateDTO(game, p1Info, p2Info);
     }
@@ -90,7 +88,7 @@ public class GameSocketController {
     @MessageMapping("/lobby.register")
     public void registerLobbyPresence(PlayerJoinDTO joinMessage, SimpMessageHeaderAccessor headerAccessor) {
         String sessionId = headerAccessor.getSessionId();
-        UUID playerId = joinMessage.getPlayerId();
+        UUID playerId = joinMessage.playerId();
         
         if (playerId == null || sessionId == null) {
             log.warn("Invalid attempt to register to the lobby.");

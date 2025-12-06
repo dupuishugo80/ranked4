@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './matchmaking.component.html',
-  styleUrls: ['./matchmaking.component.scss']
+  styleUrl: './matchmaking.component.scss'
 })
 export class MatchmakingComponent implements OnInit, OnDestroy {
   public gameService = inject(GameService);

@@ -59,15 +59,15 @@ public class ShopController {
             throw new AccessDeniedException("Access denied: requires the ROLE_ADMIN role.");
         }
         
-        if(productRequestDTO.getName() == null || productRequestDTO.getImageUrl() == null) {
+        if(productRequestDTO.name() == null || productRequestDTO.imageUrl() == null) {
             throw new IllegalArgumentException("Product name and imageUrl cannot be null");
         }
 
         Product product = new Product();
-        product.setName(productRequestDTO.getName());
-        product.setDescription(productRequestDTO.getDescription());
-        product.setImageUrl(productRequestDTO.getImageUrl());
-        product.setPrice(productRequestDTO.getPrice());
+        product.setName(productRequestDTO.name());
+        product.setDescription(productRequestDTO.description());
+        product.setImageUrl(productRequestDTO.imageUrl());
+        product.setPrice(productRequestDTO.price());
         
         Product createdProduct = shopService.createProduct(product);
         return createdProduct;

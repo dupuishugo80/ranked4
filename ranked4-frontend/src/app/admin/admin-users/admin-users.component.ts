@@ -11,7 +11,7 @@ import { ApiUserProfile, ApiUsersResponse } from "./admin-users.model";
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-users.component.html',
-  styleUrls: ['./admin-users.component.scss']
+  styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit {
 

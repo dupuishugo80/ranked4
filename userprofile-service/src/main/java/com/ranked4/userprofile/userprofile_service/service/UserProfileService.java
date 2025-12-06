@@ -65,9 +65,15 @@ public class UserProfileService {
         return IntStream.range(0, topProfiles.size())
                 .mapToObj(index -> {
                     UserProfile profile = topProfiles.get(index);
-                    LeaderboardEntryDTO dto = new LeaderboardEntryDTO(profile);
-                    dto.setRank(index + 1);
-                    return dto;
+                    return new LeaderboardEntryDTO(
+                        profile.getDisplayName(),
+                        profile.getAvatarUrl(),
+                        profile.getElo(),
+                        profile.getWins(),
+                        profile.getLosses(),
+                        profile.getDraws(),
+                        index + 1
+                    );
                 })
                 .collect(Collectors.toList());
     }

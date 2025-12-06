@@ -205,12 +205,12 @@ public class GameService {
             .map(game -> {
                 PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
                 PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
-                String p1Name = (p1Info != null && p1Info.getDisplayName() != null) 
-                                ? p1Info.getDisplayName() 
+                String p1Name = (p1Info != null && p1Info.displayName() != null)
+                                ? p1Info.displayName()
                                 : "Inconnu";
-                
-                String p2Name = (p2Info != null && p2Info.getDisplayName() != null) 
-                                ? p2Info.getDisplayName() 
+
+                String p2Name = (p2Info != null && p2Info.displayName() != null)
+                                ? p2Info.displayName()
                                 : "Inconnu";
                 return new GameHistoryDTO(
                         game.getGameId(),
@@ -247,7 +247,7 @@ public class GameService {
             
             return profiles.stream()
                 .collect(Collectors.toMap(
-                    UserProfileDataDTO::getUserId, 
+                    UserProfileDataDTO::userId,
                     UserProfileDataDTO::toPlayerInfoDTO
                 ));
 
@@ -263,14 +263,12 @@ public class GameService {
 
         PlayerInfoDTO p1Info = infoMap.get(game.getPlayerOneId());
         PlayerInfoDTO p2Info = infoMap.get(game.getPlayerTwoId());
-        
+
         if (p1Info == null) {
-            p1Info = new PlayerInfoDTO();
-            p1Info.setUserId(game.getPlayerOneId());
+            p1Info = new PlayerInfoDTO(game.getPlayerOneId(), "Unknown", null, 0, null);
         }
         if (p2Info == null) {
-            p2Info = new PlayerInfoDTO();
-            p2Info.setUserId(game.getPlayerTwoId());
+            p2Info = new PlayerInfoDTO(game.getPlayerTwoId(), "Unknown", null, 0, null);
         }
 
         return new GameUpdateDTO(game, p1Info, p2Info);

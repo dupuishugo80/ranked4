@@ -36,27 +36,28 @@ public class GameGifSocketController {
                                 Principal principal,
                                 StompHeaderAccessor accessor) {
 
-        if (!gameId.equals(message.getGameId())) {
+        if (!gameId.equals(message.gameId())) {
             return;
         }
 
-        if (!sessionRegistry.isPlayerConnectedToGame(message.getPlayerId(), gameId)) {
+        if (!sessionRegistry.isPlayerConnectedToGame(message.playerId(), gameId)) {
             return;
         }
 
-        var gifOpt = gifService.getByCode(message.getGifCode());
+        var gifOpt = gifService.getByCode(message.gifCode());
         if (gifOpt.isEmpty()) {
             return;
         }
 
         var gif = gifOpt.get();
 
-        GifReactionEvent event = new GifReactionEvent();
-        event.setGameId(gameId);
-        event.setPlayerId(message.getPlayerId());
-        event.setGifCode(gif.getCode());
-        event.setAssetPath(gif.getAssetPath());
-        event.setTimestamp(System.currentTimeMillis());
+        GifReactionEvent event = new GifReactionEvent(
+            gameId,
+            message.playerId(),
+            gif.getCode(),
+            gif.getAssetPath(),
+            System.currentTimeMillis()
+        );
 
         String topic = "/topic/game/" + gameId + "/gif";
         messagingTemplate.convertAndSend(topic, event);

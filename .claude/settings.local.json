@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s \"D:\\DEV\\ranked4\\ranked4-frontend\\src\\app\")",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(./mvnw clean package:*)",
+      "Bash(./mvnw clean:*)",
+      "Bash(cat:*)",
+      "Bash(./mvnw compile:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

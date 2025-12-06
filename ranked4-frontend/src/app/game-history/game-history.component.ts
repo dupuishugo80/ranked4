@@ -9,7 +9,7 @@ import { GameHistoryService } from "./game-history.service";
   standalone: true,
   imports: [CommonModule],
   templateUrl: './game-history.component.html',
-  styleUrls: ['./game-history.component.scss']
+  styleUrl: './game-history.component.scss'
 })
 export class GameHistoryComponent implements OnInit, OnChanges {
   private gameHistoryService = inject(GameHistoryService);

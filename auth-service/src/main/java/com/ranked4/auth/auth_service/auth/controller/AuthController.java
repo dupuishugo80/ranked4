@@ -27,9 +27,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         authService.register(
-            request.getUsername(),
-            request.getEmail(),
-            request.getPassword()
+            request.username(),
+            request.email(),
+            request.password()
         );
         return ResponseEntity.ok(new RegisterResponse("User registered successfully"));
     }
@@ -37,21 +37,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse authResponse = authService.login(
-            request.getUsername(),
-            request.getPassword()
+            request.username(),
+            request.password()
         );
         return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
-        AuthResponse authResponse = authService.refreshAccessToken(request.getRefreshToken());
+        AuthResponse authResponse = authService.refreshAccessToken(request.refreshToken());
         return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(@RequestBody RefreshTokenRequest request) {
-        authService.logout(request.getRefreshToken());
+        authService.logout(request.refreshToken());
         return ResponseEntity.ok(new LogoutResponse("Logged out successfully"));
     }
 }

@@ -13,7 +13,7 @@ import { GifService } from '../gif/gif.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.scss']
+  styleUrl: './game.component.scss'
 })
 export class GameComponent implements OnInit, OnDestroy {
   

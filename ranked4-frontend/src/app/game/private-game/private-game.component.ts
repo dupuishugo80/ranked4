@@ -10,7 +10,7 @@ selector: 'app-private-game',
 standalone: true,
 imports: [CommonModule, FormsModule],
 templateUrl: './private-game.component.html',
-styleUrls: ['./private-game.component.scss']
+styleUrl: './private-game.component.scss'
 })
 export class PrivateGameComponent implements OnInit, OnDestroy {
 

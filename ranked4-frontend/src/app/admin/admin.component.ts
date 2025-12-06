@@ -9,7 +9,7 @@ import { RouterLink } from "@angular/router";
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.scss']
+  styleUrl: './admin.component.scss'
 })
 export class AdminComponent implements OnInit {
 

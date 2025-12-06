@@ -9,7 +9,7 @@ import { UserProfile } from "../profile/profile.model";
   standalone: true,
   imports: [CommonModule],
   templateUrl: './leaderboard.component.html',
-  styleUrls: ['./leaderboard.component.scss']
+  styleUrl: './leaderboard.component.scss'
 })
 export class LeaderboardComponent implements OnInit {
   private leaderboardService = inject(LeaderboardService);

@@ -57,7 +57,7 @@ public class MatchmakingService {
 
         fetchUserProfile(userId)
             .flatMap(profile -> {
-                log.info("Recovered profile for {}: ELO={}", profile.getDisplayName(), profile.getElo());
+                log.info("Recovered profile for {}: ELO={}", profile.displayName(), profile.elo());
 
                 return findAndProcessMatch(profile)
                     .switchIfEmpty(Mono.defer(() -> { 
@@ -92,9 +92,9 @@ public class MatchmakingService {
     }
 
     private Mono<Boolean> findAndProcessMatch(UserProfileDTO searchingPlayer) {
-        double minElo = searchingPlayer.getElo() - ELO_RANGE;
-        double maxElo = searchingPlayer.getElo() + ELO_RANGE;
-        UUID searchingPlayerId = searchingPlayer.getUserId();
+        double minElo = searchingPlayer.elo() - ELO_RANGE;
+        double maxElo = searchingPlayer.elo() + ELO_RANGE;
+        UUID searchingPlayerId = searchingPlayer.userId();
 
         Set<String> compatiblePlayers = zSetOps.rangeByScore(MATCHMAKING_QUEUE_KEY, minElo, maxElo);
 
@@ -125,9 +125,9 @@ public class MatchmakingService {
     }
 
     private Mono<Void> addUserToQueue(UserProfileDTO profile) {
-        log.info("Adding {} to queue (ELO: {})", profile.getUserId(), profile.getElo());
-        String userIdStr = profile.getUserId().toString();
-        zSetOps.add(MATCHMAKING_QUEUE_KEY, userIdStr, profile.getElo());
+        log.info("Adding {} to queue (ELO: {})", profile.userId(), profile.elo());
+        String userIdStr = profile.userId().toString();
+        zSetOps.add(MATCHMAKING_QUEUE_KEY, userIdStr, profile.elo());
         hashOps.put(MATCHMAKING_TIMESTAMPS_KEY, userIdStr, Instant.now().toEpochMilli());
         return Mono.empty();
     }
