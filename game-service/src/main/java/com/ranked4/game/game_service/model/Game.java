@@ -1,6 +1,7 @@
 package com.ranked4.game.game_service.model;
 
 import java.time.Instant;
+import java.util.Random;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -66,7 +67,10 @@ public class Game {
         this.playerOneId = playerOneId;
         this.playerTwoId = playerTwoId;
         this.status = GameStatus.IN_PROGRESS;
-        this.nextPlayer = Disc.PLAYER_ONE;
+
+        Random random = new Random();
+        this.nextPlayer = random.nextBoolean() ? Disc.PLAYER_ONE : Disc.PLAYER_TWO;
+
         this.gameLogic = new GameBoard();
         this.boardState = this.gameLogic.serializeGrid();
     }
