@@ -7,6 +7,7 @@ import { GameService } from './game.service';
 import { DiscCustomization, UserProfile } from '../../profile/profile.model';
 import { Gif, GifReactionEvent } from '../gif/gif.model';
 import { GifService } from '../gif/gif.service';
+import { ProfileService } from '../../profile/profile.service';
 
 @Component({
   selector: 'app-game',
@@ -16,16 +17,19 @@ import { GifService } from '../gif/gif.service';
   styleUrl: './game.component.scss'
 })
 export class GameComponent implements OnInit, OnDestroy {
-  
+
   public gameService = inject(GameService);
   private router = inject(Router);
   private gifService = inject(GifService);
+  private profileService = inject(ProfileService);
 
   public playerOneDiscStyle: { [key: string]: string } = {};
   public playerTwoDiscStyle: { [key: string]: string } = {};
 
   public myPlayerInfo: PlayerInfo | null = null;
   public opponentPlayerInfo: PlayerInfo | null = null;
+
+  private initialElo: number = 0;
 
   private readonly DEFAULT_P1_COLOR = '#dc3545';
   private readonly DEFAULT_P2_COLOR = '#ffc107';
@@ -41,11 +45,13 @@ export class GameComponent implements OnInit, OnDestroy {
   public isMyTurn: boolean = false;
   public gameStatus: 'IN_PROGRESS' | 'FINISHED' = 'IN_PROGRESS';
   public gameMessage: string = "Loading the game...";
+  public goldEarned: number | null = null;
+  public eloChange: number | null = null;
 
   private stateSub: Subscription | null = null;
   private errorSub: Subscription | null = null;
   private opponentIdSet = false;
-  
+
   public lastMove: { row: number, col: number } | null = null;
 
   public isLoser: boolean = false;
@@ -78,7 +84,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.gameState$ = this.gameService.gameState$;
     this.myDisc = this.gameService.getMyPlayerDisc();
-    
+
+    this.profileService.getProfile().subscribe({
+      next: (profile) => {
+        this.initialElo = profile.elo;
+      },
+      error: (err) => console.error('Error loading initial profile:', err)
+    });
+
     this.playSound('match-found.mp3');
 
     this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
@@ -99,14 +112,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
       this.gameStatus = state.status;
       const newIsMyTurn = state.nextPlayer === this.myDisc && state.status === 'IN_PROGRESS';
-      
+
       if (newIsMyTurn && !this.isMyTurn) {
         if (this.board.length > 0) {
           this.playSound('your-turn.mp3');
         }
       }
       this.isMyTurn = newIsMyTurn;
-      
+
       if (this.board.flat().join('') !== state.boardState) {
         this.updateLastMove(state.boardState);
       }
@@ -145,17 +158,44 @@ export class GameComponent implements OnInit, OnDestroy {
 
       if (state.origin === 'CANCELLED_NO_SHOW') {
         this.gameMessage = "Connection issues for the other player, the match is canceled.";
+        this.goldEarned = null;
+        this.eloChange = null;
         return;
       }
 
+      const isRanked = state.origin === 'RANKED';
+      const goldWin = isRanked ? 100 : 50;
+      const goldDraw = isRanked ? 50 : 25;
+
+      // Déterminer le message et le gold gagné
       if (state.winner === this.myDisc) {
         this.gameMessage = "You won!";
+        this.goldEarned = goldWin;
       } else if (state.winner === null) {
         this.gameMessage = "It's a draw!";
+        this.goldEarned = goldDraw;
       } else {
         this.gameMessage = "You lost...";
+        this.goldEarned = 0;
         this.isLoser = true;
       }
+
+      if (isRanked) {
+        setTimeout(() => {
+          this.profileService.getProfile().subscribe({
+            next: (profile) => {
+              this.eloChange = profile.elo - this.initialElo;
+            },
+            error: (err) => {
+              console.error('Error loading profile for ELO calculation:', err);
+              this.eloChange = null;
+            }
+          });
+        }, 1000);
+      } else {
+        this.eloChange = null;
+      }
+
       return;
     }
 
@@ -170,13 +210,13 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!this.isMyTurn || this.gameStatus === 'FINISHED') {
       return;
     }
-    
+
     console.log(`[ACTION] Clic sur colonne ${colIndex}`);
     this.gameService.makeMove(colIndex);
   }
 
   leaveGame(): void {
-    this.gameService.leaveGame(); 
+    this.gameService.leaveGame();
   }
 
   private updateLastMove(newBoardState: string): void {
@@ -188,7 +228,7 @@ export class GameComponent implements OnInit, OnDestroy {
       return;
     }
 
-  for (let i = 0; i < newBoardParsed.length; i++) {
+    for (let i = 0; i < newBoardParsed.length; i++) {
       if (newBoardParsed[i] !== '_' && oldBoard[i] !== newBoardParsed[i]) {
         this.lastMove = {
           row: Math.floor(i / 7),
@@ -216,7 +256,7 @@ export class GameComponent implements OnInit, OnDestroy {
     try {
       const audio = new Audio(`assets/sounds/${soundFile}`);
       audio.volume = 0.05;
-      
+
       audio.play().catch(e => {
         console.warn(`[Audio] N'a pas pu jouer le son "${soundFile}". Une interaction utilisateur est peut-être requise.`, e);
       });
@@ -227,7 +267,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private areDiscsIdentical(): boolean {
     if (!this.playerOneDisc && !this.playerTwoDisc) {
-      return true;
+      return false;
     }
 
     if (!this.playerOneDisc || !this.playerTwoDisc) {
@@ -276,7 +316,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
     this.stateSub?.unsubscribe();
     this.errorSub?.unsubscribe();
-  
+
     if (this.gameStatus === 'IN_PROGRESS') {
       this.gameService.leaveGame();
     }

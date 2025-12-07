@@ -22,6 +22,7 @@
   transition: all 0.3s ease;
   padding: 0.5rem 1.5rem;
   border-radius: 8px;
+  text-align: center;
 
   &.my-turn {
     color: var(--primary-color);
@@ -32,8 +33,27 @@
     background-color: #eaf7ed;
   }
   &.loser {
-    color: var(--error-color, #dc3545); 
+    color: var(--error-color, #dc3545);
     background-color: #fbebed;
+  }
+
+  .message-main {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .message-rewards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+
+    .reward-gold,
+    .reward-elo {
+      line-height: 1.4;
+    }
   }
 }
 

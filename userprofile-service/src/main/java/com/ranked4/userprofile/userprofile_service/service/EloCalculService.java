@@ -34,9 +34,13 @@ public class EloCalculService {
 
     @Transactional
     public void handleGameFinished(GameFinishedEvent event) {
-        log.info("GameFinishedEvent event received: {}", event);
-
         boolean isRanked = event.isRanked() && (event.getOrigin() == null || "RANKED".equals(event.getOrigin()));
+
+        if (!isRanked) {
+            return;
+        }
+
+        log.info("GameFinishedEvent event received: {}", event);
 
         try {
             UserProfile profile1 = userProfileRepository.findByUserId(event.getPlayerOneId())
