@@ -49,8 +49,8 @@ export class ShopComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserProfile();
-    this.loadProducts(this.skinsCurrentPage);
-    this.loadLootboxes(this.lootboxesCurrentPage);
+    this.loadAllProducts();
+    this.loadAllLootboxes();
   }
 
   private loadUserProfile(): void {
@@ -65,26 +65,22 @@ export class ShopComponent implements OnInit {
     });
   }
 
-  private loadProducts(page: number): void {
-    this.skinsCurrentPage = page;
-    this.shopService.getProducts(page, this.skinsPageSize).subscribe({
+  private loadAllProducts(): void {
+    this.shopService.getProducts(0, 1000).subscribe({
       next: (response: PageResponse<Skin>) => {
-        console.log('Loaded products:', response);
+        console.log('Loaded all products:', response);
         this.allProducts = response.content;
-        this.skinsTotalPages = response.totalPages;
         this.applyFilters();
       },
       error: (err) => console.error('Error loading products:', err)
     });
   }
 
-  private loadLootboxes(page: number): void {
-    this.lootboxesCurrentPage = page;
-    this.shopService.getLootboxes(page, this.lootboxesPageSize).subscribe({
+  private loadAllLootboxes(): void {
+    this.shopService.getLootboxes(0, 1000).subscribe({
       next: (response: PageResponse<any>) => {
-        console.log('Loaded lootboxes:', response);
+        console.log('Loaded all lootboxes:', response);
         this.allLootboxes = response.content;
-        this.lootboxesTotalPages = response.totalPages;
         this.applyLootboxSort();
       },
       error: (err) => console.error('Error loading lootboxes:', err)
@@ -226,6 +222,16 @@ export class ShopComponent implements OnInit {
     return 'COMMON';
   }
 
+  onFilterChange(): void {
+    this.skinsCurrentPage = 0;
+    this.applyFilters();
+  }
+
+  onLootboxSortChange(): void {
+    this.lootboxesCurrentPage = 0;
+    this.applyLootboxSort();
+  }
+
   applyFilters(): void {
     let filtered = [...this.allProducts];
 
@@ -239,7 +245,17 @@ export class ShopComponent implements OnInit {
       filtered.sort((a, b) => b.price - a.price);
     }
 
-    this.products.set(filtered);
+    this.skinsTotalPages = Math.ceil(filtered.length / this.skinsPageSize);
+
+    if (this.skinsCurrentPage >= this.skinsTotalPages) {
+      this.skinsCurrentPage = Math.max(0, this.skinsTotalPages - 1);
+    }
+
+    const startIndex = this.skinsCurrentPage * this.skinsPageSize;
+    const endIndex = startIndex + this.skinsPageSize;
+    const paginatedProducts = filtered.slice(startIndex, endIndex);
+
+    this.products.set(paginatedProducts);
   }
 
   applyLootboxSort(): void {
@@ -251,30 +267,44 @@ export class ShopComponent implements OnInit {
       sorted.sort((a, b) => b.price - a.price);
     }
 
-    this.lootboxes.set(sorted);
+    this.lootboxesTotalPages = Math.ceil(sorted.length / this.lootboxesPageSize);
+
+    if (this.lootboxesCurrentPage >= this.lootboxesTotalPages) {
+      this.lootboxesCurrentPage = Math.max(0, this.lootboxesTotalPages - 1);
+    }
+
+    const startIndex = this.lootboxesCurrentPage * this.lootboxesPageSize;
+    const endIndex = startIndex + this.lootboxesPageSize;
+    const paginatedLootboxes = sorted.slice(startIndex, endIndex);
+
+    this.lootboxes.set(paginatedLootboxes);
   }
 
   previousSkinsPage(): void {
     if (this.skinsCurrentPage > 0) {
-      this.loadProducts(this.skinsCurrentPage - 1);
+      this.skinsCurrentPage--;
+      this.applyFilters();
     }
   }
 
   nextSkinsPage(): void {
     if (this.skinsCurrentPage < this.skinsTotalPages - 1) {
-      this.loadProducts(this.skinsCurrentPage + 1);
+      this.skinsCurrentPage++;
+      this.applyFilters();
     }
   }
 
   previousLootboxesPage(): void {
     if (this.lootboxesCurrentPage > 0) {
-      this.loadLootboxes(this.lootboxesCurrentPage - 1);
+      this.lootboxesCurrentPage--;
+      this.applyLootboxSort();
     }
   }
 
   nextLootboxesPage(): void {
     if (this.lootboxesCurrentPage < this.lootboxesTotalPages - 1) {
-      this.loadLootboxes(this.lootboxesCurrentPage + 1);
+      this.lootboxesCurrentPage++;
+      this.applyLootboxSort();
     }
   }
 }

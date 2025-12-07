@@ -21,7 +21,7 @@
     <div class="filters-container">
       <div class="filter-group">
         <label for="rarity-filter">Rarity:</label>
-        <select id="rarity-filter" [(ngModel)]="selectedRarity" (change)="applyFilters()">
+        <select id="rarity-filter" [(ngModel)]="selectedRarity" (change)="onFilterChange()">
           <option value="ALL">All</option>
           <option value="COMMON">Common</option>
           <option value="UNCOMMON">Uncommon</option>
@@ -33,7 +33,7 @@
 
       <div class="filter-group">
         <label for="price-sort">Sort by price:</label>
-        <select id="price-sort" [(ngModel)]="priceSort" (change)="applyFilters()">
+        <select id="price-sort" [(ngModel)]="priceSort" (change)="onFilterChange()">
           <option value="NONE">Default</option>
           <option value="ASC">Low to High</option>
           <option value="DESC">High to Low</option>
@@ -94,7 +94,7 @@
     <div class="filters-container">
       <div class="filter-group">
         <label for="lootbox-price-sort">Sort by price:</label>
-        <select id="lootbox-price-sort" [(ngModel)]="lootboxPriceSort" (change)="applyLootboxSort()">
+        <select id="lootbox-price-sort" [(ngModel)]="lootboxPriceSort" (change)="onLootboxSortChange()">
           <option value="NONE">Default</option>
           <option value="ASC">Low to High</option>
           <option value="DESC">High to Low</option>
