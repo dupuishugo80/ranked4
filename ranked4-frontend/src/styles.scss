@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 /* src/styles.scss */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 // Définissez vos variables de design
 :root {
   --primary-color: #007bff; // Un bleu moderne

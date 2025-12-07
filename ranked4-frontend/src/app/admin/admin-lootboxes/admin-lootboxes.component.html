@@ -1,38 +1,342 @@
 <div class="admin-container">
   <h2>Admin - Lootbox Management</h2>
 
-  <div class="user-table-container">
+  <button class="btn btn-primary" (click)="openCreateModal()">
+    Create New Lootbox
+  </button>
+
+  <div class="lootbox-table-container">
     <table>
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Image</th>
           <th>Name</th>
           <th>Description</th>
           <th>Price</th>
+          <th>Contents</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         @for (lootbox of (lootboxes$ | async); track lootbox.id) {
           <tr>
-            <td>{{ lootbox.id }}</td>
+            <td>
+              <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-thumbnail">
+            </td>
             <td>{{ lootbox.name }}</td>
             <td>{{ lootbox.description }}</td>
-            <td>{{ lootbox.price }}</td> <td class="actions-cell">
-              <button class="btn btn-secondary">
-                Edit
-              </button>
-              <button class="btn btn-danger">
-                Delete
-              </button>
+            <td>
+              <span class="price-badge">{{ lootbox.price }} <span class="gold-icon">🪙</span></span>
+            </td>
+            <td>-</td>
+            <td class="actions-cell">
+              <div class="button-group">
+                <button class="btn btn-sm btn-secondary" (click)="openEditModal(lootbox)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(lootbox)">
+                  Delete
+                </button>
+              </div>
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="5">No lootboxes found.</td>
+            <td colspan="6">No lootboxes found.</td>
           </tr>
         }
       </tbody>
     </table>
+
+    <div class="pagination">
+      <button
+        class="btn btn-secondary"
+        (click)="previousPage()"
+        [disabled]="currentPage === 0">
+        Previous
+      </button>
+      <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage >= totalPages - 1">
+        Next
+      </button>
+    </div>
   </div>
 </div>
+
+@if (showCreateModal()) {
+  <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <h3>Create New Lootbox</h3>
+
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="formData.name"
+          placeholder="e.g. Starter Pack">
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <input
+          type="text"
+          id="description"
+          [(ngModel)]="formData.description"
+          placeholder="A lootbox description">
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Image URL:</label>
+        <input
+          type="url"
+          id="imageUrl"
+          [(ngModel)]="formData.imageUrl"
+          placeholder="https://example.com/lootbox.png">
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price (gold):</label>
+        <input
+          type="number"
+          id="price"
+          [(ngModel)]="formData.price"
+          min="0"
+          placeholder="100">
+      </div>
+
+      <div class="modal-section">
+        <div class="section-header">
+          <h4>Lootbox Contents</h4>
+          <button class="btn btn-sm btn-primary" (click)="addContentRow()">
+            Add Content
+          </button>
+        </div>
+
+        @if (formData.contents.length > 0) {
+          <div class="contents-table-wrapper">
+            <table class="contents-table">
+              <thead>
+                <tr>
+                  <th>Item Type</th>
+                  <th>Item / Amount</th>
+                  <th>Weight</th>
+                  <th>Probability</th>
+                  <th>Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (content of formData.contents; track $index; let i = $index) {
+                  <tr>
+                    <td>
+                      <select [(ngModel)]="content.itemType" class="input-sm">
+                        <option value="DISC">Disc</option>
+                        <option value="GOLD">Gold</option>
+                      </select>
+                    </td>
+                    <td>
+                      @if (content.itemType === 'DISC') {
+                        <select [(ngModel)]="content.itemCode" class="input-sm">
+                          <option value="">Select disc...</option>
+                          @for (disc of (availableDiscs$ | async); track disc.itemCode) {
+                            <option [value]="disc.itemCode">{{ disc.displayName }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <input
+                          type="number"
+                          [(ngModel)]="content.goldAmount"
+                          placeholder="Gold amount"
+                          min="1"
+                          class="input-sm">
+                      }
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        [(ngModel)]="content.weight"
+                        min="1"
+                        class="input-sm">
+                    </td>
+                    <td>
+                      <span class="probability-badge">{{ calculateProbability(content.weight).toFixed(1) }}%</span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-danger" (click)="removeContentRow(i)">
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total-weight">
+            <strong>Total Weight:</strong> {{ getTotalWeight() }}
+          </div>
+        } @else {
+          <p class="no-contents">No contents added. Click "Add Content" to start.</p>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+        <button
+          class="btn btn-primary"
+          (click)="createLootbox()"
+          [disabled]="!formData.name || !formData.imageUrl || formData.contents.length === 0">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showEditModal()) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <h3>Edit Lootbox: {{ editingLootbox()?.name }}</h3>
+
+      <div class="form-group">
+        <label for="editName">Name:</label>
+        <input
+          type="text"
+          id="editName"
+          [(ngModel)]="formData.name"
+          placeholder="e.g. Starter Pack">
+      </div>
+
+      <div class="form-group">
+        <label for="editDescription">Description:</label>
+        <input
+          type="text"
+          id="editDescription"
+          [(ngModel)]="formData.description"
+          placeholder="A lootbox description">
+      </div>
+
+      <div class="form-group">
+        <label for="editImageUrl">Image URL:</label>
+        <input
+          type="url"
+          id="editImageUrl"
+          [(ngModel)]="formData.imageUrl"
+          placeholder="https://example.com/lootbox.png">
+      </div>
+
+      <div class="form-group">
+        <label for="editPrice">Price (gold):</label>
+        <input
+          type="number"
+          id="editPrice"
+          [(ngModel)]="formData.price"
+          min="0"
+          placeholder="100">
+      </div>
+
+      <div class="modal-section">
+        <div class="section-header">
+          <h4>Lootbox Contents</h4>
+          <button class="btn btn-sm btn-primary" (click)="addContentRow()">
+            Add Content
+          </button>
+        </div>
+
+        @if (formData.contents.length > 0) {
+          <div class="contents-table-wrapper">
+            <table class="contents-table">
+              <thead>
+                <tr>
+                  <th>Item Type</th>
+                  <th>Item / Amount</th>
+                  <th>Weight</th>
+                  <th>Probability</th>
+                  <th>Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (content of formData.contents; track $index; let i = $index) {
+                  <tr>
+                    <td>
+                      <select [(ngModel)]="content.itemType" class="input-sm">
+                        <option value="DISC">Disc</option>
+                        <option value="GOLD">Gold</option>
+                      </select>
+                    </td>
+                    <td>
+                      @if (content.itemType === 'DISC') {
+                        <select [(ngModel)]="content.itemCode" class="input-sm">
+                          <option value="">Select disc...</option>
+                          @for (disc of (availableDiscs$ | async); track disc.itemCode) {
+                            <option [value]="disc.itemCode">{{ disc.displayName }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <input
+                          type="number"
+                          [(ngModel)]="content.goldAmount"
+                          placeholder="Gold amount"
+                          min="1"
+                          class="input-sm">
+                      }
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        [(ngModel)]="content.weight"
+                        min="1"
+                        class="input-sm">
+                    </td>
+                    <td>
+                      <span class="probability-badge">{{ calculateProbability(content.weight).toFixed(1) }}%</span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-danger" (click)="removeContentRow(i)">
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total-weight">
+            <strong>Total Weight:</strong> {{ getTotalWeight() }}
+          </div>
+        } @else {
+          <p class="no-contents">No contents added. Click "Add Content" to start.</p>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+        <button
+          class="btn btn-primary"
+          (click)="updateLootbox()"
+          [disabled]="!formData.name || !formData.imageUrl || formData.contents.length === 0">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showDeleteConfirm()) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to delete lootbox <strong>{{ lootboxToDelete()?.name }}</strong>?</p>
+      <p class="warning">This action cannot be undone!</p>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

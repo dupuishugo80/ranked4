@@ -12,6 +12,9 @@ import { publicGuard } from './guards/public.guard';
 import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 import { AdminLootboxesComponent } from './admin/admin-lootboxes/admin-lootboxes.component';
 import { AdminSkinsComponent } from './admin/admin-skin/admin-skins.component';
+import { AdminGifsComponent } from './admin/admin-gifs/admin-gifs.component';
+import { ShopComponent } from './shop/shop.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
     { 
@@ -45,6 +48,16 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'shop',
+    component: ShopComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard]
+  },
+  {
     path: 'private-game',
     component: PrivateGameComponent,
     canActivate: [authGuard]
@@ -67,6 +80,11 @@ export const routes: Routes = [
   {
     path: 'admin-skins',
     component: AdminSkinsComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin-gifs',
+    component: AdminGifsComponent,
     canActivate: [adminGuard]
   }
 ];

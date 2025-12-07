@@ -10,8 +10,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +61,34 @@ public class DiscCustomController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PostMapping("/purchase")
+    public ResponseEntity<?> purchaseDiscCustomization(
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestBody PurchaseDiscRequestDTO request
+    ) {
+        try {
+            MyUserProfileDTO updated = discCustomService.purchaseDiscCustomization(userId, request.itemCode());
+            return ResponseEntity.ok(new PurchaseDiscResponseDTO(
+                true,
+                "Purchase successful",
+                updated.gold()
+            ));
+        } catch (IllegalStateException e) {
+            if (e.getMessage().contains("Insufficient")) {
+                return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                    .body(new PurchaseDiscResponseDTO(false, e.getMessage(), null));
+            } else if (e.getMessage().contains("already owns")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new PurchaseDiscResponseDTO(false, e.getMessage(), null));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new PurchaseDiscResponseDTO(false, e.getMessage(), null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new PurchaseDiscResponseDTO(false, e.getMessage(), null));
+        }
+    }
+
     @PostMapping("/attach")
     public ResponseEntity<MyUserProfileDTO> addDiscToCurrentUser(
             @RequestHeader("X-User-Id") UUID userId,
@@ -70,7 +101,73 @@ public class DiscCustomController {
         );
         return ResponseEntity.ok(updated);
     }
-    
+
+    @PostMapping("/equip")
+    public ResponseEntity<?> equipDisc(
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestBody EquipDiscRequestDTO request
+    ) {
+        try {
+            MyUserProfileDTO updated = userProfileService.equipDisc(userId, request.itemCode());
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("does not own")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/unequip")
+    public ResponseEntity<?> unequipDisc(@RequestHeader("X-User-Id") UUID userId) {
+        try {
+            MyUserProfileDTO updated = userProfileService.unequipDisc(userId);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    record PurchaseDiscRequestDTO(String itemCode) {}
+    record PurchaseDiscResponseDTO(boolean success, String message, Integer newBalance) {}
+    record EquipDiscRequestDTO(String itemCode) {}
+
+    @PutMapping("/{itemCode}")
+    public ResponseEntity<?> updateDiscCustomization(
+            @RequestHeader(value = "X-User-Roles") String userRoles,
+            @PathVariable String itemCode,
+            @RequestBody DiscCustomizationDTO request
+    ) {
+        isAdmin(userRoles);
+
+        try {
+            DiscCustomizationDTO updated = discCustomService.updateDiscCustomization(itemCode, request);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{itemCode}")
+    public ResponseEntity<?> deleteDiscCustomization(
+            @RequestHeader(value = "X-User-Roles") String userRoles,
+            @PathVariable String itemCode
+    ) {
+        isAdmin(userRoles);
+
+        try {
+            discCustomService.deleteDiscCustomization(itemCode);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     public boolean isAdmin(String userRoles) {
         if (userRoles == null || userRoles.isEmpty()) {
             throw new AccessDeniedException("Access denied: requires the ROLE_ADMIN role.");

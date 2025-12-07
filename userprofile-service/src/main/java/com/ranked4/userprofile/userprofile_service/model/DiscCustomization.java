@@ -27,6 +27,12 @@ public class DiscCustomization {
     @Column(nullable = false)
     private String value;
 
+    @Column(nullable = true)
+    private Integer price;
+
+    @Column(nullable = false)
+    private Boolean availableForPurchase = true;
+
     public Long getId() {
         return id;
     }
@@ -65,5 +71,21 @@ public class DiscCustomization {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public Boolean getAvailableForPurchase() {
+        return availableForPurchase;
+    }
+
+    public void setAvailableForPurchase(Boolean availableForPurchase) {
+        this.availableForPurchase = availableForPurchase;
     }
 }

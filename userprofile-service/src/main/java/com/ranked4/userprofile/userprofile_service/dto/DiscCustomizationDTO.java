@@ -6,14 +6,18 @@ public record DiscCustomizationDTO(
     String itemCode,
     String displayName,
     String type,
-    String value
+    String value,
+    Integer price,
+    Boolean availableForPurchase
 ) {
     public DiscCustomizationDTO(DiscCustomization entity) {
         this(
             entity.getItemCode(),
             entity.getDisplayName(),
             entity.getType(),
-            entity.getValue()
+            entity.getValue(),
+            entity.getPrice(),
+            entity.getAvailableForPurchase()
         );
     }
 

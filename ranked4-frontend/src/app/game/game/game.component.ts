@@ -30,6 +30,9 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_P1_COLOR = '#dc3545';
   private readonly DEFAULT_P2_COLOR = '#ffc107';
 
+  private playerOneDisc: DiscCustomization | null = null;
+  private playerTwoDisc: DiscCustomization | null = null;
+
   public gameState$!: Observable<GameUpdate | null>;
   public gameError$!: Observable<string>;
 
@@ -87,6 +90,9 @@ export class GameComponent implements OnInit, OnDestroy {
         this.myPlayerInfo = state.playerTwo;
         this.opponentPlayerInfo = state.playerOne;
       }
+
+      this.playerOneDisc = state.playerOne.disc;
+      this.playerTwoDisc = state.playerTwo.disc;
 
       this.playerOneDiscStyle = this.createDiscStyle(state.playerOne.disc, 'P1');
       this.playerTwoDiscStyle = this.createDiscStyle(state.playerTwo.disc, 'P2');
@@ -219,27 +225,51 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
+  private areDiscsIdentical(): boolean {
+    if (!this.playerOneDisc && !this.playerTwoDisc) {
+      return true;
+    }
+
+    if (!this.playerOneDisc || !this.playerTwoDisc) {
+      return false;
+    }
+
+    if (this.playerOneDisc.type !== this.playerTwoDisc.type) {
+      return false;
+    }
+
+    return this.playerOneDisc.value === this.playerTwoDisc.value;
+  }
+
   private createDiscStyle(
-    disc: DiscCustomization | null, 
+    disc: DiscCustomization | null,
     defaultPlayer: 'P1' | 'P2'
   ): { [key: string]: string } {
+    const style: { [key: string]: string } = {};
+    const areIdentical = this.areDiscsIdentical();
+
     if (!disc) {
       const defaultColor = defaultPlayer === 'P1' ? this.DEFAULT_P1_COLOR : this.DEFAULT_P2_COLOR;
-      return { 'background-color': defaultColor };
+      style['background-color'] = defaultColor;
+    } else if (disc.type === 'color') {
+      style['background-color'] = disc.value;
+    } else if (disc.type === 'image') {
+      style['background-image'] = `url(${disc.value})`;
+      style['background-size'] = 'cover';
+      style['background-position'] = 'center';
+      style['background-repeat'] = 'no-repeat';
+    } else {
+      const defaultColor = defaultPlayer === 'P1' ? this.DEFAULT_P1_COLOR : this.DEFAULT_P2_COLOR;
+      style['background-color'] = defaultColor;
     }
-    if (disc.type === 'color') {
-      return { 'background-color': disc.value };
+
+    if (areIdentical) {
+      const borderColor = defaultPlayer === 'P1' ? '#ffc107' : '#dc3545';
+      style['border'] = `4px solid ${borderColor}`;
+      style['box-shadow'] = `0 0 0 2px rgba(0, 0, 0, 0.1), 0 0 12px ${borderColor}`;
     }
-    if (disc.type === 'image') {
-      return {
-        'background-image': `url(${disc.value})`,
-        'background-size': 'cover',
-        'background-position': 'center',
-        'background-repeat': 'no-repeat'
-      };
-    }
-    const defaultColor = defaultPlayer === 'P1' ? this.DEFAULT_P1_COLOR : this.DEFAULT_P2_COLOR;
-    return { 'background-color': defaultColor };
+
+    return style;
   }
 
   ngOnDestroy(): void {

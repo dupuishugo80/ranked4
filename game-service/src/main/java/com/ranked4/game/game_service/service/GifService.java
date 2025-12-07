@@ -21,7 +21,47 @@ public class GifService {
         return gifRepository.findAllByActiveTrue();
     }
 
+    public List<Gif> getAllGifs() {
+        return gifRepository.findAll();
+    }
+
+    public Optional<Gif> getById(Long id) {
+        return gifRepository.findById(id);
+    }
+
     public Optional<Gif> getByCode(String code) {
         return gifRepository.findByCodeAndActiveTrue(code);
+    }
+
+    public Gif createGif(String code, String assetPath, boolean active) {
+        Gif gif = new Gif();
+        gif.setCode(code);
+        gif.setAssetPath(assetPath);
+        gif.setActive(active);
+        return gifRepository.save(gif);
+    }
+
+    public Gif updateGif(Long id, String code, String assetPath, Boolean active) {
+        Gif gif = gifRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("GIF not found with id: " + id));
+
+        if (code != null && !code.isBlank()) {
+            gif.setCode(code);
+        }
+        if (assetPath != null && !assetPath.isBlank()) {
+            gif.setAssetPath(assetPath);
+        }
+        if (active != null) {
+            gif.setActive(active);
+        }
+
+        return gifRepository.save(gif);
+    }
+
+    public void deleteGif(Long id) {
+        if (!gifRepository.existsById(id)) {
+            throw new IllegalArgumentException("GIF not found with id: " + id);
+        }
+        gifRepository.deleteById(id);
     }
 }

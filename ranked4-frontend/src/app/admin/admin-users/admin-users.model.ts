@@ -1,3 +1,11 @@
+export interface DiscCustomization {
+  itemCode: string;
+  displayName: string;
+  type: string;
+  value: string;
+  price: number | null;
+}
+
 export interface ApiUserProfile {
   userId: string;
   displayName: string;
@@ -7,12 +15,9 @@ export interface ApiUserProfile {
   wins: number;
   losses: number;
   draws: number;
-  equippedDisc: {
-    itemCode: string;
-    displayName: string;
-    type: string;
-    value: string;
-  } | null;
+  gold: number;
+  equippedDisc: DiscCustomization | null;
+  ownedDiscs: DiscCustomization[];
   createdAt: string;
   updatedAt: string;
 }

@@ -9,8 +9,9 @@ import { API_ENDPOINTS } from "../core/config/api.config";
 })
 export class ProfileService {
   private http = inject(HttpClient);
-  
+
   private readonly API_URL = API_ENDPOINTS.PROFILES;
+  private readonly DISCS_URL = API_ENDPOINTS.DISCS;
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.API_URL}/me`);
@@ -18,5 +19,17 @@ export class ProfileService {
 
   getProfileById(userId: string): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.API_URL}/${userId}`);
+  }
+
+  updateAvatar(avatarUrl: string): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.API_URL}/me/avatar`, { avatarUrl });
+  }
+
+  equipDisc(itemCode: string): Observable<any> {
+    return this.http.post(`${this.DISCS_URL}/equip`, { itemCode });
+  }
+
+  unequipDisc(): Observable<any> {
+    return this.http.post(`${this.DISCS_URL}/unequip`, {});
   }
 }

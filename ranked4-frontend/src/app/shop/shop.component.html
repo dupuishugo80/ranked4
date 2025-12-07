@@ -1,0 +1,148 @@
+<div class="shop-container">
+  <div class="shop-header">
+    <h1>Shop</h1>
+    <div class="user-gold">
+      <span class="gold-icon">🪙</span>
+      <span class="gold-amount">{{ userGold() }}</span>
+    </div>
+  </div>
+
+  <div class="shop-tabs">
+    <button class="tab-button" [class.active]="activeTab() === 'skins'" (click)="switchTab('skins')">
+      🎨 Skins
+    </button>
+    <button class="tab-button" [class.active]="activeTab() === 'lootboxes'" (click)="switchTab('lootboxes')">
+      📦 Lootboxes
+    </button>
+  </div>
+
+  <div class="shop-content">
+    @if (activeTab() === 'skins') {
+    <div class="products-grid">
+      @for (skin of getSkins(); track skin.id) {
+      <div class="product-card" [class.owned]="isOwned(skin)">
+        @if (isOwned(skin)) {
+        <div class="owned-badge">✓ Owned</div>
+        }
+        <div class="product-image">
+          @if (skin.skinType === 'color') {
+          <div class="skin-preview-large" [style.background-color]="skin.value"></div>
+          } @else {
+          <img [src]="skin.value" alt="{{ skin.name }}" class="skin-preview-img-large">
+          }
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ skin.name }}</h3>
+          <p class="product-description">{{ skin.description }}</p>
+          <div class="product-footer">
+            <div class="product-price">
+              <span class="gold-icon">🪙</span>
+              <span>{{ skin.price }}</span>
+            </div>
+            <button class="btn btn-buy" [class.btn-disabled]="!canAfford(skin.price) || isOwned(skin)"
+              [disabled]="!canAfford(skin.price) || isOwned(skin)" (click)="openPurchaseModal(skin)">
+              {{ isOwned(skin) ? 'Owned' : (canAfford(skin.price) ? 'Buy' : 'Insufficient') }}
+            </button>
+          </div>
+        </div>
+      </div>
+      } @empty {
+      <div class="empty-state">
+        <p>No skins available at the moment.</p>
+      </div>
+      }
+    </div>
+    }
+
+    @if (activeTab() === 'lootboxes') {
+    <div class="products-grid">
+      @for (lootbox of lootboxes(); track lootbox.id) {
+      <div class="product-card lootbox-card">
+        <div class="product-image">
+          <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-image">
+          <div class="lootbox-badge">Mystery Box</div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ lootbox.name }}</h3>
+          <p class="product-description">{{ lootbox.description }}</p>
+          <div class="product-footer">
+            <div class="product-price">
+              <span class="gold-icon">🪙</span>
+              <span>{{ lootbox.price }}</span>
+            </div>
+            <button class="btn btn-buy btn-lootbox" (click)="openLootboxModal(lootbox)">
+              Voir les détails
+            </button>
+          </div>
+        </div>
+      </div>
+      } @empty {
+      <div class="empty-state">
+        <p>No lootboxes available at the moment.</p>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+
+@if (showPurchaseModal()) {
+<div class="modal-overlay" (click)="closePurchaseModal()">
+  <div class="modal-content purchase-modal" (click)="$event.stopPropagation()">
+    <h3>Confirm purchase</h3>
+
+    @if (selectedProduct()) {
+    <div class="purchase-details">
+      <p class="product-name-modal">{{ selectedProduct()!.name }}</p>
+      <p class="product-description-modal">{{ selectedProduct()!.description }}</p>
+
+      <div class="price-info">
+        <span class="label">Price:</span>
+        <span class="value">
+          <span class="gold-icon">🪙</span>
+          {{ selectedProduct()!.price }}
+        </span>
+      </div>
+
+      <div class="balance-info">
+        <span class="label">Current balance:</span>
+        <span class="value" [class.insufficient]="!canAfford(selectedProduct()!.price)">
+          <span class="gold-icon">🪙</span>
+          {{ userGold() }}
+        </span>
+      </div>
+
+      <div class="new-balance-info">
+        <span class="label">New balance:</span>
+        <span class="value">
+          <span class="gold-icon">🪙</span>
+          {{ userGold() - selectedProduct()!.price }}
+        </span>
+      </div>
+    </div>
+
+    @if (purchaseMessage()) {
+    <div class="purchase-message" [class.success]="purchaseMessage() === 'Purchase successful!'">
+      {{ purchaseMessage() }}
+    </div>
+    }
+    }
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closePurchaseModal()" [disabled]="isPurchasing()">
+        Cancel
+      </button>
+      <button class="btn btn-primary" (click)="confirmPurchase()"
+        [disabled]="isPurchasing() || !canAfford(selectedProduct()!.price)">
+        {{ isPurchasing() ? 'Purchasing...' : 'Confirm' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+@if (showLootboxOpening() && selectedLootbox()) {
+<app-lootbox-opening [lootbox]="selectedLootbox()!" [userGold]="userGold()" (close)="closeLootboxModal()"
+  (open)="handleLootboxOpen()">
+</app-lootbox-opening>
+}

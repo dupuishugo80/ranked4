@@ -7,6 +7,7 @@
         <tr>
           <th>User</th>
           <th>ELO</th>
+          <th>Gold</th>
           <th>Stats (W/L/D)</th>
           <th>Actions</th>
         </tr>
@@ -26,23 +27,121 @@
                 <span>{{ user.displayName }}</span>
               </div>
             </td>
-            <td>{{ user.elo }}</td>
+            <td><span class="elo-badge">{{ user.elo }}</span></td>
+            <td>
+              <span class="gold-badge">{{ user.gold }} <span class="gold-icon">🪙</span></span>
+            </td>
             <td>{{ user.wins }} / {{ user.losses }} / {{ user.draws }}</td>
             <td class="actions-cell">
-              <button class="btn btn-secondary">
-                Edit
-              </button>
-              <button class="btn btn-danger">
-                Delete
-              </button>
+              <div class="button-group">
+                <button class="btn btn-sm btn-secondary" (click)="openEditModal(user)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(user)">
+                  Delete
+                </button>
+              </div>
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">No users found.</td>
+            <td colspan="5">No users found.</td>
           </tr>
         }
       </tbody>
     </table>
+
+    <div class="pagination">
+      <button
+        class="btn btn-secondary"
+        (click)="previousPage()"
+        [disabled]="currentPage === 0">
+        Previous
+      </button>
+      <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage >= totalPages - 1">
+        Next
+      </button>
+    </div>
   </div>
 </div>
+
+@if (showEditModal()) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Edit User: {{ editingUser()?.displayName }}</h3>
+
+      <div class="modal-section">
+        <h4>Gold Management</h4>
+        <p>Current Gold: {{ editingUser()?.gold }}</p>
+        <div class="form-group">
+          <label for="goldAmount">Amount to Add:</label>
+          <input
+            type="number"
+            id="goldAmount"
+            [(ngModel)]="goldAmount"
+            min="1"
+            placeholder="Enter amount">
+          <button class="btn btn-primary" (click)="creditGold()" [disabled]="goldAmount <= 0">
+            Add Gold
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h4>Disc Management</h4>
+        <div class="owned-discs">
+          <h5>Owned Discs:</h5>
+          @if (editingUser()?.ownedDiscs && editingUser()!.ownedDiscs.length > 0) {
+            <ul>
+              @for (disc of editingUser()!.ownedDiscs; track disc.itemCode) {
+                <li>
+                  <span>{{ disc.displayName }} ({{ disc.itemCode }})</span>
+                  <button class="btn btn-sm btn-danger" (click)="removeDisc(disc.itemCode)">
+                    Remove
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p>No discs owned</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="discCode">Add Disc (by itemCode):</label>
+          <input
+            type="text"
+            id="discCode"
+            [(ngModel)]="selectedDiscCode"
+            placeholder="Enter disc itemCode">
+          <button class="btn btn-primary" (click)="addDisc()" [disabled]="!selectedDiscCode">
+            Add Disc
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Close</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showDeleteConfirm()) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to delete user <strong>{{ userToDelete()?.displayName }}</strong>?</p>
+      <p class="warning">This action cannot be undone!</p>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

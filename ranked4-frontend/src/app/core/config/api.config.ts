@@ -5,6 +5,7 @@ export const WEBSOCKET_URL = 'ws://localhost:8080/ws';
 export const API_ENDPOINTS = {
   AUTH: `${API_BASE_URL}/auth`,
   PROFILES: `${API_BASE_URL}/profiles`,
+  DISCS: `${API_BASE_URL}/discs`,
   MATCHMAKING_JOIN: `${API_BASE_URL}/matchmaking/join`,
   MATCHMAKING_LEAVE: `${API_BASE_URL}/matchmaking/leave`,
   PRIVATE_MATCHES: `${API_BASE_URL}/private-matches`,

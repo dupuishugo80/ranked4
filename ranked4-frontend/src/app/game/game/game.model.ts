@@ -13,8 +13,11 @@ export interface GameUpdate {
 }
 
 export interface DiscCustomization {
+  itemCode?: string;
+  displayName?: string;
   type: 'color' | 'image';
   value: string;
+  price?: number | null;
 }
 
 export interface PlayerInfo {

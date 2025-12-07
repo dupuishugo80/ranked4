@@ -12,6 +12,10 @@
 
 }
 
+.game-header {
+  margin-bottom: 1.5rem;
+}
+
 .game-header .game-message {
   font-size: 1.75rem;
   font-weight: 500;
@@ -220,22 +224,22 @@
 .gif-menu {
 margin: 0.25rem 0 0.75rem;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 84px;      
+  max-height: 140px;
   padding-bottom: 2px;
   width: 100%;
   box-sizing: border-box;
-  padding: 4px;
+  padding: 6px;
   background: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
 
   .gif-menu-item {
     flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.08);
     display: flex;
@@ -245,8 +249,8 @@ margin: 0.25rem 0 0.75rem;
     transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 
     img {
-      max-width: 36px;
-      max-height: 36px;
+      max-width: 54px;
+      max-height: 54px;
       object-fit: contain;
       display: block;
     }
@@ -482,15 +486,12 @@ margin: 0.25rem 0 0.75rem;
 
   .gif-menu {
     flex-wrap: wrap;
-    overflow-y: auto; 
+    overflow-y: auto;
     overflow-x: hidden;
-    width: 436px;       
-    max-height: 128px;  
-    padding: 4px;
+    width: 536px;
+    max-height: 200px;
+    padding: 6px;
     background: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-bottom: 4px;
   }
 }

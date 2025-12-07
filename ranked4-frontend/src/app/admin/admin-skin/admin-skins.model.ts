@@ -1,12 +1,23 @@
-export interface Lootbox {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
+export interface DiscCustomization {
+  itemCode: string;
+  displayName: string;
+  type: 'color' | 'image';
+  value: string;
+  price: number | null;
+  availableForPurchase?: boolean;
 }
 
-export interface ApiLootboxesResponse {
-  content: Lootbox[];
+export interface CreateDiscRequest {
+  itemCode: string;
+  displayName: string;
+  type: 'color' | 'image';
+  value: string;
+  price: number | null;
+  availableForPurchase?: boolean;
+}
+
+export interface ApiDiscsResponse {
+  content: DiscCustomization[];
   pageable: {
     pageNumber: number;
     pageSize: number;

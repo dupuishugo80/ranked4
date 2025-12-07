@@ -25,8 +25,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/register",
             "/api/auth/refresh",
             "/api/auth/logout",
-            "/ws/**"
-    );
+            "/ws/**");
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -67,6 +66,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String rolesHeader = roles.stream().collect(Collectors.joining(","));
 
         ServerHttpRequest modifiedRequest = request.mutate()
+                .headers(headers -> {
+                    headers.remove("X-User-Id");
+                    headers.remove("X-User-Roles");
+                    headers.remove("X-User-Email");
+                    headers.remove("X-User-Name");
+                })
                 .header("X-User-Id", userIdHeader)
                 .header("X-User-Roles", rolesHeader)
                 .build();
@@ -77,10 +82,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private boolean isWebSocketUpgrade(ServerHttpRequest request) {
         String upgrade = request.getHeaders().getFirst("Upgrade");
         String connection = request.getHeaders().getFirst("Connection");
-        
-        return "websocket".equalsIgnoreCase(upgrade) && 
-               connection != null && 
-               connection.toLowerCase().contains("upgrade");
+
+        return "websocket".equalsIgnoreCase(upgrade) &&
+                connection != null &&
+                connection.toLowerCase().contains("upgrade");
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {

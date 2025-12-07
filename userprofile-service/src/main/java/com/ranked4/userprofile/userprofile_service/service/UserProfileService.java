@@ -25,10 +25,15 @@ public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
     private final DiscCustomizationRepository discCustomizationRepository;
+    private final ImageValidationService imageValidationService;
 
-     public UserProfileService(UserProfileRepository userProfileRepository, DiscCustomizationRepository discCustomizationRepository) {
+     public UserProfileService(
+            UserProfileRepository userProfileRepository,
+            DiscCustomizationRepository discCustomizationRepository,
+            ImageValidationService imageValidationService) {
         this.userProfileRepository = userProfileRepository;
         this.discCustomizationRepository = discCustomizationRepository;
+        this.imageValidationService = imageValidationService;
     }
 
     @Transactional(readOnly = true)
@@ -124,6 +129,125 @@ public class UserProfileService {
             profile.setEquippedDisc(disc);
         }
 
+        UserProfile saved = userProfileRepository.save(profile);
+        return MyUserProfileDTO.fromEntity(saved);
+    }
+
+    @Transactional
+    public AddDiscResult addDiscToUserWithResult(UUID userId, String itemCode, boolean equip) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+        DiscCustomization disc = discCustomizationRepository.findByItemCode(itemCode)
+                .orElseThrow(() -> new RuntimeException("DiscCustomization not found"));
+
+        boolean alreadyOwned = profile.getOwnedDiscs().contains(disc);
+
+        if (!alreadyOwned) {
+            profile.getOwnedDiscs().add(disc);
+        }
+
+        if (equip && !alreadyOwned) {
+            profile.setEquippedDisc(disc);
+        }
+
+        UserProfile saved = userProfileRepository.save(profile);
+        return new AddDiscResult(MyUserProfileDTO.fromEntity(saved), alreadyOwned);
+    }
+
+    public record AddDiscResult(MyUserProfileDTO profile, boolean alreadyOwned) {}
+
+    @Transactional
+    public void creditGold(UUID userId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount to credit must be positive.");
+        }
+
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
+
+        profile.setGold(profile.getGold() + amount);
+        userProfileRepository.save(profile);
+    }
+
+    @Transactional
+    public void deleteUserProfile(UUID userId) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
+
+        userProfileRepository.delete(profile);
+    }
+
+    @Transactional
+    public MyUserProfileDTO addDiscToUserByAdmin(UUID userId, String itemCode, boolean equip) {
+        return addDiscToUser(userId, itemCode, equip);
+    }
+
+    @Transactional
+    public MyUserProfileDTO removeDiscFromUser(UUID userId, String itemCode) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+        DiscCustomization disc = discCustomizationRepository.findByItemCode(itemCode)
+                .orElseThrow(() -> new RuntimeException("DiscCustomization not found"));
+
+        if (profile.getOwnedDiscs().contains(disc)) {
+            profile.getOwnedDiscs().remove(disc);
+
+            // If this was the equipped disc, unequip it
+            if (profile.getEquippedDisc() != null && profile.getEquippedDisc().equals(disc)) {
+                profile.setEquippedDisc(null);
+            }
+        }
+
+        UserProfile saved = userProfileRepository.save(profile);
+        return MyUserProfileDTO.fromEntity(saved);
+    }
+
+    @Transactional
+    public MyUserProfileDTO updateAvatar(UUID userId, String avatarUrl) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
+
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Avatar URL cannot be empty");
+        }
+
+        ImageValidationService.ValidationResult validationResult =
+            imageValidationService.validateImageUrl(avatarUrl);
+
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException(validationResult.message());
+        }
+
+        profile.setAvatarUrl(avatarUrl);
+        UserProfile saved = userProfileRepository.save(profile);
+        return MyUserProfileDTO.fromEntity(saved);
+    }
+
+    @Transactional
+    public MyUserProfileDTO equipDisc(UUID userId, String itemCode) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+        DiscCustomization disc = discCustomizationRepository.findByItemCode(itemCode)
+                .orElseThrow(() -> new RuntimeException("DiscCustomization not found"));
+
+        if (!profile.getOwnedDiscs().contains(disc)) {
+            throw new IllegalStateException("User does not own this disc");
+        }
+
+        profile.setEquippedDisc(disc);
+        UserProfile saved = userProfileRepository.save(profile);
+        return MyUserProfileDTO.fromEntity(saved);
+    }
+
+    @Transactional
+    public MyUserProfileDTO unequipDisc(UUID userId) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found"));
+
+        profile.setEquippedDisc(null);
         UserProfile saved = userProfileRepository.save(profile);
         return MyUserProfileDTO.fromEntity(saved);
     }
