@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProfileService } from '../profile/profile.service';
 import { Lootbox, Product, Skin } from './shop.model';
-import { ShopService } from './shop.service';
+import { PageResponse, ShopService } from './shop.service';
 import { LootboxOpeningComponent } from './lootbox-opening/lootbox-opening.component';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [CommonModule, LootboxOpeningComponent],
+  imports: [CommonModule, FormsModule, LootboxOpeningComponent],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
@@ -21,7 +22,9 @@ export class ShopComponent implements OnInit {
   @ViewChild(LootboxOpeningComponent) lootboxOpeningComponent?: LootboxOpeningComponent;
 
   public products: WritableSignal<Product[]> = signal([]);
+  public allProducts: Skin[] = [];
   public lootboxes: WritableSignal<Lootbox[]> = signal([]);
+  public allLootboxes: Lootbox[] = [];
   public userGold: WritableSignal<number> = signal(0);
   public ownedItemCodes: WritableSignal<Set<string>> = signal(new Set());
   public activeTab: WritableSignal<'skins' | 'lootboxes'> = signal('skins');
@@ -32,10 +35,22 @@ export class ShopComponent implements OnInit {
   public showLootboxOpening: WritableSignal<boolean> = signal(false);
   public selectedLootbox: WritableSignal<Lootbox | null> = signal(null);
 
+  public skinsCurrentPage = 0;
+  public skinsTotalPages = 0;
+  public skinsPageSize = 9;
+
+  public lootboxesCurrentPage = 0;
+  public lootboxesTotalPages = 0;
+  public lootboxesPageSize = 9;
+
+  public selectedRarity: 'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' = 'ALL';
+  public priceSort: 'NONE' | 'ASC' | 'DESC' = 'NONE';
+  public lootboxPriceSort: 'NONE' | 'ASC' | 'DESC' = 'NONE';
+
   ngOnInit(): void {
     this.loadUserProfile();
-    this.loadProducts();
-    this.loadLootboxes();
+    this.loadProducts(this.skinsCurrentPage);
+    this.loadLootboxes(this.lootboxesCurrentPage);
   }
 
   private loadUserProfile(): void {
@@ -50,21 +65,27 @@ export class ShopComponent implements OnInit {
     });
   }
 
-  private loadProducts(): void {
-    this.shopService.getProducts().subscribe({
-      next: (products) => {
-        console.log('Loaded products:', products);
-        this.products.set(products);
+  private loadProducts(page: number): void {
+    this.skinsCurrentPage = page;
+    this.shopService.getProducts(page, this.skinsPageSize).subscribe({
+      next: (response: PageResponse<Skin>) => {
+        console.log('Loaded products:', response);
+        this.allProducts = response.content;
+        this.skinsTotalPages = response.totalPages;
+        this.applyFilters();
       },
       error: (err) => console.error('Error loading products:', err)
     });
   }
 
-  private loadLootboxes(): void {
-    this.shopService.getLootboxes().subscribe({
-      next: (lootboxes) => {
-        console.log('Loaded lootboxes:', lootboxes);
-        this.lootboxes.set(lootboxes);
+  private loadLootboxes(page: number): void {
+    this.lootboxesCurrentPage = page;
+    this.shopService.getLootboxes(page, this.lootboxesPageSize).subscribe({
+      next: (response: PageResponse<any>) => {
+        console.log('Loaded lootboxes:', response);
+        this.allLootboxes = response.content;
+        this.lootboxesTotalPages = response.totalPages;
+        this.applyLootboxSort();
       },
       error: (err) => console.error('Error loading lootboxes:', err)
     });
@@ -194,5 +215,66 @@ export class ShopComponent implements OnInit {
         alert('Error opening lootbox');
       }
     });
+  }
+
+  extractRarity(itemCode: string): 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' {
+    const upper = itemCode.toUpperCase();
+    if (upper.includes('LEGENDARY')) return 'LEGENDARY';
+    if (upper.includes('EPIC')) return 'EPIC';
+    if (upper.includes('RARE')) return 'RARE';
+    if (upper.includes('UNCOMMON')) return 'UNCOMMON';
+    return 'COMMON';
+  }
+
+  applyFilters(): void {
+    let filtered = [...this.allProducts];
+
+    if (this.selectedRarity !== 'ALL') {
+      filtered = filtered.filter(skin => this.extractRarity(skin.itemCode) === this.selectedRarity);
+    }
+
+    if (this.priceSort === 'ASC') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (this.priceSort === 'DESC') {
+      filtered.sort((a, b) => b.price - a.price);
+    }
+
+    this.products.set(filtered);
+  }
+
+  applyLootboxSort(): void {
+    let sorted = [...this.allLootboxes];
+
+    if (this.lootboxPriceSort === 'ASC') {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (this.lootboxPriceSort === 'DESC') {
+      sorted.sort((a, b) => b.price - a.price);
+    }
+
+    this.lootboxes.set(sorted);
+  }
+
+  previousSkinsPage(): void {
+    if (this.skinsCurrentPage > 0) {
+      this.loadProducts(this.skinsCurrentPage - 1);
+    }
+  }
+
+  nextSkinsPage(): void {
+    if (this.skinsCurrentPage < this.skinsTotalPages - 1) {
+      this.loadProducts(this.skinsCurrentPage + 1);
+    }
+  }
+
+  previousLootboxesPage(): void {
+    if (this.lootboxesCurrentPage > 0) {
+      this.loadLootboxes(this.lootboxesCurrentPage - 1);
+    }
+  }
+
+  nextLootboxesPage(): void {
+    if (this.lootboxesCurrentPage < this.lootboxesTotalPages - 1) {
+      this.loadLootboxes(this.lootboxesCurrentPage + 1);
+    }
   }
 }

@@ -18,12 +18,38 @@
 
   <div class="shop-content">
     @if (activeTab() === 'skins') {
+    <div class="filters-container">
+      <div class="filter-group">
+        <label for="rarity-filter">Rarity:</label>
+        <select id="rarity-filter" [(ngModel)]="selectedRarity" (change)="applyFilters()">
+          <option value="ALL">All</option>
+          <option value="COMMON">Common</option>
+          <option value="UNCOMMON">Uncommon</option>
+          <option value="RARE">Rare</option>
+          <option value="EPIC">Epic</option>
+          <option value="LEGENDARY">Legendary</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="price-sort">Sort by price:</label>
+        <select id="price-sort" [(ngModel)]="priceSort" (change)="applyFilters()">
+          <option value="NONE">Default</option>
+          <option value="ASC">Low to High</option>
+          <option value="DESC">High to Low</option>
+        </select>
+      </div>
+    </div>
+
     <div class="products-grid">
       @for (skin of getSkins(); track skin.id) {
       <div class="product-card" [class.owned]="isOwned(skin)">
         @if (isOwned(skin)) {
         <div class="owned-badge">✓ Owned</div>
         }
+        <div class="rarity-badge" [attr.data-rarity]="extractRarity(skin.itemCode).toLowerCase()">
+          {{ extractRarity(skin.itemCode) }}
+        </div>
         <div class="product-image">
           @if (skin.skinType === 'color') {
           <div class="skin-preview-large" [style.background-color]="skin.value"></div>
@@ -52,9 +78,30 @@
       </div>
       }
     </div>
+
+    <div class="pagination">
+      <button class="btn btn-secondary" (click)="previousSkinsPage()" [disabled]="skinsCurrentPage === 0">
+        Previous
+      </button>
+      <span>Page {{ skinsCurrentPage + 1 }} of {{ skinsTotalPages }}</span>
+      <button class="btn btn-secondary" (click)="nextSkinsPage()" [disabled]="skinsCurrentPage >= skinsTotalPages - 1">
+        Next
+      </button>
+    </div>
     }
 
     @if (activeTab() === 'lootboxes') {
+    <div class="filters-container">
+      <div class="filter-group">
+        <label for="lootbox-price-sort">Sort by price:</label>
+        <select id="lootbox-price-sort" [(ngModel)]="lootboxPriceSort" (change)="applyLootboxSort()">
+          <option value="NONE">Default</option>
+          <option value="ASC">Low to High</option>
+          <option value="DESC">High to Low</option>
+        </select>
+      </div>
+    </div>
+
     <div class="products-grid">
       @for (lootbox of lootboxes(); track lootbox.id) {
       <div class="product-card lootbox-card">
@@ -81,6 +128,16 @@
         <p>No lootboxes available at the moment.</p>
       </div>
       }
+    </div>
+
+    <div class="pagination">
+      <button class="btn btn-secondary" (click)="previousLootboxesPage()" [disabled]="lootboxesCurrentPage === 0">
+        Previous
+      </button>
+      <span>Page {{ lootboxesCurrentPage + 1 }} of {{ lootboxesTotalPages }}</span>
+      <button class="btn btn-secondary" (click)="nextLootboxesPage()" [disabled]="lootboxesCurrentPage >= lootboxesTotalPages - 1">
+        Next
+      </button>
     </div>
     }
   </div>
