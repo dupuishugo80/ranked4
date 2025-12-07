@@ -113,7 +113,7 @@ export class ProfileComponent implements OnInit {
 
     this.profileService.equipDisc(disc.itemCode).subscribe({
       next: () => {
-        this.successMessage.set(`${disc.displayName || disc.itemCode} équipé avec succès !`);
+        this.successMessage.set(`${disc.displayName || disc.itemCode} equipped successfully !`);
         this.isEquippingDisc.set(false);
         this.loadProfile();
         setTimeout(() => {
@@ -121,8 +121,7 @@ export class ProfileComponent implements OnInit {
         }, 3000);
       },
       error: (err) => {
-        console.error('Error equipping disc:', err);
-        this.errorMessage.set(err.error?.message || 'Erreur lors de l\'équipement du disc');
+        this.errorMessage.set(err.error?.message || 'Error equipping disc');
         this.isEquippingDisc.set(false);
       }
     });
@@ -135,7 +134,7 @@ export class ProfileComponent implements OnInit {
 
     this.profileService.unequipDisc().subscribe({
       next: () => {
-        this.successMessage.set('Disc par défaut sélectionné avec succès !');
+        this.successMessage.set('Default disc unequipped successfully !');
         this.isEquippingDisc.set(false);
         this.loadProfile();
         setTimeout(() => {
@@ -143,8 +142,7 @@ export class ProfileComponent implements OnInit {
         }, 3000);
       },
       error: (err) => {
-        console.error('Error unequipping disc:', err);
-        this.errorMessage.set(err.error?.message || 'Erreur lors de la désélection du disc');
+        this.errorMessage.set(err.error?.message || 'Error unequipping disc');
         this.isEquippingDisc.set(false);
       }
     });
