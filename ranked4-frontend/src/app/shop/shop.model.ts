@@ -18,6 +18,7 @@ export interface Skin extends Product {
 export interface Lootbox extends Product {
   type: 'LOOTBOX';
   imageUrl: string;
+  dailyFree?: boolean;
   contents?: LootboxContent[];
 }
 

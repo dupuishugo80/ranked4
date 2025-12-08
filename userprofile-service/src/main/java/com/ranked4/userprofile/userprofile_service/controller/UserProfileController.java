@@ -39,6 +39,38 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
+    @GetMapping("/daily-free-available")
+    public ResponseEntity<?> isDailyFreeAvailable(@RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdHeader);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user ID format");
+        }
+
+        boolean available = userProfileService.isDailyFreeAvailable(userId);
+        return ResponseEntity.ok(new DailyFreeAvailabilityDTO(available));
+    }
+
+    @PostMapping("/update-daily-free")
+    public ResponseEntity<?> updateDailyFree(@RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdHeader);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user ID format");
+        }
+
+        try {
+            userProfileService.updateLastDailyFreeOpened(userId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    record DailyFreeAvailabilityDTO(boolean available) {}
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUserProfile(@RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
         UUID userId;

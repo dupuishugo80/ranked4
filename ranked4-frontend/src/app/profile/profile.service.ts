@@ -32,4 +32,8 @@ export class ProfileService {
   unequipDisc(): Observable<any> {
     return this.http.post(`${this.DISCS_URL}/unequip`, {});
   }
+
+  isDailyFreeAvailable(): Observable<{ available: boolean }> {
+    return this.http.get<{ available: boolean }>(`${this.API_URL}/daily-free-available`);
+  }
 }

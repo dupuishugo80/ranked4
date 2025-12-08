@@ -40,7 +40,20 @@ public class LootboxService {
 
     @Transactional(readOnly = true)
     public Page<LootboxDTO> getAllLootboxes(Pageable pageable) {
-        Page<Lootbox> lootboxPage = lootboxRepository.findAll(pageable);
+        List<Lootbox> allLootboxes = lootboxRepository.findAll();
+
+        allLootboxes.sort((a, b) -> {
+            if (a.isDailyFree() && !b.isDailyFree()) return -1;
+            if (!a.isDailyFree() && b.isDailyFree()) return 1;
+            return Long.compare(b.getId(), a.getId());
+        });
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allLootboxes.size());
+        List<Lootbox> pageContent = allLootboxes.subList(start, end);
+
+        Page<Lootbox> lootboxPage = new org.springframework.data.domain.PageImpl<>(
+            pageContent, pageable, allLootboxes.size());
         return lootboxPage.map(LootboxDTO::fromEntity);
     }
 
@@ -62,6 +75,7 @@ public class LootboxService {
         lootbox.setDescription(request.description());
         lootbox.setImageUrl(request.imageUrl());
         lootbox.setPrice(request.price());
+        lootbox.setDailyFree(request.dailyFree());
 
         List<LootboxContent> contents = new ArrayList<>();
         for (CreateLootboxRequestDTO.CreateLootboxContentDTO contentDTO : request.contents()) {
@@ -92,6 +106,7 @@ public class LootboxService {
         lootbox.setDescription(request.description());
         lootbox.setImageUrl(request.imageUrl());
         lootbox.setPrice(request.price());
+        lootbox.setDailyFree(request.dailyFree());
 
         lootbox.getContents().clear();
 
@@ -123,26 +138,55 @@ public class LootboxService {
         Lootbox lootbox = lootboxRepository.findById(lootboxId)
                 .orElseThrow(() -> new IllegalArgumentException("Lootbox not found: " + lootboxId));
 
-        int price = lootbox.getPrice();
+        if (lootbox.isDailyFree()) {
+            try {
+                DailyFreeAvailabilityResponse response = userProfileClient.get()
+                        .uri("/api/profiles/daily-free-available")
+                        .header("X-User-Id", userId.toString())
+                        .retrieve()
+                        .bodyToMono(DailyFreeAvailabilityResponse.class)
+                        .block();
 
-        try {
-            userProfileClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/api/profiles/debit-gold")
-                            .queryParam("amount", price)
-                            .build())
-                    .header("X-User-Id", userId.toString())
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block();
+                if (response == null || !response.available()) {
+                    throw new IllegalStateException("Daily free lootbox already opened today.");
+                }
 
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode() == HttpStatus.PAYMENT_REQUIRED) {
-                throw new IllegalStateException("Payment failed: Insufficient funds.");
-            } else if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new IllegalStateException("User not found during payment.");
-            } else {
-                throw new RuntimeException("Communication error with the profile service.", e);
+                userProfileClient.post()
+                        .uri("/api/profiles/update-daily-free")
+                        .header("X-User-Id", userId.toString())
+                        .retrieve()
+                        .toBodilessEntity()
+                        .block();
+
+            } catch (WebClientResponseException e) {
+                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    throw new IllegalStateException("User not found.");
+                } else {
+                    throw new RuntimeException("Communication error with the profile service.", e);
+                }
+            }
+        } else {
+            int price = lootbox.getPrice();
+
+            try {
+                userProfileClient.post()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/api/profiles/debit-gold")
+                                .queryParam("amount", price)
+                                .build())
+                        .header("X-User-Id", userId.toString())
+                        .retrieve()
+                        .toBodilessEntity()
+                        .block();
+
+            } catch (WebClientResponseException e) {
+                if (e.getStatusCode() == HttpStatus.PAYMENT_REQUIRED) {
+                    throw new IllegalStateException("Payment failed: Insufficient funds.");
+                } else if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    throw new IllegalStateException("User not found during payment.");
+                } else {
+                    throw new RuntimeException("Communication error with the profile service.", e);
+                }
             }
         }
 
@@ -254,5 +298,8 @@ public class LootboxService {
     }
 
     private record AddDiscWithResultResponse(Object profile, boolean alreadyOwned) {
+    }
+
+    private record DailyFreeAvailabilityResponse(boolean available) {
     }
 }

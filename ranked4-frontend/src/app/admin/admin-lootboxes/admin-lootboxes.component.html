@@ -108,6 +108,15 @@
           placeholder="100">
       </div>
 
+      <div class="form-group">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.dailyFree">
+          Daily Free (Free once per day)
+        </label>
+      </div>
+
       <div class="modal-section">
         <div class="section-header">
           <h4>Lootbox Contents</h4>
@@ -236,6 +245,15 @@
           [(ngModel)]="formData.price"
           min="0"
           placeholder="100">
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.dailyFree">
+          Daily Free (Free once per day)
+        </label>
       </div>
 
       <div class="modal-section">

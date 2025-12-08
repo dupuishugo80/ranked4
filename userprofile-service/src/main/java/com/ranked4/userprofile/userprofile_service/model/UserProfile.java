@@ -1,6 +1,7 @@
 package com.ranked4.userprofile.userprofile_service.model;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -56,6 +57,9 @@ public class UserProfile {
 
     @Column(nullable = false)
     private int gold = 0;
+
+    @Column
+    private LocalDate lastDailyFreeOpenedAt;
 
     @ManyToOne
     @JoinColumn(name = "equipped_disc_id", nullable = true)
@@ -172,6 +176,14 @@ public class UserProfile {
 
     public void setGold(int gold) {
         this.gold = gold;
+    }
+
+    public LocalDate getLastDailyFreeOpenedAt() {
+        return lastDailyFreeOpenedAt;
+    }
+
+    public void setLastDailyFreeOpenedAt(LocalDate lastDailyFreeOpenedAt) {
+        this.lastDailyFreeOpenedAt = lastDailyFreeOpenedAt;
     }
 
     public DiscCustomization getEquippedDisc() {

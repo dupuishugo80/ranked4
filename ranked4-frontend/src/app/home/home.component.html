@@ -67,3 +67,21 @@
   }
 
 </div>
+
+@if (showDailyFreeModal()) {
+  <div class="modal-overlay" (click)="closeDailyFreeModal()">
+    <div class="modal-content daily-free-modal" (click)="$event.stopPropagation()">
+      <h2>🎁 Daily Free Lootbox Available!</h2>
+      <p>Your free daily lootbox is ready to open!</p>
+      <p>Visit the shop to claim your reward.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeDailyFreeModal()">
+          Maybe Later
+        </button>
+        <button class="btn btn-primary" (click)="goToShop()">
+          Go to Shop
+        </button>
+      </div>
+    </div>
+  </div>
+}

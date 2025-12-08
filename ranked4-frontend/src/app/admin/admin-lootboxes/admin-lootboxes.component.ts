@@ -36,6 +36,7 @@ export class AdminLootboxesComponent implements OnInit {
     description: '',
     imageUrl: '',
     price: 0,
+    dailyFree: false,
     contents: [] as LootboxContent[]
   };
 
@@ -66,6 +67,7 @@ export class AdminLootboxesComponent implements OnInit {
       description: '',
       imageUrl: '',
       price: 0,
+      dailyFree: false,
       contents: []
     };
     this.showCreateModal.set(true);
@@ -84,6 +86,7 @@ export class AdminLootboxesComponent implements OnInit {
           description: detail.description,
           imageUrl: detail.imageUrl,
           price: detail.price,
+          dailyFree: detail.dailyFree || false,
           contents: [...detail.contents]
         };
         this.showEditModal.set(true);
@@ -113,6 +116,7 @@ export class AdminLootboxesComponent implements OnInit {
       description: this.formData.description,
       imageUrl: this.formData.imageUrl,
       price: this.formData.price,
+      dailyFree: this.formData.dailyFree,
       contents: this.formData.contents.map(c => ({
         itemCode: c.itemCode,
         itemType: c.itemType,
@@ -139,6 +143,7 @@ export class AdminLootboxesComponent implements OnInit {
       description: this.formData.description,
       imageUrl: this.formData.imageUrl,
       price: this.formData.price,
+      dailyFree: this.formData.dailyFree,
       contents: this.formData.contents.map(c => ({
         itemCode: c.itemCode,
         itemType: c.itemType,

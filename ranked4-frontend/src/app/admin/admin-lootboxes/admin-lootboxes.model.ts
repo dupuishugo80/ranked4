@@ -12,6 +12,7 @@ export interface Lootbox {
   description: string;
   imageUrl: string;
   price: number;
+  dailyFree?: boolean;
 }
 
 export interface LootboxDetail extends Lootbox {
@@ -23,6 +24,7 @@ export interface CreateLootboxRequest {
   description: string;
   imageUrl: string;
   price: number;
+  dailyFree: boolean;
   contents: Omit<LootboxContent, 'id'>[];
 }
 

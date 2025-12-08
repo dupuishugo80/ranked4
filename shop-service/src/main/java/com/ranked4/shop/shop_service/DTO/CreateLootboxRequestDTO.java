@@ -7,6 +7,7 @@ public record CreateLootboxRequestDTO(
     String description,
     String imageUrl,
     int price,
+    boolean dailyFree,
     List<CreateLootboxContentDTO> contents
 ) {
     public record CreateLootboxContentDTO(

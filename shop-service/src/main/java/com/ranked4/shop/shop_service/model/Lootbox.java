@@ -32,6 +32,9 @@ public class Lootbox {
     @Column(nullable = false)
     private int price;
 
+    @Column(nullable = false)
+    private boolean dailyFree = false;
+
     @OneToMany(mappedBy = "lootbox", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LootboxContent> contents = new ArrayList<>();
 
@@ -82,6 +85,14 @@ public class Lootbox {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public boolean isDailyFree() {
+        return dailyFree;
+    }
+
+    public void setDailyFree(boolean dailyFree) {
+        this.dailyFree = dailyFree;
     }
 
     public List<LootboxContent> getContents() {

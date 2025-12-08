@@ -1,5 +1,6 @@
 package com.ranked4.userprofile.userprofile_service.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -167,6 +168,26 @@ public class UserProfileService {
             .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
 
         profile.setGold(profile.getGold() + amount);
+        userProfileRepository.save(profile);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isDailyFreeAvailable(UUID userId) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
+
+        LocalDate lastOpened = profile.getLastDailyFreeOpenedAt();
+        LocalDate today = LocalDate.now();
+
+        return lastOpened == null || !lastOpened.equals(today);
+    }
+
+    @Transactional
+    public void updateLastDailyFreeOpened(UUID userId) {
+        UserProfile profile = userProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
+
+        profile.setLastDailyFreeOpenedAt(LocalDate.now());
         userProfileRepository.save(profile);
     }
 

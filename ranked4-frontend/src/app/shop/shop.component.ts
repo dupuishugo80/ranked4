@@ -34,6 +34,7 @@ export class ShopComponent implements OnInit {
   public isPurchasing: WritableSignal<boolean> = signal(false);
   public showLootboxOpening: WritableSignal<boolean> = signal(false);
   public selectedLootbox: WritableSignal<Lootbox | null> = signal(null);
+  public isDailyFreeAvailable: WritableSignal<boolean> = signal(false);
 
   public skinsCurrentPage = 0;
   public skinsTotalPages = 0;
@@ -51,6 +52,7 @@ export class ShopComponent implements OnInit {
     this.loadUserProfile();
     this.loadAllProducts();
     this.loadAllLootboxes();
+    this.checkDailyFreeAvailability();
   }
 
   private loadUserProfile(): void {
@@ -84,6 +86,15 @@ export class ShopComponent implements OnInit {
         this.applyLootboxSort();
       },
       error: (err) => console.error('Error loading lootboxes:', err)
+    });
+  }
+
+  private checkDailyFreeAvailability(): void {
+    this.profileService.isDailyFreeAvailable().subscribe({
+      next: (response) => {
+        this.isDailyFreeAvailable.set(response.available);
+      },
+      error: (err) => console.error('Error checking daily free availability:', err)
     });
   }
 
@@ -176,8 +187,13 @@ export class ShopComponent implements OnInit {
     const lootbox = this.selectedLootbox();
     if (!lootbox) return;
 
-    if (this.userGold() < lootbox.price) {
+    if (!lootbox.dailyFree && this.userGold() < lootbox.price) {
       alert('Insufficient gold !');
+      return;
+    }
+
+    if (lootbox.dailyFree && !this.isDailyFreeAvailable()) {
+      alert('Daily free lootbox already opened today!');
       return;
     }
 
@@ -185,7 +201,13 @@ export class ShopComponent implements OnInit {
       next: (result) => {
         console.log('Lootbox opened:', result);
 
-        this.userGold.update(gold => gold - lootbox.price);
+        if (!lootbox.dailyFree) {
+          this.userGold.update(gold => gold - lootbox.price);
+        }
+
+        if (lootbox.dailyFree) {
+          this.isDailyFreeAvailable.set(false);
+        }
 
         if (this.lootboxOpeningComponent) {
           const isDuplicate = result.displayMessage && result.displayMessage.includes('possédez déjà');
@@ -208,7 +230,8 @@ export class ShopComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error opening lootbox:', err);
-        alert('Error opening lootbox');
+        const errorMessage = err.error?.message || err.error || 'Error opening lootbox';
+        alert(errorMessage);
       }
     });
   }

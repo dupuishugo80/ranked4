@@ -104,18 +104,26 @@
 
     <div class="products-grid">
       @for (lootbox of lootboxes(); track lootbox.id) {
-      <div class="product-card lootbox-card">
+      <div class="product-card lootbox-card" [class.daily-free-card]="lootbox.dailyFree">
         <div class="product-image">
           <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-image">
+          @if (lootbox.dailyFree) {
+          <div class="lootbox-badge daily-free-badge-on-image">🎁 DAILY FREE</div>
+          } @else {
           <div class="lootbox-badge">Mystery Box</div>
+          }
         </div>
         <div class="product-info">
           <h3 class="product-name">{{ lootbox.name }}</h3>
           <p class="product-description">{{ lootbox.description }}</p>
           <div class="product-footer">
             <div class="product-price">
+              @if (lootbox.dailyFree) {
+              <span class="free-label">FREE</span>
+              } @else {
               <span class="gold-icon">🪙</span>
               <span>{{ lootbox.price }}</span>
+              }
             </div>
             <button class="btn btn-buy btn-lootbox" (click)="openLootboxModal(lootbox)">
               Voir les détails
@@ -199,7 +207,11 @@
 }
 
 @if (showLootboxOpening() && selectedLootbox()) {
-<app-lootbox-opening [lootbox]="selectedLootbox()!" [userGold]="userGold()" (close)="closeLootboxModal()"
+<app-lootbox-opening
+  [lootbox]="selectedLootbox()!"
+  [userGold]="userGold()"
+  [isDailyFreeAvailable]="isDailyFreeAvailable()"
+  (close)="closeLootboxModal()"
   (open)="handleLootboxOpen()">
 </app-lootbox-opening>
 }

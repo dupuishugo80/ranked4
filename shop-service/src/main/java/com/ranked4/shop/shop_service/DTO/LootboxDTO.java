@@ -11,6 +11,7 @@ public record LootboxDTO(
     String description,
     String imageUrl,
     int price,
+    boolean dailyFree,
     List<LootboxContentDTO> contents
 ) {
     public LootboxDTO(Lootbox entity) {
@@ -20,6 +21,7 @@ public record LootboxDTO(
             entity.getDescription(),
             entity.getImageUrl(),
             entity.getPrice(),
+            entity.isDailyFree(),
             entity.getContents().stream()
                 .map(LootboxContentDTO::new)
                 .collect(Collectors.toList())

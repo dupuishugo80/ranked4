@@ -36,6 +36,7 @@ export class LootboxOpeningComponent implements OnInit {
 
   @Input() lootbox!: Lootbox;
   @Input() userGold: number = 0;
+  @Input() isDailyFreeAvailable: boolean = false;
   @Output() close = new EventEmitter<void>();
   @Output() open = new EventEmitter<void>();
 
@@ -125,6 +126,9 @@ export class LootboxOpeningComponent implements OnInit {
   }
 
   canAfford(): boolean {
+    if (this.lootbox.dailyFree) {
+      return this.isDailyFreeAvailable;
+    }
     return this.userGold >= this.lootbox.price;
   }
 

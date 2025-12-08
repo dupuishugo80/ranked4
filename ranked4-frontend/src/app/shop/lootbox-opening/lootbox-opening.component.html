@@ -12,11 +12,21 @@
           <div class="header-actions">
             <button class="btn btn-primary btn-open-lootbox" [disabled]="!canAfford() || isOpening()"
               (click)="startOpening()">
-              {{ canAfford() ? 'Open the chest' : 'Insufficient' }}
+              @if (lootbox.dailyFree && !isDailyFreeAvailable) {
+                Already opened today
+              } @else if (canAfford()) {
+                Open the chest
+              } @else {
+                Insufficient
+              }
             </button>
             <div class="lootbox-price">
-              <span class="gold-icon">🪙</span>
-              <span>{{ lootbox.price }}</span>
+              @if (lootbox.dailyFree) {
+                <span class="free-label">FREE</span>
+              } @else {
+                <span class="gold-icon">🪙</span>
+                <span>{{ lootbox.price }}</span>
+              }
             </div>
           </div>
         </div>
