@@ -179,20 +179,25 @@ export class LootboxOpeningComponent implements OnInit {
       return;
     }
 
-    const itemWidth = 120;
-    const containerWidth = 600;
+    const isMobile = window.innerWidth <= 768;
+    const itemWidth = isMobile ? 90 : 110;
+    const gapBetweenItems = 10;
+
+    const reelViewport = document.querySelector('.reel-viewport');
+    const containerWidth = reelViewport ? reelViewport.clientWidth : (isMobile ? 400 : 600);
+
     const centerOffset = containerWidth / 2 - itemWidth / 2;
     const baseReelLength = Math.floor(this.reel().length / 5);
     const targetRepetition = 2;
     const adjustedIndex = resultIndex + (targetRepetition * baseReelLength);
 
     const reelPadding = 10;
-    const targetPosition = -(reelPadding + adjustedIndex * itemWidth - centerOffset);
+    const targetPosition = -(reelPadding + adjustedIndex * (itemWidth + gapBetweenItems) - centerOffset);
 
     const fastDuration = 4000;
     const slowDuration = 4000 + Math.random() * 1500;
 
-    this.animateScrollTwoPhase(targetPosition, fastDuration, slowDuration);
+    this.animateScrollTwoPhase(targetPosition, fastDuration, slowDuration, itemWidth, gapBetweenItems);
   }
 
   private playTickSound(volume: number = 0.3): void {
@@ -225,10 +230,10 @@ export class LootboxOpeningComponent implements OnInit {
     }
   }
 
-  private animateScrollTwoPhase(targetPosition: number, fastDuration: number, slowDuration: number): void {
+  private animateScrollTwoPhase(targetPosition: number, fastDuration: number, slowDuration: number, itemWidth: number, gapBetweenItems: number): void {
     const startPosition = 0;
     const startTime = Date.now();
-    const itemWidth = 120;
+    const itemTotalWidth = itemWidth + gapBetweenItems;
     const totalDuration = fastDuration + slowDuration;
 
     let totalItemsPassed = 0;
@@ -249,7 +254,7 @@ export class LootboxOpeningComponent implements OnInit {
       const easedProgress = 1 - Math.pow(1 - progress, 3);
 
       const currentPosition = startPosition + (targetPosition - startPosition) * easedProgress;
-      const newItemsPassed = Math.floor(Math.abs(currentPosition) / itemWidth);
+      const newItemsPassed = Math.floor(Math.abs(currentPosition) / itemTotalWidth);
 
       if (newItemsPassed > totalItemsPassed) {
         const itemsToPlay = newItemsPassed - totalItemsPassed;

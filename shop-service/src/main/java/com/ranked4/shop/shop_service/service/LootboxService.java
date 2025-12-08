@@ -193,18 +193,20 @@ public class LootboxService {
                 throw new RuntimeException("Failed to add disc to user inventory.", e);
             }
         } else if ("GOLD".equals(selectedReward.getItemType())) {
-            try {
-                userProfileClient.post()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/api/profiles/" + userId.toString() + "/credit-gold")
-                                .queryParam("amount", selectedReward.getGoldAmount())
-                                .build())
-                        .header("X-User-Roles", "ROLE_ADMIN")
-                        .retrieve()
-                        .toBodilessEntity()
-                        .block();
-            } catch (WebClientResponseException e) {
-                throw new RuntimeException("Failed to credit gold to user.", e);
+            if (selectedReward.getGoldAmount() != null && selectedReward.getGoldAmount() > 0) {
+                try {
+                    userProfileClient.post()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/api/profiles/" + userId.toString() + "/credit-gold")
+                                    .queryParam("amount", selectedReward.getGoldAmount())
+                                    .build())
+                            .header("X-User-Roles", "ROLE_ADMIN")
+                            .retrieve()
+                            .toBodilessEntity()
+                            .block();
+                } catch (WebClientResponseException e) {
+                    throw new RuntimeException("Failed to credit gold to user.", e);
+                }
             }
         }
 
