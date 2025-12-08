@@ -13,19 +13,19 @@
             <button class="btn btn-primary btn-open-lootbox" [disabled]="!canAfford() || isOpening()"
               (click)="startOpening()">
               @if (lootbox.dailyFree && !isDailyFreeAvailable) {
-                Already opened today
+              Already opened today
               } @else if (canAfford()) {
-                Open the chest
+              Open the chest
               } @else {
-                Insufficient
+              Insufficient
               }
             </button>
             <div class="lootbox-price">
               @if (lootbox.dailyFree) {
-                <span class="free-label">FREE</span>
+              <span class="free-label">FREE</span>
               } @else {
-                <span class="gold-icon">🪙</span>
-                <span>{{ lootbox.price }}</span>
+              <span class="gold-icon">🪙</span>
+              <span>{{ lootbox.price }}</span>
               }
             </div>
           </div>
@@ -38,7 +38,7 @@
           @for (content of lootbox.contents; track $index) {
           <div class="content-item">
             <div class="item-probability">
-              Gains {{ getProbability(content).toFixed(2) }}%
+              Drop Rate {{ getProbability(content).toFixed(2) }}%
             </div>
             <div class="item-visual">
               @if (content.itemType === 'DISC') {
