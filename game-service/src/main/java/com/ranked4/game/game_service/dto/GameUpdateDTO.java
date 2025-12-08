@@ -17,7 +17,8 @@ public record GameUpdateDTO(
     String error,
     String origin,
     PlayerInfoDTO playerOne,
-    PlayerInfoDTO playerTwo
+    PlayerInfoDTO playerTwo,
+    Integer aiDifficulty
 ) {
     public GameUpdateDTO(Game game, PlayerInfoDTO playerOne, PlayerInfoDTO playerTwo) {
         this(
@@ -31,7 +32,8 @@ public record GameUpdateDTO(
             null,
             game.getOrigin(),
             playerOne,
-            playerTwo
+            playerTwo,
+            game.getAiDifficulty()
         );
     }
 
@@ -47,7 +49,8 @@ public record GameUpdateDTO(
             error,
             origin,
             playerOne,
-            playerTwo
+            playerTwo,
+            aiDifficulty
         );
     }
 }

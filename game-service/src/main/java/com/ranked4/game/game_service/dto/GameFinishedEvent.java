@@ -3,6 +3,7 @@ package com.ranked4.game.game_service.dto;
 import java.util.UUID;
 
 import com.ranked4.game.game_service.model.Disc;
+import com.ranked4.game.game_service.model.GameType;
 
 public class GameFinishedEvent {
 
@@ -12,20 +13,27 @@ public class GameFinishedEvent {
     private String winner;
     private boolean ranked = true;
     private String origin = "RANKED";
+    private String gameType = "PVP_RANKED";
+    private Integer aiDifficulty;
 
     public GameFinishedEvent() {
     }
 
     public GameFinishedEvent(UUID gameId, UUID playerOneId, UUID playerTwoId, Disc winnerDisc) {
-        this(gameId, playerOneId, playerTwoId, winnerDisc, true, "RANKED");
+        this(gameId, playerOneId, playerTwoId, winnerDisc, true, "RANKED", GameType.PVP_RANKED);
     }
 
     public GameFinishedEvent(UUID gameId, UUID playerOneId, UUID playerTwoId, Disc winnerDisc, boolean ranked, String origin) {
+        this(gameId, playerOneId, playerTwoId, winnerDisc, ranked, origin, GameType.PVP_RANKED);
+    }
+
+    public GameFinishedEvent(UUID gameId, UUID playerOneId, UUID playerTwoId, Disc winnerDisc, boolean ranked, String origin, GameType gameType) {
         this.gameId = gameId;
         this.playerOneId = playerOneId;
         this.playerTwoId = playerTwoId;
         this.ranked = ranked;
         this.origin = origin;
+        this.gameType = gameType != null ? gameType.name() : "PVP_RANKED";
 
         if (winnerDisc == null) {
             this.winner = null;
@@ -80,5 +88,21 @@ public class GameFinishedEvent {
 
     public void setOrigin(String origin) {
         this.origin = origin;
+    }
+
+    public String getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(String gameType) {
+        this.gameType = gameType;
+    }
+
+    public Integer getAiDifficulty() {
+        return aiDifficulty;
+    }
+
+    public void setAiDifficulty(Integer aiDifficulty) {
+        this.aiDifficulty = aiDifficulty;
     }
 }

@@ -66,6 +66,12 @@ export class AppComponent implements OnInit {
     this.isPlayMenuOpen = false;
   }
 
+  playAiGame(): void {
+    this.router.navigate(['/ai-game']);
+    this.isMenuOpen = false;
+    this.isPlayMenuOpen = false;
+  }
+
   goToAdmin(): void {
     this.router.navigate(['/admin']);
     this.isMenuOpen = false;

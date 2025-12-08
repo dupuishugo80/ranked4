@@ -31,7 +31,6 @@ export class ProfileComponent implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (profile) => {
         this.profile.set(profile);
-        console.log('Profile loaded:', profile);
       },
       error: (err) => {
         console.error('Error loading profile:', err);

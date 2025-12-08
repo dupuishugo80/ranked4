@@ -19,25 +19,23 @@ export class WebSocketService {
   constructor() {
     this.stompClient = new Client({
       brokerURL: this.WEBSOCKET_URL,
-      debug: (str) => console.log(`[STOMP] ${str}`),
+      debug: (str) => { },
       reconnectDelay: 5000,
     });
 
     this.stompClient.onConnect = () => {
-      console.log('Connecté au WebSocket (STOMP)');
       this.connectionState$.next('CONNECTED');
     };
 
     this.stompClient.onStompError = (frame) => {
       console.error('[STOMP] Erreur:', frame.headers['message']);
     };
-    
+
     this.stompClient.onWebSocketError = (error) => {
       console.error('[WS] Erreur:', error);
     };
 
     this.stompClient.onDisconnect = () => {
-      console.log('[WS] Déconnecté');
       this.connectionState$.next('DISCONNECTED');
     };
   }
@@ -59,14 +57,11 @@ export class WebSocketService {
       take(1),
       switchMap(() => {
         return new Observable<IMessage>(observer => {
-          console.log(`[WS] Abonnement à ${topic}`);
-          
           const subscription: StompSubscription = this.stompClient.subscribe(topic, (message) => {
             observer.next(message);
           });
-          
+
           return () => {
-            console.log(`[WS] Désabonnement de ${topic}`);
             subscription.unsubscribe();
           };
         });

@@ -10,6 +10,7 @@ export interface GameUpdate {
   winner: PlayerDisc | 'DRAW' | null;
   error: string | null;
   origin?: string;
+  aiDifficulty?: number | null;
 }
 
 export interface DiscCustomization {

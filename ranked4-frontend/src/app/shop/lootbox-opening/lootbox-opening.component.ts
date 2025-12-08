@@ -61,7 +61,6 @@ export class LootboxOpeningComponent implements OnInit {
     this.http.get<any>(`${API_ENDPOINTS.DISCS}?page=0&size=1000`).subscribe({
       next: (response) => {
         const discs = response.content || response;
-        console.log('Loaded discs for lootbox:', discs);
         const map = new Map<string, DiscInfo>();
         discs.forEach((disc: any) => {
           map.set(disc.itemCode, {
@@ -72,8 +71,6 @@ export class LootboxOpeningComponent implements OnInit {
           });
         });
         this.discsMap.set(map);
-        console.log('DiscsMap size:', this.discsMap().size);
-        console.log('Lootbox contents:', this.lootbox.contents);
         this.generateReel();
       },
       error: (err) => {

@@ -178,7 +178,19 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ranked4_db
       SPRING_DATASOURCE_USERNAME: ranked4user
       SPRING_DATASOURCE_PASSWORD: ranked4password
-  
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: ai_service
+    ports:
+      - "8086:8080"
+    networks:
+      - app-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
   frontend:
     build:
       context: ./ranked4-frontend

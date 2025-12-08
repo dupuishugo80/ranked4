@@ -36,10 +36,10 @@ export class LoginService {
 
   logout(): void {
     const refreshToken = this.getRefreshToken();
-    
+
     if (refreshToken) {
       this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe({
-        next: () => console.log('Déconnexion API réussie'),
+        next: () => { },
         error: () => console.error('Échec de la déconnexion API')
       });
     }
@@ -87,7 +87,7 @@ export class LoginService {
     if (!token) {
       return null;
     }
-    
+
     try {
       const decodedToken = jwtDecode<JwtPayload>(token);
       return decodedToken.userId;
@@ -116,7 +116,7 @@ export class LoginService {
         switchMap((tokens) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(tokens.accessToken);
-          
+
           return next(this.addTokenToRequest(request, tokens.accessToken));
         }),
         catchError((err) => {

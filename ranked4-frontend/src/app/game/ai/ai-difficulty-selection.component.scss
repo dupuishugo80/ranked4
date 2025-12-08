@@ -1,0 +1,232 @@
+.ai-selection-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  /* Fond gris très clair neutre */
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.ai-selection-content {
+  max-width: 800px;
+  /* Largeur réduite pour plus de lisibilité */
+  width: 100%;
+}
+
+/* Bouton retour simple */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #991b1b;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.difficulties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.difficulty-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  text-align: left;
+  /* Alignement plus standard */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  /* Suppression des effets de "pop" et d'ombres lourdes */
+  &:hover:not(:disabled) {
+    border-color: #3b82f6;
+    /* Bordure bleue simple au survol */
+    background-color: #feffff;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+  }
+
+  &.is-loading {
+    cursor: wait;
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.difficulty-emoji {
+  font-size: 1.5rem;
+}
+
+.difficulty-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.difficulty-description {
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.difficulty-gold {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 300px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.label {
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.value {
+  font-weight: bold;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.difficulty-footer {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2563eb;
+  margin-top: auto;
+  text-align: center;
+  width: 100%;
+}
+
+.info-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: #4b5563;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      font-size: 0.9rem;
+      padding: 0.25rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+
+      &::before {
+        content: '•';
+        /* Remplacement du check vert par un point simple */
+        position: absolute;
+        left: 0;
+        color: #9ca3af;
+      }
+    }
+  }
+}
+
+/* Responsive simple */
+@media (max-width: 640px) {
+  .ai-selection-container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+}

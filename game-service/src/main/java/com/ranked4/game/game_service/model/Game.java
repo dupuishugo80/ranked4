@@ -51,6 +51,12 @@ public class Game {
     @Column(nullable = false, length = 32)
     private String origin = "RANKED";
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GameType gameType = GameType.PVP_RANKED;
+
+    private Integer aiDifficulty;
+
     @Transient
     private GameBoard gameLogic = new GameBoard();
 
@@ -207,5 +213,29 @@ public class Game {
 
     public void setGameLogic(GameBoard gameLogic) {
         this.gameLogic = gameLogic;
+    }
+
+    public GameType getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
+
+    public Integer getAiDifficulty() {
+        return aiDifficulty;
+    }
+
+    public void setAiDifficulty(Integer aiDifficulty) {
+        this.aiDifficulty = aiDifficulty;
+    }
+
+    public boolean isAiOpponent(UUID playerId) {
+        return gameType == GameType.PVE && !playerOneId.equals(playerId);
+    }
+
+    public UUID getNextPlayerId() {
+        return (nextPlayer == Disc.PLAYER_ONE) ? playerOneId : playerTwoId;
     }
 }

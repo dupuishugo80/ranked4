@@ -10,6 +10,8 @@ public class GameFinishedEvent {
     private String winner;
     private boolean ranked = true;
     private String origin = "RANKED";
+    private String gameType = "PVP_RANKED";
+    private Integer aiDifficulty;
 
     public UUID getGameId() {
         return gameId;
@@ -59,6 +61,22 @@ public class GameFinishedEvent {
         this.origin = origin;
     }
 
+    public String getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(String gameType) {
+        this.gameType = gameType;
+    }
+
+    public Integer getAiDifficulty() {
+        return aiDifficulty;
+    }
+
+    public void setAiDifficulty(Integer aiDifficulty) {
+        this.aiDifficulty = aiDifficulty;
+    }
+
     @Override
     public String toString() {
         return "GameFinishedEvent{" +
@@ -68,6 +86,8 @@ public class GameFinishedEvent {
                 ", winner='" + winner + '\'' +
                 ", ranked=" + ranked +
                 ", origin='" + origin + '\'' +
+                ", gameType='" + gameType + '\'' +
+                ", aiDifficulty=" + aiDifficulty +
                 '}';
     }
 }

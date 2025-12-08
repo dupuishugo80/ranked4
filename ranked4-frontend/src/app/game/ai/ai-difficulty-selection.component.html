@@ -1,0 +1,55 @@
+<div class="ai-selection-container">
+  <div class="ai-selection-content">
+    <div class="header-section">
+      <h1 class="title">Game against AI</h1>
+      <p class="subtitle">Choose your difficulty level</p>
+    </div>
+
+    @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+    }
+
+    <div class="difficulties-grid">
+      @for (diff of difficulties; track diff.level) {
+      <button class="difficulty-card" [class.is-loading]="isCreating" [disabled]="isCreating"
+        (click)="selectDifficulty(diff.level)">
+
+        <div class="card-header">
+          <h2 class="difficulty-name">{{ diff.name }}</h2>
+        </div>
+
+        <p class="difficulty-description">{{ diff.description }}</p>
+
+        <div class="difficulty-gold">
+          <div class="stat-row">
+            <span class="label">Win :</span>
+            <span class="value">{{ diff.goldOnWin }} 🪙</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Draw :</span>
+            <span class="value">{{ diff.goldOnDraw }} 🪙</span>
+          </div>
+        </div>
+
+        <div class="difficulty-footer">
+          @if (isCreating) {
+          <span>Loading...</span>
+          } @else {
+          <span>Select →</span>
+          }
+        </div>
+      </button>
+      }
+    </div>
+
+    <div class="info-box">
+      <h3>Information</h3>
+      <ul>
+        <li>AI games do not affect your ELO ranking</li>
+        <li>Perfect for testing new strategies</li>
+      </ul>
+    </div>
+  </div>
+</div>

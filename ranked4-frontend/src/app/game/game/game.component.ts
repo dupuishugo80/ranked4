@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { filter, Observable, Subscription, timer } from 'rxjs';
 import { GameUpdate, PlayerDisc, PlayerInfo } from './game.model';
 import { GameService } from './game.service';
@@ -20,6 +20,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   public gameService = inject(GameService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private gifService = inject(GifService);
   private profileService = inject(ProfileService);
 
@@ -61,6 +62,12 @@ export class GameComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
 
   ngOnInit(): void {
+    const gameId = this.route.snapshot.paramMap.get('id');
+
+    if (gameId && this.gameService.gameStatus$.value !== 'IN_GAME') {
+      this.gameService.joinGameById(gameId);
+    }
+
     const gifsSub = this.gifService.getGifs().subscribe(gifs => {
       this.gifs = gifs;
     });
@@ -96,12 +103,25 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
       if (!state) return;
+
+      // Auto-detect myDisc if not set yet
+      if (!this.myDisc) {
+        const myUserId = this.gameService.getMyUserId();
+        if (myUserId) {
+          if (String(state.playerOne.userId) === String(myUserId)) {
+            this.myDisc = 'PLAYER_ONE';
+          } else if (String(state.playerTwo.userId) === String(myUserId)) {
+            this.myDisc = 'PLAYER_TWO';
+          }
+        }
+      }
+
       if (this.myDisc === 'PLAYER_ONE') {
         this.myPlayerInfo = state.playerOne;
-        this.opponentPlayerInfo = state.playerTwo;
+        this.opponentPlayerInfo = this.formatAiOpponent(state.playerTwo);
       } else {
         this.myPlayerInfo = state.playerTwo;
-        this.opponentPlayerInfo = state.playerOne;
+        this.opponentPlayerInfo = this.formatAiOpponent(state.playerOne);
       }
 
       this.playerOneDisc = state.playerOne.disc;
@@ -129,6 +149,21 @@ export class GameComponent implements OnInit, OnDestroy {
     });
   }
 
+  private formatAiOpponent(playerInfo: PlayerInfo): PlayerInfo {
+    const AI_UUID = '00000000-0000-0000-0000-000000000001';
+
+    if (playerInfo.userId === AI_UUID) {
+      return {
+        ...playerInfo,
+        displayName: 'IA',
+        avatarUrl: 'https://img.freepik.com/vecteurs-libre/robot-vectoriel-graident-ai_78370-4114.jpg?semt=ais_se_enriched&w=740&q=80',
+        elo: 0
+      };
+    }
+
+    return playerInfo;
+  }
+
   isOpponentP1(): boolean {
     return this.myDisc === 'PLAYER_TWO';
   }
@@ -140,7 +175,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private updateGameMessage(state: GameUpdate): void {
-    console.log('[GAME STATE]', state);
     if (state.error && state.nextPlayer === this.myDisc) {
       this.gameMessage = `Error: ${state.error}`;
       this.isLoser = false;
@@ -164,8 +198,35 @@ export class GameComponent implements OnInit, OnDestroy {
       }
 
       const isRanked = state.origin === 'RANKED';
-      const goldWin = isRanked ? 100 : 50;
-      const goldDraw = isRanked ? 50 : 25;
+      const isPve = state.origin === 'PVE';
+
+      let goldWin: number;
+      let goldDraw: number;
+
+      if (isPve) {
+        // PVE rewards based on AI difficulty: 1=Easy, 2=Medium, 3=Hard
+        const difficulty = state.aiDifficulty || 2; // Default to medium
+        switch (difficulty) {
+          case 1: // Easy
+            goldWin = 50;
+            goldDraw = 25;
+            break;
+          case 2: // Medium
+            goldWin = 100;
+            goldDraw = 50;
+            break;
+          case 3: // Hard
+            goldWin = 200;
+            goldDraw = 100;
+            break;
+          default:
+            goldWin = 100;
+            goldDraw = 50;
+        }
+      } else {
+        goldWin = isRanked ? 100 : 50;
+        goldDraw = isRanked ? 50 : 25;
+      }
 
       // Déterminer le message et le gold gagné
       if (state.winner === this.myDisc) {
@@ -211,7 +272,6 @@ export class GameComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log(`[ACTION] Clic sur colonne ${colIndex}`);
     this.gameService.makeMove(colIndex);
   }
 
@@ -317,6 +377,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.stateSub?.unsubscribe();
     this.errorSub?.unsubscribe();
 
+    // Only cleanup if the game is still in progress
+    // Finished games will be cleaned up when starting a new game
     if (this.gameStatus === 'IN_PROGRESS') {
       this.gameService.leaveGame();
     }

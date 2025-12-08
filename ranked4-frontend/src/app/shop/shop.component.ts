@@ -70,7 +70,6 @@ export class ShopComponent implements OnInit {
   private loadAllProducts(): void {
     this.shopService.getProducts(0, 1000).subscribe({
       next: (response: PageResponse<Skin>) => {
-        console.log('Loaded all products:', response);
         this.allProducts = response.content;
         this.applyFilters();
       },
@@ -81,7 +80,6 @@ export class ShopComponent implements OnInit {
   private loadAllLootboxes(): void {
     this.shopService.getLootboxes(0, 1000).subscribe({
       next: (response: PageResponse<any>) => {
-        console.log('Loaded all lootboxes:', response);
         this.allLootboxes = response.content;
         this.applyLootboxSort();
       },
@@ -199,8 +197,6 @@ export class ShopComponent implements OnInit {
 
     this.shopService.openLootbox(lootbox.id).subscribe({
       next: (result) => {
-        console.log('Lootbox opened:', result);
-
         if (!lootbox.dailyFree) {
           this.userGold.update(gold => gold - lootbox.price);
         }

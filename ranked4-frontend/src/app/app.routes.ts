@@ -15,6 +15,7 @@ import { AdminSkinsComponent } from './admin/admin-skin/admin-skins.component';
 import { AdminGifsComponent } from './admin/admin-gifs/admin-gifs.component';
 import { ShopComponent } from './shop/shop.component';
 import { ProfileComponent } from './profile/profile.component';
+import { AiDifficultySelectionComponent } from './game/ai/ai-difficulty-selection.component';
 
 export const routes: Routes = [
     { 
@@ -60,6 +61,11 @@ export const routes: Routes = [
   {
     path: 'private-game',
     component: PrivateGameComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'ai-game',
+    component: AiDifficultySelectionComponent,
     canActivate: [authGuard]
   },
   {

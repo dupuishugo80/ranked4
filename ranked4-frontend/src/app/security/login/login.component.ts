@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms'; 
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { LoginService } from './login.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -20,7 +20,7 @@ export class LoginComponent {
   errorMessage: string | null = null;
 
   loginForm = this.fb.group({
-    username: ['', [Validators.required]], 
+    username: ['', [Validators.required]],
     password: ['', [Validators.required]],
   });
 
@@ -30,13 +30,12 @@ export class LoginComponent {
     }
 
     this.errorMessage = null;
-    
+
     const payload = this.loginForm.value as { username: string, password: string };
 
     this.authService.login(payload).subscribe({
       next: (response) => {
-        console.log('Connexion réussie !', response);
-        this.router.navigate(['/home']); 
+        this.router.navigate(['/home']);
       },
       error: (err: HttpErrorResponse) => {
         console.error('Échec de la connexion', err);
