@@ -126,7 +126,7 @@
               }
             </div>
             <button class="btn btn-buy btn-lootbox" (click)="openLootboxModal(lootbox)">
-              Voir les détails
+              See details
             </button>
           </div>
         </div>
@@ -143,7 +143,8 @@
         Previous
       </button>
       <span>Page {{ lootboxesCurrentPage + 1 }} of {{ lootboxesTotalPages }}</span>
-      <button class="btn btn-secondary" (click)="nextLootboxesPage()" [disabled]="lootboxesCurrentPage >= lootboxesTotalPages - 1">
+      <button class="btn btn-secondary" (click)="nextLootboxesPage()"
+        [disabled]="lootboxesCurrentPage >= lootboxesTotalPages - 1">
         Next
       </button>
     </div>
@@ -207,11 +208,7 @@
 }
 
 @if (showLootboxOpening() && selectedLootbox()) {
-<app-lootbox-opening
-  [lootbox]="selectedLootbox()!"
-  [userGold]="userGold()"
-  [isDailyFreeAvailable]="isDailyFreeAvailable()"
-  (close)="closeLootboxModal()"
-  (open)="handleLootboxOpen()">
+<app-lootbox-opening [lootbox]="selectedLootbox()!" [userGold]="userGold()"
+  [isDailyFreeAvailable]="isDailyFreeAvailable()" (close)="closeLootboxModal()" (open)="handleLootboxOpen()">
 </app-lootbox-opening>
 }
