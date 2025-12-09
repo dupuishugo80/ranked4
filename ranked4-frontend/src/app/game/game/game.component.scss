@@ -14,6 +14,10 @@
 
 .game-header {
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .game-header .game-message {
@@ -54,6 +58,52 @@
     .reward-elo {
       line-height: 1.4;
     }
+  }
+}
+
+.turn-timer {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #28a745;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: rgba(40, 167, 69, 0.15);
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &.timer-warning {
+    color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.15);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    animation: pulse-warning 1s ease-in-out infinite;
+  }
+
+  &.timer-critical {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.15);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    animation: pulse-critical 0.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-critical {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
   }
 }
 

@@ -134,4 +134,16 @@ public class GameSocketController {
 
         gameSessionRegistry.registerLobbySession(sessionId, playerId);
     }
+
+    public void broadcastGameUpdate(UUID gameId) {
+        try {
+            Game game = gameService.getGameState(gameId);
+            GameUpdateDTO gameUpdate = createGameUpdateDTO(game);
+            String destination = "/topic/game/" + gameId;
+            messagingTemplate.convertAndSend(destination, gameUpdate);
+            log.info("Broadcasted game update for game {}", gameId);
+        } catch (Exception e) {
+            log.error("Error broadcasting game update for game {}", gameId, e);
+        }
+    }
 }

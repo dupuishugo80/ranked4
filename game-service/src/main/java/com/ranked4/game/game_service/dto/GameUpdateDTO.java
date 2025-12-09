@@ -1,5 +1,7 @@
 package com.ranked4.game.game_service.dto;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 import com.ranked4.game.game_service.model.Disc;
@@ -18,7 +20,8 @@ public record GameUpdateDTO(
     String origin,
     PlayerInfoDTO playerOne,
     PlayerInfoDTO playerTwo,
-    Integer aiDifficulty
+    Integer aiDifficulty,
+    Long turnTimeRemainingSeconds
 ) {
     public GameUpdateDTO(Game game, PlayerInfoDTO playerOne, PlayerInfoDTO playerTwo) {
         this(
@@ -33,8 +36,19 @@ public record GameUpdateDTO(
             game.getOrigin(),
             playerOne,
             playerTwo,
-            game.getAiDifficulty()
+            game.getAiDifficulty(),
+            calculateTimeRemaining(game)
         );
+    }
+
+    private static Long calculateTimeRemaining(Game game) {
+        if (game.getTurnStartTime() == null || game.getStatus() != GameStatus.IN_PROGRESS) {
+            return null;
+        }
+
+        long elapsed = Duration.between(game.getTurnStartTime(), Instant.now()).getSeconds();
+        long remaining = 60 - elapsed;
+        return Math.max(0, remaining);
     }
 
     public GameUpdateDTO withError(String error) {
@@ -50,7 +64,8 @@ public record GameUpdateDTO(
             origin,
             playerOne,
             playerTwo,
-            aiDifficulty
+            aiDifficulty,
+            turnTimeRemainingSeconds
         );
     }
 }

@@ -11,6 +11,7 @@ export interface GameUpdate {
   error: string | null;
   origin?: string;
   aiDifficulty?: number | null;
+  turnTimeRemainingSeconds?: number | null;
 }
 
 export interface DiscCustomization {

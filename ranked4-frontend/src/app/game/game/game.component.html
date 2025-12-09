@@ -99,6 +99,16 @@
       </div>
       }
     </div>
+    @if (turnTimeRemaining !== null && gameStatus === 'IN_PROGRESS') {
+    <div class="turn-timer" [class.timer-warning]="turnTimeRemaining <= 10"
+      [class.timer-critical]="turnTimeRemaining <= 5">
+      @if (turnTimeRemaining > 0) {
+        ⏱️ {{ turnTimeRemaining }}s
+      } @else {
+        ⏱️ Auto-play...
+      }
+    </div>
+    }
   </header>
 
   <div class="game-board-layout">

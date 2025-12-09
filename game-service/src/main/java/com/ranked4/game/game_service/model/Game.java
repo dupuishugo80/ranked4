@@ -57,6 +57,9 @@ public class Game {
 
     private Integer aiDifficulty;
 
+    @Column
+    private Instant turnStartTime;
+
     @Transient
     private GameBoard gameLogic = new GameBoard();
 
@@ -79,6 +82,7 @@ public class Game {
 
         this.gameLogic = new GameBoard();
         this.boardState = this.gameLogic.serializeGrid();
+        this.turnStartTime = Instant.now();
     }
 
     public boolean applyMove(int column, Disc playerDisc) {
@@ -100,6 +104,9 @@ public class Game {
 
             if (this.status == GameStatus.FINISHED) {
                 this.finishedAt = Instant.now();
+                this.turnStartTime = null;
+            } else {
+                this.turnStartTime = Instant.now();
             }
         }
         return success;
@@ -237,5 +244,13 @@ public class Game {
 
     public UUID getNextPlayerId() {
         return (nextPlayer == Disc.PLAYER_ONE) ? playerOneId : playerTwoId;
+    }
+
+    public Instant getTurnStartTime() {
+        return turnStartTime;
+    }
+
+    public void setTurnStartTime(Instant turnStartTime) {
+        this.turnStartTime = turnStartTime;
     }
 }

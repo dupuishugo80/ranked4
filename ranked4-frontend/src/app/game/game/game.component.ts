@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { filter, Observable, Subscription, timer } from 'rxjs';
+import { filter, interval, Observable, Subscription, timer } from 'rxjs';
 import { GameUpdate, PlayerDisc, PlayerInfo } from './game.model';
 import { GameService } from './game.service';
 import { DiscCustomization, UserProfile } from '../../profile/profile.model';
@@ -48,6 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public gameMessage: string = "Loading the game...";
   public goldEarned: number | null = null;
   public eloChange: number | null = null;
+  public turnTimeRemaining: number | null = null;
 
   private stateSub: Subscription | null = null;
   private errorSub: Subscription | null = null;
@@ -60,6 +61,9 @@ export class GameComponent implements OnInit, OnDestroy {
   gifs: Gif[] = [];
   lastReactionsByPlayer: { [playerId: string]: GifReactionEvent | null } = {};
   private subs: Subscription[] = [];
+
+  private timerSub: Subscription | null = null;
+  private lastReceivedTime: number | null = null;
 
   ngOnInit(): void {
     const gameId = this.route.snapshot.paramMap.get('id');
@@ -146,7 +150,33 @@ export class GameComponent implements OnInit, OnDestroy {
 
       this.board = this.parseBoardState(state.boardState);
       this.updateGameMessage(state!);
+
+      if (state.turnTimeRemainingSeconds !== undefined && state.turnTimeRemainingSeconds !== null) {
+        this.lastReceivedTime = state.turnTimeRemainingSeconds;
+        this.turnTimeRemaining = state.turnTimeRemainingSeconds;
+        this.startLocalTimer();
+      } else {
+        this.turnTimeRemaining = null;
+        this.stopLocalTimer();
+      }
     });
+  }
+
+  private startLocalTimer(): void {
+    this.stopLocalTimer();
+
+    this.timerSub = interval(1000).subscribe(() => {
+      if (this.turnTimeRemaining !== null && this.turnTimeRemaining > 0) {
+        this.turnTimeRemaining--;
+      }
+    });
+  }
+
+  private stopLocalTimer(): void {
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+      this.timerSub = null;
+    }
   }
 
   private formatAiOpponent(playerInfo: PlayerInfo): PlayerInfo {
@@ -376,6 +406,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
     this.stateSub?.unsubscribe();
     this.errorSub?.unsubscribe();
+    this.stopLocalTimer();
 
     // Only cleanup if the game is still in progress
     // Finished games will be cleaned up when starting a new game
