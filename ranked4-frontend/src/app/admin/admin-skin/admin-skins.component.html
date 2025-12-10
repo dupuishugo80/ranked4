@@ -1,9 +1,7 @@
 <div class="admin-container">
   <h2>Admin - Skins Management</h2>
 
-  <button class="btn btn-primary" (click)="openCreateModal()">
-    Create New Disc
-  </button>
+  <button class="btn btn-primary" (click)="openCreateModal()">Create New Disc</button>
 
   <div class="discs-table-container">
     <table>
@@ -19,228 +17,219 @@
         </tr>
       </thead>
       <tbody>
-        @for (disc of (discs$ | async); track disc.itemCode) {
-        <tr>
-          <td>
-            @if (disc.type === 'color') {
-            <div class="disc-preview" [style.background-color]="disc.value"></div>
-            } @else {
-            <img [src]="disc.value" alt="Disc" class="disc-preview-img">
-            }
-          </td>
-          <td>{{ disc.itemCode }}</td>
-          <td>{{ disc.displayName }}</td>
-          <td><span class="type-badge">{{ disc.type }}</span></td>
-          <td>
-            @if (disc.type === 'color') {
-            <span class="color-value">{{ disc.value }}</span>
-            } @else {
-            <a [href]="disc.value" target="_blank" class="image-link" title="{{ disc.value }}">
-              View Image
-            </a>
-            }
-          </td>
-          <td>
-            @if (disc.price !== null) {
-            <span class="price-badge">{{ disc.price }} <span class="gold-icon">🪙</span></span>
-            } @else {
-            <span class="na-badge">N/A</span>
-            }
-          </td>
-          <td class="actions-cell">
-            <div class="button-group">
-              <button class="btn btn-sm btn-secondary" (click)="openEditModal(disc)">
-                Edit
-              </button>
-              <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(disc)">
-                Delete
-              </button>
-            </div>
-          </td>
-        </tr>
+        @for (disc of discs$ | async; track disc.itemCode) {
+          <tr>
+            <td>
+              @if (disc.type === 'color') {
+                <div class="disc-preview" [style.background-color]="disc.value"></div>
+              } @else {
+                <img [src]="disc.value" alt="Disc" class="disc-preview-img" />
+              }
+            </td>
+            <td>{{ disc.itemCode }}</td>
+            <td>{{ disc.displayName }}</td>
+            <td>
+              <span class="type-badge">{{ disc.type }}</span>
+            </td>
+            <td>
+              @if (disc.type === 'color') {
+                <span class="color-value">{{ disc.value }}</span>
+              } @else {
+                <a [href]="disc.value" target="_blank" class="image-link" title="{{ disc.value }}"> View Image </a>
+              }
+            </td>
+            <td>
+              @if (disc.price !== null) {
+                <span class="price-badge">{{ disc.price }} <span class="gold-icon">🪙</span></span>
+              } @else {
+                <span class="na-badge">N/A</span>
+              }
+            </td>
+            <td class="actions-cell">
+              <div class="button-group">
+                <button class="btn btn-sm btn-secondary" (click)="openEditModal(disc)">Edit</button>
+                <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(disc)">Delete</button>
+              </div>
+            </td>
+          </tr>
         } @empty {
-        <tr>
-          <td colspan="7">No discs found.</td>
-        </tr>
+          <tr>
+            <td colspan="7">No discs found.</td>
+          </tr>
         }
       </tbody>
     </table>
 
     <div class="pagination">
-      <button class="btn btn-secondary" (click)="previousPage()" [disabled]="currentPage === 0">
-        Previous
-      </button>
+      <button class="btn btn-secondary" (click)="previousPage()" [disabled]="currentPage === 0">Previous</button>
       <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-      <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">
-        Next
-      </button>
+      <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Next</button>
     </div>
   </div>
 </div>
 
 @if (showCreateModal()) {
-<div class="modal-overlay" (click)="closeCreateModal()">
-  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-    <h3>Create New Disc</h3>
+  <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <h3>Create New Disc</h3>
 
-    <div class="form-row">
-      <div class="form-column">
-        <div class="form-group">
-          <label for="itemCode">Item Code:</label>
-          <input type="text" id="itemCode" [(ngModel)]="formData.itemCode" placeholder="e.g. DISC_RED_01">
+      <div class="form-row">
+        <div class="form-column">
+          <div class="form-group">
+            <label for="itemCode">Item Code:</label>
+            <input type="text" id="itemCode" [(ngModel)]="formData.itemCode" placeholder="e.g. DISC_RED_01" />
+          </div>
+
+          <div class="form-group">
+            <label for="displayName">Display Name:</label>
+            <input type="text" id="displayName" [(ngModel)]="formData.displayName" placeholder="e.g. Red Disc" />
+          </div>
+
+          <div class="form-group">
+            <label for="type">Type:</label>
+            <select id="type" [(ngModel)]="formData.type" (change)="updatePreview()">
+              <option value="color">Color</option>
+              <option value="image">Image</option>
+            </select>
+          </div>
+
+          @if (formData.type === 'color') {
+            <div class="form-group">
+              <label for="value">Color Value:</label>
+              <input type="color" id="value" [(ngModel)]="formData.value" (input)="updatePreview()" />
+            </div>
+          } @else {
+            <div class="form-group">
+              <label for="value">Image URL:</label>
+              <input type="url" id="value" [(ngModel)]="formData.value" (input)="updatePreview()" placeholder="https://example.com/disc.png" />
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="price">Price (gold):</label>
+            <input type="number" id="price" [(ngModel)]="formData.price" placeholder="Leave empty for N/A" min="0" />
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="formData.availableForPurchase" />
+              <span>Disponible à l'achat en boutique</span>
+            </label>
+            <small class="help-text">Si décoché, le skin ne sera disponible que dans les lootboxes</small>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="displayName">Display Name:</label>
-          <input type="text" id="displayName" [(ngModel)]="formData.displayName" placeholder="e.g. Red Disc">
-        </div>
-
-        <div class="form-group">
-          <label for="type">Type:</label>
-          <select id="type" [(ngModel)]="formData.type" (change)="updatePreview()">
-            <option value="color">Color</option>
-            <option value="image">Image</option>
-          </select>
-        </div>
-
-        @if (formData.type === 'color') {
-        <div class="form-group">
-          <label for="value">Color Value:</label>
-          <input type="color" id="value" [(ngModel)]="formData.value" (input)="updatePreview()">
-        </div>
-        } @else {
-        <div class="form-group">
-          <label for="value">Image URL:</label>
-          <input type="url" id="value" [(ngModel)]="formData.value" (input)="updatePreview()"
-            placeholder="https://example.com/disc.png">
-        </div>
-        }
-
-        <div class="form-group">
-          <label for="price">Price (gold):</label>
-          <input type="number" id="price" [(ngModel)]="formData.price" placeholder="Leave empty for N/A" min="0">
-        </div>
-
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="formData.availableForPurchase">
-            <span>Disponible à l'achat en boutique</span>
-          </label>
-          <small class="help-text">Si décoché, le skin ne sera disponible que dans les lootboxes</small>
+        <div class="form-column preview-column">
+          <h4>Preview:</h4>
+          @if (previewValue()) {
+            @if (formData.type === 'color') {
+              <div class="disc-preview-large" [style.background-color]="previewValue()"></div>
+            } @else {
+              <img [src]="previewValue()" alt="Preview" class="disc-preview-large-img" />
+            }
+          } @else {
+            <p class="no-preview">No preview available</p>
+          }
         </div>
       </div>
 
-      <div class="form-column preview-column">
-        <h4>Preview:</h4>
-        @if (previewValue()) {
-        @if (formData.type === 'color') {
-        <div class="disc-preview-large" [style.background-color]="previewValue()"></div>
-        } @else {
-        <img [src]="previewValue()" alt="Preview" class="disc-preview-large-img">
-        }
-        } @else {
-        <p class="no-preview">No preview available</p>
-        }
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="createDisc()" [disabled]="!formData.itemCode || !formData.displayName || !formData.value">
+          Create
+        </button>
       </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="createDisc()"
-        [disabled]="!formData.itemCode || !formData.displayName || !formData.value">
-        Create
-      </button>
     </div>
   </div>
-</div>
 }
 
 @if (showEditModal()) {
-<div class="modal-overlay" (click)="closeEditModal()">
-  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-    <h3>Edit Disc: {{ editingDisc()?.itemCode }}</h3>
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <h3>Edit Disc: {{ editingDisc()?.itemCode }}</h3>
 
-    <div class="form-row">
-      <div class="form-column">
-        <div class="form-group">
-          <label for="editItemCode">Item Code:</label>
-          <input type="text" id="editItemCode" [(ngModel)]="formData.itemCode" disabled>
+      <div class="form-row">
+        <div class="form-column">
+          <div class="form-group">
+            <label for="editItemCode">Item Code:</label>
+            <input type="text" id="editItemCode" [(ngModel)]="formData.itemCode" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="editDisplayName">Display Name:</label>
+            <input type="text" id="editDisplayName" [(ngModel)]="formData.displayName" />
+          </div>
+
+          <div class="form-group">
+            <label for="editType">Type:</label>
+            <select id="editType" [(ngModel)]="formData.type" (change)="updatePreview()">
+              <option value="color">Color</option>
+              <option value="image">Image</option>
+            </select>
+          </div>
+
+          @if (formData.type === 'color') {
+            <div class="form-group">
+              <label for="editValue">Color Value:</label>
+              <input type="color" id="editValue" [(ngModel)]="formData.value" (input)="updatePreview()" />
+            </div>
+          } @else {
+            <div class="form-group">
+              <label for="editValue">Image URL:</label>
+              <input type="url" id="editValue" [(ngModel)]="formData.value" (input)="updatePreview()" />
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="editPrice">Price (gold):</label>
+            <input type="number" id="editPrice" [(ngModel)]="formData.price" min="0" />
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="formData.availableForPurchase" />
+              <span>Disponible à l'achat en boutique</span>
+            </label>
+            <small class="help-text">Si décoché, le skin ne sera disponible que dans les lootboxes</small>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="editDisplayName">Display Name:</label>
-          <input type="text" id="editDisplayName" [(ngModel)]="formData.displayName">
-        </div>
-
-        <div class="form-group">
-          <label for="editType">Type:</label>
-          <select id="editType" [(ngModel)]="formData.type" (change)="updatePreview()">
-            <option value="color">Color</option>
-            <option value="image">Image</option>
-          </select>
-        </div>
-
-        @if (formData.type === 'color') {
-        <div class="form-group">
-          <label for="editValue">Color Value:</label>
-          <input type="color" id="editValue" [(ngModel)]="formData.value" (input)="updatePreview()">
-        </div>
-        } @else {
-        <div class="form-group">
-          <label for="editValue">Image URL:</label>
-          <input type="url" id="editValue" [(ngModel)]="formData.value" (input)="updatePreview()">
-        </div>
-        }
-
-        <div class="form-group">
-          <label for="editPrice">Price (gold):</label>
-          <input type="number" id="editPrice" [(ngModel)]="formData.price" min="0">
-        </div>
-
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="formData.availableForPurchase">
-            <span>Disponible à l'achat en boutique</span>
-          </label>
-          <small class="help-text">Si décoché, le skin ne sera disponible que dans les lootboxes</small>
+        <div class="form-column preview-column">
+          <h4>Preview:</h4>
+          @if (previewValue()) {
+            @if (formData.type === 'color') {
+              <div class="disc-preview-large" [style.background-color]="previewValue()"></div>
+            } @else {
+              <img [src]="previewValue()" alt="Preview" class="disc-preview-large-img" />
+            }
+          } @else {
+            <p class="no-preview">No preview available</p>
+          }
         </div>
       </div>
 
-      <div class="form-column preview-column">
-        <h4>Preview:</h4>
-        @if (previewValue()) {
-        @if (formData.type === 'color') {
-        <div class="disc-preview-large" [style.background-color]="previewValue()"></div>
-        } @else {
-        <img [src]="previewValue()" alt="Preview" class="disc-preview-large-img">
-        }
-        } @else {
-        <p class="no-preview">No preview available</p>
-        }
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="updateDisc()" [disabled]="!formData.displayName || !formData.value">Update</button>
       </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="updateDisc()" [disabled]="!formData.displayName || !formData.value">
-        Update
-      </button>
     </div>
   </div>
-</div>
 }
 
 @if (showDeleteConfirm()) {
-<div class="modal-overlay" (click)="closeDeleteConfirm()">
-  <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
-    <h3>Confirm Delete</h3>
-    <p>Are you sure you want to delete disc <strong>{{ discToDelete()?.displayName }}</strong>?</p>
-    <p class="warning">This action cannot be undone!</p>
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+      <h3>Confirm Delete</h3>
+      <p>
+        Are you sure you want to delete disc <strong>{{ discToDelete()?.displayName }}</strong
+        >?
+      </p>
+      <p class="warning">This action cannot be undone!</p>
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
     </div>
   </div>
-</div>
 }

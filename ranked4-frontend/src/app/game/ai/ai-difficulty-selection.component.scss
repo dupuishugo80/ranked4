@@ -81,7 +81,9 @@
   border-radius: 8px;
   padding: 1.5rem;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
   text-align: left;
   /* Alignement plus standard */
   display: flex;

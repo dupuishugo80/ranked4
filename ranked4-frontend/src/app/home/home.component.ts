@@ -1,11 +1,11 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, signal, WritableSignal } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
-import { BehaviorSubject, filter, Observable, Subject, Subscription, takeUntil } from "rxjs";
-import { LeaderboardComponent } from "../leaderboard/leaderboard.component";
-import { ProfileService } from "../profile/profile.service";
-import { UserProfile } from "../profile/profile.model";
-import { GameHistoryComponent } from "../game-history/game-history.component";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { BehaviorSubject, filter, Observable, Subject, Subscription, takeUntil } from 'rxjs';
+import { LeaderboardComponent } from '../leaderboard/leaderboard.component';
+import { ProfileService } from '../profile/profile.service';
+import { UserProfile } from '../profile/profile.model';
+import { GameHistoryComponent } from '../game-history/game-history.component';
 
 @Component({
   selector: 'app-home',
@@ -30,36 +30,40 @@ export class HomeComponent implements OnInit {
     this.fetchData();
     this.checkDailyFree();
 
-    this.navigationSubscription = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      filter(event => (event as NavigationEnd).url === '/' || (event as NavigationEnd).urlAfterRedirects === '/')
-    ).subscribe(() => {
-      this.fetchData();
-      this.checkDailyFree();
-    });
+    this.navigationSubscription = this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        filter((event) => (event as NavigationEnd).url === '/' || (event as NavigationEnd).urlAfterRedirects === '/')
+      )
+      .subscribe(() => {
+        this.fetchData();
+        this.checkDailyFree();
+      });
   }
 
   fetchData(): void {
-    this.profileService.getProfile().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(profile => {
-      this.userProfile$.next(profile);
-    });
+    this.profileService
+      .getProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((profile) => {
+        this.userProfile$.next(profile);
+      });
 
     this.reloadTrigger$.next();
   }
 
   checkDailyFree(): void {
-    this.profileService.isDailyFreeAvailable().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response) => {
-        if (response.available) {
-          this.showDailyFreeModal.set(true);
-        }
-      },
-      error: (err) => console.error('Error checking daily free:', err)
-    });
+    this.profileService
+      .isDailyFreeAvailable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.available) {
+            this.showDailyFreeModal.set(true);
+          }
+        },
+        error: (err) => console.error('Error checking daily free:', err)
+      });
   }
 
   closeDailyFreeModal(): void {

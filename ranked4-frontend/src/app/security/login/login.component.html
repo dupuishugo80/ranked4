@@ -3,26 +3,21 @@
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="username">Username</label>
-      <input id="username" type="text" formControlName="username">
+      <input id="username" type="text" formControlName="username" />
     </div>
-    
+
     <div class="form-group">
       <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password">
+      <input id="password" type="password" formControlName="password" />
     </div>
 
     @if (errorMessage) {
       <div class="error-message">{{ errorMessage }}</div>
     }
-    
-    <button 
-      type="submit" 
-      class="btn btn-primary"
-      [disabled]="loginForm.invalid">
-      Connect
-    </button>
+
+    <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Connect</button>
   </form>
-  
+
   <p>
     Don’t have an account?
     <a routerLink="/register">Register</a>

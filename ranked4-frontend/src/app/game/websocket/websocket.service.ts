@@ -19,8 +19,8 @@ export class WebSocketService {
   constructor() {
     this.stompClient = new Client({
       brokerURL: this.WEBSOCKET_URL,
-      debug: (str) => { },
-      reconnectDelay: 5000,
+      debug: (str) => {},
+      reconnectDelay: 5000
     });
 
     this.stompClient.onConnect = () => {
@@ -53,10 +53,10 @@ export class WebSocketService {
 
   subscribeToTopic(topic: string): Observable<IMessage> {
     return this.connectionState$.pipe(
-      filter(state => state === 'CONNECTED'),
+      filter((state) => state === 'CONNECTED'),
       take(1),
       switchMap(() => {
-        return new Observable<IMessage>(observer => {
+        return new Observable<IMessage>((observer) => {
           const subscription: StompSubscription = this.stompClient.subscribe(topic, (message) => {
             observer.next(message);
           });

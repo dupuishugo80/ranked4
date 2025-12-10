@@ -28,7 +28,7 @@ export class LoginService {
 
   login(payload: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, payload).pipe(
-      tap(response => {
+      tap((response) => {
         this.storeTokens(response);
       })
     );
@@ -39,7 +39,7 @@ export class LoginService {
 
     if (refreshToken) {
       this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe({
-        next: () => { },
+        next: () => {},
         error: () => console.error('Échec de la déconnexion API')
       });
     }
@@ -75,9 +75,9 @@ export class LoginService {
     try {
       const decodedToken = jwtDecode<JwtPayload & { roles?: string[] }>(token);
       const roles = decodedToken.roles || [];
-      return roles.includes("ROLE_ADMIN");
+      return roles.includes('ROLE_ADMIN');
     } catch (error) {
-      console.error("Erreur lors du décodage du token", error);
+      console.error('Erreur lors du décodage du token', error);
       return false;
     }
   }
@@ -92,19 +92,21 @@ export class LoginService {
       const decodedToken = jwtDecode<JwtPayload>(token);
       return decodedToken.userId;
     } catch (error) {
-      console.error("Erreur lors du décodage du token", error);
+      console.error('Erreur lors du décodage du token', error);
       return null;
     }
   }
 
   private refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {
-      refreshToken: this.getRefreshToken()
-    }).pipe(
-      tap((tokens) => {
-        this.storeTokens(tokens);
+    return this.http
+      .post<AuthResponse>(`${this.API_URL}/refresh`, {
+        refreshToken: this.getRefreshToken()
       })
-    );
+      .pipe(
+        tap((tokens) => {
+          this.storeTokens(tokens);
+        })
+      );
   }
 
   handle401Error(request: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> {
@@ -125,10 +127,9 @@ export class LoginService {
           return throwError(() => err);
         })
       );
-
     } else {
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
+        filter((token) => token !== null),
         take(1),
         switchMap((token) => {
           return next(this.addTokenToRequest(request, token!));

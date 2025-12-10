@@ -30,15 +30,17 @@ label {
   color: #555;
 }
 
-input[type="text"],
-input[type="password"],
-input[type="email"] {
+input[type='text'],
+input[type='password'],
+input[type='email'] {
   width: 100%;
   padding: 0.85rem 1rem;
   border: 1px solid var(--border-color, #ccc);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus {
     outline: none;
@@ -120,7 +122,7 @@ p {
     color: #c0392b;
     font-size: 0.9em;
     margin-top: 4px;
-    
+
     &:first-child {
       margin-top: 0;
     }

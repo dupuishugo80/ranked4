@@ -60,7 +60,7 @@ export class ShopComponent implements OnInit {
       next: (profile) => {
         this.userGold.set(profile.gold);
         if (profile.ownedDiscs) {
-          this.ownedItemCodes.set(new Set(profile.ownedDiscs.map(d => d.itemCode).filter((code): code is string => !!code)));
+          this.ownedItemCodes.set(new Set(profile.ownedDiscs.map((d) => d.itemCode).filter((code): code is string => !!code)));
         }
       },
       error: (err) => console.error('Error loading profile:', err)
@@ -168,7 +168,7 @@ export class ShopComponent implements OnInit {
   }
 
   getSkins(): Skin[] {
-    return this.products().filter(p => p.type === 'SKIN') as Skin[];
+    return this.products().filter((p) => p.type === 'SKIN') as Skin[];
   }
 
   openLootboxModal(lootbox: Lootbox): void {
@@ -198,7 +198,7 @@ export class ShopComponent implements OnInit {
     this.shopService.openLootbox(lootbox.id).subscribe({
       next: (result) => {
         if (!lootbox.dailyFree) {
-          this.userGold.update(gold => gold - lootbox.price);
+          this.userGold.update((gold) => gold - lootbox.price);
         }
 
         if (lootbox.dailyFree) {
@@ -212,9 +212,7 @@ export class ShopComponent implements OnInit {
             itemCode: result.rewardItemCode || '',
             itemType: result.rewardItemType,
             goldAmount: result.rewardGoldAmount ?? undefined,
-            displayName: result.rewardItemType === 'GOLD'
-              ? `${result.rewardGoldAmount} Gold`
-              : result.rewardItemCode,
+            displayName: result.rewardItemType === 'GOLD' ? `${result.rewardGoldAmount} Gold` : result.rewardItemCode,
             customMessage: result.displayMessage || undefined,
             actualRewardType: result.rewardItemType
           });
@@ -255,7 +253,7 @@ export class ShopComponent implements OnInit {
     let filtered = [...this.allProducts];
 
     if (this.selectedRarity !== 'ALL') {
-      filtered = filtered.filter(skin => this.extractRarity(skin.itemCode) === this.selectedRarity);
+      filtered = filtered.filter((skin) => this.extractRarity(skin.itemCode) === this.selectedRarity);
     }
 
     if (this.priceSort === 'ASC') {

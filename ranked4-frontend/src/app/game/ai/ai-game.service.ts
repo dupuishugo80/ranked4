@@ -21,12 +21,14 @@ export class AiGameService {
   private readonly API_URL = `${API_ENDPOINTS.GAME}/pve`;
 
   createAiGame(difficulty: number): Observable<PveGameResponse> {
-    return this.http.post<PveGameResponse>(this.API_URL, null, {
-      params: { difficulty: difficulty.toString() }
-    }).pipe(
-      tap(response => {
-        this.router.navigate(['/game', response.gameId]);
+    return this.http
+      .post<PveGameResponse>(this.API_URL, null, {
+        params: { difficulty: difficulty.toString() }
       })
-    );
+      .pipe(
+        tap((response) => {
+          this.router.navigate(['/game', response.gameId]);
+        })
+      );
   }
 }

@@ -22,8 +22,9 @@ h2 {
 table {
   width: 100%;
   border-collapse: collapse;
-  
-  th, td {
+
+  th,
+  td {
     padding: 1rem 1.25rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
@@ -49,7 +50,8 @@ table {
   gap: 0.75rem;
   font-weight: 500;
 
-  .avatar, .avatar-placeholder {
+  .avatar,
+  .avatar-placeholder {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -285,8 +287,12 @@ table {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -404,10 +410,10 @@ table {
     font-size: 0.9rem;
   }
 
-  input[type="number"],
-  input[type="text"],
-  input[type="url"],
-  input[type="color"],
+  input[type='number'],
+  input[type='text'],
+  input[type='url'],
+  input[type='color'],
   select {
     width: 100%;
     padding: 0.75rem;
@@ -432,7 +438,7 @@ table {
     }
   }
 
-  input[type="color"] {
+  input[type='color'] {
     height: 50px;
     cursor: pointer;
   }
@@ -448,7 +454,7 @@ table {
     cursor: pointer;
     margin-bottom: 0.5rem;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: auto;
       cursor: pointer;
     }

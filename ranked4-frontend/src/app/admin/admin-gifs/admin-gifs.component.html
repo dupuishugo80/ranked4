@@ -1,202 +1,207 @@
 <div class="admin-container">
   <div class="admin-header">
     <h2>Admin - GIF Management</h2>
-    <button class="btn btn-primary" (click)="openCreateModal()">
-      Create new GIF
-    </button>
+    <button class="btn btn-primary" (click)="openCreateModal()">Create new GIF</button>
   </div>
 
   @if (successMessage()) {
-  <div class="alert alert-success">
-    {{ successMessage() }}
-  </div>
+    <div class="alert alert-success">
+      {{ successMessage() }}
+    </div>
   }
 
   @if (errorMessage()) {
-  <div class="alert alert-error">
-    {{ errorMessage() }}
-  </div>
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
   }
 
   @if (loading()) {
-  <div class="loading">Chargement...</div>
+    <div class="loading">Chargement...</div>
   } @else {
-  <div class="gifs-table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Preview</th>
-          <th>Code</th>
-          <th>URL</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (gif of gifs(); track gif.id) {
-        <tr [class.inactive]="!gif.active">
-          <td>
-            <img [src]="gif.assetPath" [alt]="gif.code" class="gif-preview">
-          </td>
-          <td>
-            <code>{{ gif.code }}</code>
-          </td>
-          <td class="url-cell">
-            <a [href]="gif.assetPath" target="_blank" class="url-link">
-              {{ gif.assetPath.length > 50 ? (gif.assetPath.substring(0, 50) + '...') : gif.assetPath }}
-            </a>
-          </td>
-          <td>
-            <span [class]="gif.active ? 'status-badge active' : 'status-badge inactive'">
-              {{ gif.active ? 'Active' : 'Inactive' }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <div class="button-group">
-              <button class="btn btn-sm btn-secondary" (click)="openEditModal(gif)">
-                Edit
-              </button>
-              <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(gif)">
-                Delete
-              </button>
-            </div>
-          </td>
-        </tr>
-        } @empty {
-        <tr>
-          <td colspan="5">Aucun GIF trouvé.</td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+    <div class="gifs-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>Code</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (gif of gifs(); track gif.id) {
+            <tr [class.inactive]="!gif.active">
+              <td>
+                <img [src]="gif.assetPath" [alt]="gif.code" class="gif-preview" />
+              </td>
+              <td>
+                <code>{{ gif.code }}</code>
+              </td>
+              <td class="url-cell">
+                <a [href]="gif.assetPath" target="_blank" class="url-link">
+                  {{ gif.assetPath.length > 50 ? gif.assetPath.substring(0, 50) + '...' : gif.assetPath }}
+                </a>
+              </td>
+              <td>
+                <span [class]="gif.active ? 'status-badge active' : 'status-badge inactive'">
+                  {{ gif.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <div class="button-group">
+                  <button class="btn btn-sm btn-secondary" (click)="openEditModal(gif)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="openDeleteConfirm(gif)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">Aucun GIF trouvé.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </div>
 
 <!-- Modal Création -->
 @if (showCreateModal()) {
-<div class="modal-overlay" (click)="closeCreateModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Create new GIF</h3>
+  <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Create new GIF</h3>
 
-    <div class="form-group">
-      <label for="createCode">Code:</label>
-      <input type="text" id="createCode" [value]="newGif().code"
-        (input)="updateNewGifField('code', $any($event.target).value)" placeholder="Ex: thumbs_up" class="input-text">
-    </div>
+      <div class="form-group">
+        <label for="createCode">Code:</label>
+        <input
+          type="text"
+          id="createCode"
+          [value]="newGif().code"
+          (input)="updateNewGifField('code', $any($event.target).value)"
+          placeholder="Ex: thumbs_up"
+          class="input-text" />
+      </div>
 
-    <div class="form-group">
-      <label for="createAssetPath">URL de l'image:</label>
-      <input type="url" id="createAssetPath" [value]="newGif().assetPath"
-        (input)="updateNewGifField('assetPath', $any($event.target).value)" placeholder="https://example.com/gif.gif"
-        class="input-text">
-    </div>
+      <div class="form-group">
+        <label for="createAssetPath">URL de l'image:</label>
+        <input
+          type="url"
+          id="createAssetPath"
+          [value]="newGif().assetPath"
+          (input)="updateNewGifField('assetPath', $any($event.target).value)"
+          placeholder="https://example.com/gif.gif"
+          class="input-text" />
+      </div>
 
-    @if (newGif().assetPath) {
-    <div class="gif-preview-container">
-      <label>Preview:</label>
-      <img [src]="newGif().assetPath" alt="Preview" class="gif-preview-large">
-    </div>
-    }
+      @if (newGif().assetPath) {
+        <div class="gif-preview-container">
+          <label>Preview:</label>
+          <img [src]="newGif().assetPath" alt="Preview" class="gif-preview-large" />
+        </div>
+      }
 
-    <div class="form-group checkbox-group">
-      <label>
-        <input type="checkbox" [checked]="newGif().active"
-          (change)="updateNewGifField('active', $any($event.target).checked)">
-        Actif
-      </label>
-    </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [checked]="newGif().active" (change)="updateNewGifField('active', $any($event.target).checked)" />
+          Actif
+        </label>
+      </div>
 
-    @if (errorMessage()) {
-    <div class="error-message">
-      {{ errorMessage() }}
-    </div>
-    }
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="loading()">
-        Cancel
-      </button>
-      <button class="btn btn-primary" (click)="createGif()" [disabled]="loading()">
-        {{ loading() ? 'Creating...' : 'Create' }}
-      </button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="loading()">Cancel</button>
+        <button class="btn btn-primary" (click)="createGif()" [disabled]="loading()">
+          {{ loading() ? 'Creating...' : 'Create' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 }
 
 <!-- Modal Édition -->
 @if (showEditModal()) {
-<div class="modal-overlay" (click)="closeEditModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Edit GIF</h3>
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Edit GIF</h3>
 
-    <div class="form-group">
-      <label for="editCode">Code:</label>
-      <input type="text" id="editCode" [value]="editGifData().code"
-        (input)="updateEditGifField('code', $any($event.target).value)" class="input-text">
-    </div>
+      <div class="form-group">
+        <label for="editCode">Code:</label>
+        <input
+          type="text"
+          id="editCode"
+          [value]="editGifData().code"
+          (input)="updateEditGifField('code', $any($event.target).value)"
+          class="input-text" />
+      </div>
 
-    <div class="form-group">
-      <label for="editAssetPath">URL de l'image:</label>
-      <input type="url" id="editAssetPath" [value]="editGifData().assetPath"
-        (input)="updateEditGifField('assetPath', $any($event.target).value)" class="input-text">
-    </div>
+      <div class="form-group">
+        <label for="editAssetPath">URL de l'image:</label>
+        <input
+          type="url"
+          id="editAssetPath"
+          [value]="editGifData().assetPath"
+          (input)="updateEditGifField('assetPath', $any($event.target).value)"
+          class="input-text" />
+      </div>
 
-    @if (editGifData().assetPath) {
-    <div class="gif-preview-container">
-      <label>Preview:</label>
-      <img [src]="editGifData().assetPath" alt="Preview" class="gif-preview-large">
-    </div>
-    }
+      @if (editGifData().assetPath) {
+        <div class="gif-preview-container">
+          <label>Preview:</label>
+          <img [src]="editGifData().assetPath" alt="Preview" class="gif-preview-large" />
+        </div>
+      }
 
-    <div class="form-group checkbox-group">
-      <label>
-        <input type="checkbox" [checked]="editGifData().active"
-          (change)="updateEditGifField('active', $any($event.target).checked)">
-        Actif
-      </label>
-    </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [checked]="editGifData().active" (change)="updateEditGifField('active', $any($event.target).checked)" />
+          Actif
+        </label>
+      </div>
 
-    @if (errorMessage()) {
-    <div class="error-message">
-      {{ errorMessage() }}
-    </div>
-    }
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeEditModal()" [disabled]="loading()">
-        Cancel
-      </button>
-      <button class="btn btn-primary" (click)="updateGif()" [disabled]="loading()">
-        {{ loading() ? 'Updating...' : 'Update' }}
-      </button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeEditModal()" [disabled]="loading()">Cancel</button>
+        <button class="btn btn-primary" (click)="updateGif()" [disabled]="loading()">
+          {{ loading() ? 'Updating...' : 'Update' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 }
 
 <!-- Modal Confirmation Suppression -->
 @if (showDeleteConfirm()) {
-<div class="modal-overlay" (click)="closeDeleteConfirm()">
-  <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
-    <h3>Confirm deletion</h3>
-    <p>Are you sure you want to delete the GIF <strong>{{ gifToDelete()?.code }}</strong> ?</p>
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+      <h3>Confirm deletion</h3>
+      <p>
+        Are you sure you want to delete the GIF <strong>{{ gifToDelete()?.code }}</strong> ?
+      </p>
 
-    @if (errorMessage()) {
-    <div class="error-message">
-      {{ errorMessage() }}
-    </div>
-    }
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeDeleteConfirm()" [disabled]="loading()">
-        Cancel
-      </button>
-      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading()">
-        {{ loading() ? 'Deleting...' : 'Delete' }}
-      </button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeDeleteConfirm()" [disabled]="loading()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading()">
+          {{ loading() ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 }

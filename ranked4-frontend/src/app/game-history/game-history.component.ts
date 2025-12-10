@@ -1,8 +1,8 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { GameHistoryEntry } from "./game-history.model";
-import { GameHistoryService } from "./game-history.service";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { GameHistoryEntry } from './game-history.model';
+import { GameHistoryService } from './game-history.service';
 
 @Component({
   selector: 'app-game-history',

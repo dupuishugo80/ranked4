@@ -1,101 +1,74 @@
 <header class="app-header">
   <div class="header-content">
-
     <div class="header-left">
-      <a routerLink="/" class="logo" (click)="isMenuOpen = false">
-        Ranked4
-      </a>
+      <a routerLink="/" class="logo" (click)="isMenuOpen = false"> Ranked4 </a>
     </div>
 
     <div class="header-center desktop-only">
       @if (authService.isAuthenticated()) {
-      <div class="play-dropdown" [class.is-open]="isPlayMenuOpen">
-        <button class="btn btn-primary btn-play" (click)="togglePlayMenu()">
-          Play
-        </button>
-        <div class="dropdown-menu">
-          <button class="dropdown-item" (click)="playRankedGame()">
-            🎮 Find a ranked match
-          </button>
-          <button class="dropdown-item" (click)="playPrivateGame()">
-            👥 Private match
-          </button>
-          <button class="dropdown-item" (click)="playAiGame()">
-            🤖 VS AI
-          </button>
+        <div class="play-dropdown" [class.is-open]="isPlayMenuOpen">
+          <button class="btn btn-primary btn-play" (click)="togglePlayMenu()">Play</button>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" (click)="playRankedGame()">🎮 Find a ranked match</button>
+            <button class="dropdown-item" (click)="playPrivateGame()">👥 Private match</button>
+            <button class="dropdown-item" (click)="playAiGame()">🤖 VS AI</button>
+          </div>
         </div>
-      </div>
       }
     </div>
 
     <div class="header-right desktop-only">
       <nav>
         @if (authService.isAuthenticated()) {
-        <button (click)="goToShop()" class="btn btn-shop">
-          Shop
-        </button>
-        <button (click)="goToProfile()" class="btn btn-profile">
-          Profile
-        </button>
-        @if (isAdmin) {
-        <button (click)="goToAdmin()" class="btn btn-admin">
-          <span class="btn-icon">⚙️</span>
-          Admin
-        </button>
-        }
-        <button (click)="logout()" class="btn btn-logout">
-          Logout
-        </button>
+          <button (click)="goToShop()" class="btn btn-shop">Shop</button>
+          <button (click)="goToProfile()" class="btn btn-profile">Profile</button>
+          @if (isAdmin) {
+            <button (click)="goToAdmin()" class="btn btn-admin">
+              <span class="btn-icon">⚙️</span>
+              Admin
+            </button>
+          }
+          <button (click)="logout()" class="btn btn-logout">Logout</button>
         }
       </nav>
     </div>
 
-    <button class="btn-menu-toggle mobile-only" (click)="toggleMenu()" [class.is-open]="isMenuOpen"
-      aria-label="Toggle menu" aria-expanded="isMenuOpen">
+    <button
+      class="btn-menu-toggle mobile-only"
+      (click)="toggleMenu()"
+      [class.is-open]="isMenuOpen"
+      aria-label="Toggle menu"
+      aria-expanded="isMenuOpen">
       <span></span><span></span><span></span>
     </button>
-
   </div>
 </header>
 
 <div class="mobile-nav-menu" [class.is-open]="isMenuOpen">
-
   @if (authService.isAuthenticated()) {
-  <div class="gold-display-mobile">
-    <span class="gold-icon">🪙</span>
-    <span class="gold-amount">{{ userGold() }}</span>
-  </div>
+    <div class="gold-display-mobile">
+      <span class="gold-icon">🪙</span>
+      <span class="gold-amount">{{ userGold() }}</span>
+    </div>
 
-  <button class="btn btn-primary btn-join-queue" (click)="playRankedGame()">
-    Find a ranked match
-  </button>
-  <button class="btn btn-primary" (click)="playPrivateGame()">
-    Private match
-  </button>
-  <button class="btn btn-primary" (click)="playAiGame()">
-    VS AI
-  </button>
+    <button class="btn btn-primary btn-join-queue" (click)="playRankedGame()">Find a ranked match</button>
+    <button class="btn btn-primary" (click)="playPrivateGame()">Private match</button>
+    <button class="btn btn-primary" (click)="playAiGame()">VS AI</button>
 
-  <hr class="menu-divider">
+    <hr class="menu-divider" />
 
-  <button (click)="goToShop()" class="btn btn-shop">
-    Shop
-  </button>
+    <button (click)="goToShop()" class="btn btn-shop">Shop</button>
 
-  <button (click)="goToProfile()" class="btn btn-profile">
-    Profile
-  </button>
+    <button (click)="goToProfile()" class="btn btn-profile">Profile</button>
 
-  @if (isAdmin) {
-  <button (click)="goToAdmin()" class="btn btn-admin">
-    <span class="btn-icon">⚙️</span>
-    Admin
-  </button>
-  }
+    @if (isAdmin) {
+      <button (click)="goToAdmin()" class="btn btn-admin">
+        <span class="btn-icon">⚙️</span>
+        Admin
+      </button>
+    }
 
-  <button (click)="logout()" class="btn btn-logout">
-    Logout
-  </button>
+    <button (click)="logout()" class="btn btn-logout">Logout</button>
   }
 </div>
 

@@ -1,9 +1,9 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, signal, WritableSignal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { map, Observable } from "rxjs";
-import { AdminSkinsService } from "./admin-skins.service";
-import { ApiDiscsResponse, DiscCustomization, CreateDiscRequest } from "./admin-skins.model";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { map, Observable } from 'rxjs';
+import { AdminSkinsService } from './admin-skins.service';
+import { ApiDiscsResponse, DiscCustomization, CreateDiscRequest } from './admin-skins.model';
 
 @Component({
   selector: 'app-admin-skins',
@@ -13,7 +13,6 @@ import { ApiDiscsResponse, DiscCustomization, CreateDiscRequest } from "./admin-
   styleUrl: './admin-skins.component.scss'
 })
 export class AdminSkinsComponent implements OnInit {
-
   private adminSkinsService = inject(AdminSkinsService);
 
   public discs$!: Observable<DiscCustomization[]>;

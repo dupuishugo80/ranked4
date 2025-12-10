@@ -1,8 +1,8 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable, inject } from "@angular/core";
-import { map, Observable } from "rxjs";
-import { API_ENDPOINTS } from "../core/config/api.config";
-import { Product, PurchaseRequest, PurchaseResponse, Skin } from "./shop.model";
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/config/api.config';
+import { Product, PurchaseRequest, PurchaseResponse, Skin } from './shop.model';
 
 export interface PageResponse<T> {
   content: T[];
@@ -29,10 +29,10 @@ export class ShopService {
 
   getProducts(page: number = 0, size: number = 10): Observable<PageResponse<Skin>> {
     return this.http.get<PageResponse<DiscCustomization>>(`${this.API_DISCS_URL}?page=${page}&size=${size}`).pipe(
-      map(response => ({
+      map((response) => ({
         content: response.content
-          .filter(disc => disc.price !== null && disc.price > 0 && disc.availableForPurchase !== false)
-          .map(disc => ({
+          .filter((disc) => disc.price !== null && disc.price > 0 && disc.availableForPurchase !== false)
+          .map((disc) => ({
             id: 0,
             name: disc.displayName,
             description: `Custom disc ${disc.displayName}`,
@@ -49,9 +49,9 @@ export class ShopService {
   }
 
   getAllDiscs(page: number = 0, size: number = 1000): Observable<DiscCustomization[]> {
-    return this.http.get<PageResponse<DiscCustomization>>(`${this.API_DISCS_URL}?page=${page}&size=${size}`).pipe(
-      map(response => response.content)
-    );
+    return this.http
+      .get<PageResponse<DiscCustomization>>(`${this.API_DISCS_URL}?page=${page}&size=${size}`)
+      .pipe(map((response) => response.content));
   }
 
   purchaseProduct(itemCode: string): Observable<PurchaseResponse> {

@@ -17,7 +17,6 @@ import { ProfileService } from '../../profile/profile.service';
   styleUrl: './game.component.scss'
 })
 export class GameComponent implements OnInit, OnDestroy {
-
   public gameService = inject(GameService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -45,7 +44,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public myDisc: PlayerDisc | null = null;
   public isMyTurn: boolean = false;
   public gameStatus: 'IN_PROGRESS' | 'FINISHED' = 'IN_PROGRESS';
-  public gameMessage: string = "Loading the game...";
+  public gameMessage: string = 'Loading the game...';
   public goldEarned: number | null = null;
   public eloChange: number | null = null;
   public turnTimeRemaining: number | null = null;
@@ -54,7 +53,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private errorSub: Subscription | null = null;
   private opponentIdSet = false;
 
-  public lastMove: { row: number, col: number } | null = null;
+  public lastMove: { row: number; col: number } | null = null;
 
   public isLoser: boolean = false;
 
@@ -72,25 +71,23 @@ export class GameComponent implements OnInit, OnDestroy {
       this.gameService.joinGameById(gameId);
     }
 
-    const gifsSub = this.gifService.getGifs().subscribe(gifs => {
+    const gifsSub = this.gifService.getGifs().subscribe((gifs) => {
       this.gifs = gifs;
     });
     this.subs.push(gifsSub);
 
-    const gifReactSub = this.gameService.gifReactions$
-      .pipe(filter((event): event is GifReactionEvent => !!event))
-      .subscribe(event => {
-        this.lastReactionsByPlayer[event.playerId] = event;
+    const gifReactSub = this.gameService.gifReactions$.pipe(filter((event): event is GifReactionEvent => !!event)).subscribe((event) => {
+      this.lastReactionsByPlayer[event.playerId] = event;
 
-        const currentTimestamp = event.timestamp;
-        const clearSub = timer(3000).subscribe(() => {
-          const current = this.lastReactionsByPlayer[event.playerId];
-          if (current && current.timestamp === currentTimestamp) {
-            this.lastReactionsByPlayer[event.playerId] = null;
-          }
-        });
-        this.subs.push(clearSub);
+      const currentTimestamp = event.timestamp;
+      const clearSub = timer(3000).subscribe(() => {
+        const current = this.lastReactionsByPlayer[event.playerId];
+        if (current && current.timestamp === currentTimestamp) {
+          this.lastReactionsByPlayer[event.playerId] = null;
+        }
       });
+      this.subs.push(clearSub);
+    });
     this.subs.push(gifReactSub);
 
     this.gameState$ = this.gameService.gameState$;
@@ -105,7 +102,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.playSound('match-found.mp3');
 
-    this.stateSub = this.gameState$.pipe(filter(state => state !== null)).subscribe(state => {
+    this.stateSub = this.gameState$.pipe(filter((state) => state !== null)).subscribe((state) => {
       if (!state) return;
 
       // Auto-detect myDisc if not set yet
@@ -201,7 +198,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private parseBoardState(boardState: string): string[][] {
     const frontendBoardState = boardState.replace(/0/g, '_');
     const rows = frontendBoardState.match(/.{1,7}/g) || [];
-    return rows.map(row => row.split(''));
+    return rows.map((row) => row.split(''));
   }
 
   private updateGameMessage(state: GameUpdate): void {
@@ -221,7 +218,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.isLoser = false;
 
       if (state.origin === 'CANCELLED_NO_SHOW') {
-        this.gameMessage = "Connection issues for the other player, the match is canceled.";
+        this.gameMessage = 'Connection issues for the other player, the match is canceled.';
         this.goldEarned = null;
         this.eloChange = null;
         return;
@@ -260,13 +257,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
       // Déterminer le message et le gold gagné
       if (state.winner === this.myDisc) {
-        this.gameMessage = "You won!";
+        this.gameMessage = 'You won!';
         this.goldEarned = goldWin;
       } else if (state.winner === null) {
         this.gameMessage = "It's a draw!";
         this.goldEarned = goldDraw;
       } else {
-        this.gameMessage = "You lost...";
+        this.gameMessage = 'You lost...';
         this.goldEarned = 0;
         this.isLoser = true;
       }
@@ -347,7 +344,7 @@ export class GameComponent implements OnInit, OnDestroy {
       const audio = new Audio(`assets/sounds/${soundFile}`);
       audio.volume = 0.05;
 
-      audio.play().catch(e => {
+      audio.play().catch((e) => {
         console.warn(`[Audio] N'a pas pu jouer le son "${soundFile}". Une interaction utilisateur est peut-être requise.`, e);
       });
     } catch (e) {
@@ -371,10 +368,7 @@ export class GameComponent implements OnInit, OnDestroy {
     return this.playerOneDisc.value === this.playerTwoDisc.value;
   }
 
-  private createDiscStyle(
-    disc: DiscCustomization | null,
-    defaultPlayer: 'P1' | 'P2'
-  ): { [key: string]: string } {
+  private createDiscStyle(disc: DiscCustomization | null, defaultPlayer: 'P1' | 'P2'): { [key: string]: string } {
     const style: { [key: string]: string } = {};
     const areIdentical = this.areDiscsIdentical();
 
@@ -403,7 +397,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.subs.forEach((s) => s.unsubscribe());
     this.stateSub?.unsubscribe();
     this.errorSub?.unsubscribe();
     this.stopLocalTimer();

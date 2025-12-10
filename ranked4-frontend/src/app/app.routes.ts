@@ -18,10 +18,10 @@ import { ProfileComponent } from './profile/profile.component';
 import { AiDifficultySelectionComponent } from './game/ai/ai-difficulty-selection.component';
 
 export const routes: Routes = [
-    { 
-    path: '', 
-    redirectTo: '/home', 
-    pathMatch: 'full' 
+  {
+    path: '',
+    redirectTo: '/home',
+    pathMatch: 'full'
   },
   {
     path: 'login',

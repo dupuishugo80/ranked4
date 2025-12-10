@@ -54,7 +54,7 @@ export class RegisterComponent {
   registerForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, this.passwordValidator]],
+    password: ['', [Validators.required, this.passwordValidator]]
   });
 
   onSubmit(): void {
@@ -64,8 +64,8 @@ export class RegisterComponent {
 
     this.errorMessage = null;
     this.successMessage = null;
-    
-    const payload = this.registerForm.value as any; 
+
+    const payload = this.registerForm.value as any;
 
     this.registerService.register(payload).subscribe({
       next: () => {
@@ -75,7 +75,7 @@ export class RegisterComponent {
         }, 2000);
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Échec de l\'inscription', err);
+        console.error("Échec de l'inscription", err);
         if (err.error && err.error.error) {
           this.errorMessage = err.error.error;
         } else {
