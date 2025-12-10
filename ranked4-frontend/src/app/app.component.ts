@@ -25,10 +25,11 @@ export class AppComponent implements OnInit {
     return this.authService.isAdmin();
   }
 
-  @ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
+  @ViewChild('dropdownMenu') dropdownMenu?: ElementRef;
 
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
+    if (!this.dropdownMenu) return;
     const clickedInside = this.dropdownMenu.nativeElement.contains(event.target);
     if (!clickedInside) {
       this.togglePlayMenu(false);
