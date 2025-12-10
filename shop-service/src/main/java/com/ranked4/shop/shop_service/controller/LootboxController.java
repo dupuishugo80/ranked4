@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ranked4.shop.shop_service.DTO.CreateLootboxRequestDTO;
 import com.ranked4.shop.shop_service.DTO.LootboxDTO;
 import com.ranked4.shop.shop_service.DTO.LootboxOpeningResultDTO;
+import com.ranked4.shop.shop_service.DTO.RecentDropDTO;
 import com.ranked4.shop.shop_service.service.LootboxService;
 
 @RestController
@@ -120,6 +121,17 @@ public class LootboxController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/recent-drops")
+    public ResponseEntity<?> getRecentDrops(@PathVariable Long id) {
+        try {
+            List<RecentDropDTO> recentDrops = lootboxService.getRecentDrops(id);
+            return ResponseEntity.ok(recentDrops);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Failed to fetch recent drops: " + e.getMessage());
         }
     }
 

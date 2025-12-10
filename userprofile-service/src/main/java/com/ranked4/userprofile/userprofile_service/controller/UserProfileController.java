@@ -1,7 +1,9 @@
 package com.ranked4.userprofile.userprofile_service.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -313,6 +315,16 @@ public class UserProfileController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/batch-display-names")
+    public ResponseEntity<?> getBatchDisplayNames(@RequestBody Set<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<UserProfileService.UserIdNamePair> result = userProfileService.getDisplayNamesByUserIds(userIds);
+        return ResponseEntity.ok(result);
     }
 
     public boolean isAdmin(String userRoles) {

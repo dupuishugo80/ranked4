@@ -1,11 +1,16 @@
 package com.ranked4.shop.shop_service.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import com.ranked4.shop.shop_service.DTO.CreateLootboxRequestDTO;
 import com.ranked4.shop.shop_service.DTO.LootboxDTO;
 import com.ranked4.shop.shop_service.DTO.LootboxOpeningResultDTO;
+import com.ranked4.shop.shop_service.DTO.RecentDropDTO;
 import com.ranked4.shop.shop_service.model.Lootbox;
 import com.ranked4.shop.shop_service.model.LootboxContent;
 import com.ranked4.shop.shop_service.model.LootboxOpening;
@@ -294,6 +300,63 @@ public class LootboxService {
         return contents.get(contents.size() - 1);
     }
 
+    @Transactional(readOnly = true)
+    public List<RecentDropDTO> getRecentDrops(Long lootboxId) {
+        Pageable limit5 = PageRequest.of(0, 5);
+        List<LootboxOpening> recentOpenings = lootboxOpeningRepository
+            .findTop5ByLootboxIdOrderByOpenedAtDesc(lootboxId, limit5);
+
+        if (recentOpenings.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<UUID> userIds = recentOpenings.stream()
+            .map(LootboxOpening::getUserId)
+            .collect(Collectors.toSet());
+
+        Map<UUID, String> displayNameMap = fetchDisplayNames(userIds);
+
+        return recentOpenings.stream()
+            .map(opening -> new RecentDropDTO(
+                displayNameMap.getOrDefault(opening.getUserId(), "Unknown Player"),
+                opening.getRewardItemCode(),
+                opening.getRewardItemType(),
+                opening.getRewardGoldAmount(),
+                opening.getOpenedAt()
+            ))
+            .toList();
+    }
+
+    private Map<UUID, String> fetchDisplayNames(Set<UUID> userIds) {
+        if (userIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        try {
+            List<UserIdNamePair> pairs = userProfileClient.post()
+                .uri("/api/profiles/batch-display-names")
+                .bodyValue(userIds)
+                .retrieve()
+                .bodyToFlux(UserIdNamePair.class)
+                .collectList()
+                .block();
+
+            if (pairs == null) {
+                return Collections.emptyMap();
+            }
+
+            return pairs.stream()
+                .collect(Collectors.toMap(
+                    UserIdNamePair::userId,
+                    UserIdNamePair::displayName
+                ));
+
+        } catch (Exception e) {
+            System.err.println("Failed to fetch display names: " + e.getMessage());
+            return Collections.emptyMap();
+        }
+    }
+
     private record AddDiscRequest(String itemCode, boolean equip) {
     }
 
@@ -301,5 +364,8 @@ public class LootboxService {
     }
 
     private record DailyFreeAvailabilityResponse(boolean available) {
+    }
+
+    private record UserIdNamePair(UUID userId, String displayName) {
     }
 }

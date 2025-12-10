@@ -3,6 +3,7 @@ package com.ranked4.userprofile.userprofile_service.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -271,5 +272,20 @@ public class UserProfileService {
         profile.setEquippedDisc(null);
         UserProfile saved = userProfileRepository.save(profile);
         return MyUserProfileDTO.fromEntity(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserIdNamePair> getDisplayNamesByUserIds(Set<UUID> userIds) {
+        List<UserProfile> profiles = userProfileRepository.findAllByUserIdIn(userIds);
+
+        return profiles.stream()
+            .map(profile -> new UserIdNamePair(
+                profile.getUserId(),
+                profile.getDisplayName()
+            ))
+            .toList();
+    }
+
+    public record UserIdNamePair(UUID userId, String displayName) {
     }
 }

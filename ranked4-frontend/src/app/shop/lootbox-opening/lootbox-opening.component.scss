@@ -182,6 +182,111 @@
   }
 }
 
+.recent-drops-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
+
+  h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+  }
+
+  .no-drops-message {
+    text-align: center;
+    padding: 2rem;
+    color: #999;
+    font-style: italic;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+}
+
+.recent-drops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.drop-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+  }
+
+  .drop-player {
+    display: flex;
+    align-items: center;
+
+    .player-name {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.95rem;
+    }
+  }
+
+  .drop-reward {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: flex-start;
+
+    .drop-disc-preview,
+    .drop-disc-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #e9ecef;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .disc-icon-small,
+    .gold-icon-small {
+      font-size: 2rem;
+      flex-shrink: 0;
+      line-height: 1;
+      width: 40px;
+      text-align: center;
+    }
+
+    .drop-item-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+  }
+
+  .drop-time {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.85rem;
+    color: #666;
+    white-space: nowrap;
+  }
+}
+
 .modal-actions {
   display: flex;
   gap: 1rem;
@@ -433,6 +538,66 @@
     width: 90px;
     .item-card {
       height: 110px;
+    }
+  }
+  .drop-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+
+    .drop-player,
+    .drop-reward,
+    .drop-time {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .drop-player {
+      display: inline;
+
+      .player-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      &::after {
+        content: ' - ';
+        color: #999;
+        font-weight: 400;
+      }
+    }
+
+    .drop-reward {
+      display: inline;
+      gap: 0;
+
+      .drop-disc-preview,
+      .drop-disc-img,
+      .disc-icon-small,
+      .gold-icon-small {
+        display: none;
+      }
+
+      .drop-item-name {
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+    }
+
+    .drop-time {
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .recent-drops-list {
+    gap: 1rem;
+  }
+
+  .recent-drops-section {
+    h3 {
+      font-size: 1.2rem;
     }
   }
 }

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { API_ENDPOINTS } from '../core/config/api.config';
-import { Product, PurchaseRequest, PurchaseResponse, Skin } from './shop.model';
+import { Product, PurchaseRequest, PurchaseResponse, RecentDrop, Skin } from './shop.model';
 
 export interface PageResponse<T> {
   content: T[];
@@ -65,6 +65,17 @@ export class ShopService {
 
   openLootbox(lootboxId: number): Observable<LootboxOpeningResult> {
     return this.http.post<LootboxOpeningResult>(`${this.API_SHOP_URL}/lootboxes/${lootboxId}/open`, {});
+  }
+
+  getRecentDrops(lootboxId: number): Observable<RecentDrop[]> {
+    return this.http.get<RecentDrop[]>(
+      `${this.API_SHOP_URL}/lootboxes/${lootboxId}/recent-drops`
+    ).pipe(
+      catchError(error => {
+        console.error('Failed to fetch recent drops:', error);
+        return of([]);
+      })
+    );
   }
 }
 

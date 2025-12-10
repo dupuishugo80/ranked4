@@ -2,6 +2,7 @@ package com.ranked4.userprofile.userprofile_service.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
 
     List<UserProfile> findTop10ByOrderByEloDesc();
     List<UserProfile> findAllByUserIdIn(List<UUID> userIds);
+    List<UserProfile> findAllByUserIdIn(Set<UUID> userIds);
 }

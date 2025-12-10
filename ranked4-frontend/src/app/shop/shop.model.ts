@@ -39,3 +39,11 @@ export interface PurchaseResponse {
   message: string;
   newBalance?: number;
 }
+
+export interface RecentDrop {
+  displayName: string;
+  rewardItemCode: string;
+  rewardItemType: 'DISC' | 'GOLD';
+  rewardGoldAmount: number | null;
+  openedAt: string;
+}

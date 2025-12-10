@@ -1,134 +1,179 @@
 <div class="modal-overlay" (click)="closeModal()">
   <div class="modal-content lootbox-opening-modal" (click)="$event.stopPropagation()">
     @if (!showAnimation()) {
-      <div class="lootbox-details">
-        <div class="lootbox-header">
-          <img [src]="lootbox.imageUrl" [alt]="lootbox.name" class="lootbox-image-large" />
-          <div class="lootbox-info">
-            <h2>{{ lootbox.name }}</h2>
-            <p class="lootbox-description">{{ lootbox.description }}</p>
-            <div class="header-actions">
-              <button class="btn btn-primary btn-open-lootbox" [disabled]="!canAfford() || isOpening()" (click)="startOpening()">
-                @if (lootbox.dailyFree && !isDailyFreeAvailable) {
-                  Already opened today
-                } @else if (canAfford()) {
-                  Open the chest
-                } @else {
-                  Insufficient
-                }
-              </button>
-              <div class="lootbox-price">
-                @if (lootbox.dailyFree) {
-                  <span class="free-label">FREE</span>
-                } @else {
-                  <span class="gold-icon">🪙</span>
-                  <span>{{ lootbox.price }}</span>
-                }
-              </div>
+    <div class="lootbox-details">
+      <div class="lootbox-header">
+        <img [src]="lootbox.imageUrl" [alt]="lootbox.name" class="lootbox-image-large" />
+        <div class="lootbox-info">
+          <h2>{{ lootbox.name }}</h2>
+          <p class="lootbox-description">{{ lootbox.description }}</p>
+          <div class="header-actions">
+            <button class="btn btn-primary btn-open-lootbox" [disabled]="!canAfford() || isOpening()"
+              (click)="startOpening()">
+              @if (lootbox.dailyFree && !isDailyFreeAvailable) {
+              Already opened today
+              } @else if (canAfford()) {
+              Open the chest
+              } @else {
+              Insufficient
+              }
+            </button>
+            <div class="lootbox-price">
+              @if (lootbox.dailyFree) {
+              <span class="free-label">FREE</span>
+              } @else {
+              <span class="gold-icon">🪙</span>
+              <span>{{ lootbox.price }}</span>
+              }
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="contents-section">
-          <h3>Contents of the chest</h3>
-          <div class="contents-grid">
-            @for (content of lootbox.contents; track $index) {
-              <div class="content-item">
-                <div class="item-probability">Drop Rate {{ getProbability(content).toFixed(2) }}%</div>
-                <div class="item-visual">
-                  @if (content.itemType === 'DISC') {
-                    @if (getDiscInfo(content.itemCode); as disc) {
-                      @if (disc.type === 'color') {
-                        <div class="disc-preview" [style.background-color]="disc.value"></div>
-                      } @else {
-                        <img [src]="disc.value" [alt]="disc.displayName" class="disc-preview-img" />
-                      }
-                    } @else {
-                      <span class="disc-icon">🎨</span>
-                    }
-                  } @else {
-                    <span class="gold-icon-large">🪙</span>
-                  }
-                </div>
-                <div class="item-name">
-                  @if (content.itemType === 'DISC') {
-                    {{ getDiscInfo(content.itemCode)?.displayName || content.itemCode }}
-                  } @else {
-                    {{ content.goldAmount }} Gold
-                  }
-                </div>
+      <div class="contents-section">
+        <h3>Contents of the chest</h3>
+        <div class="contents-grid">
+          @for (content of lootbox.contents; track $index) {
+          <div class="content-item">
+            <div class="item-probability">Drop Rate {{ getProbability(content).toFixed(2) }}%</div>
+            <div class="item-visual">
+              @if (content.itemType === 'DISC') {
+              @if (getDiscInfo(content.itemCode); as disc) {
+              @if (disc.type === 'color') {
+              <div class="disc-preview" [style.background-color]="disc.value"></div>
+              } @else {
+              <img [src]="disc.value" [alt]="disc.displayName" class="disc-preview-img" />
+              }
+              } @else {
+              <span class="disc-icon">🎨</span>
+              }
+              } @else {
+              <span class="gold-icon-large">🪙</span>
+              }
+            </div>
+            <div class="item-name">
+              @if (content.itemType === 'DISC') {
+              {{ getDiscInfo(content.itemCode)?.displayName || content.itemCode }}
+              } @else {
+              {{ content.goldAmount }} Gold
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="recent-drops-section">
+        <h3>Recent Drops</h3>
+
+        @if (recentDropsLoading()) {
+        <div class="loading-spinner">Loading recent drops...</div>
+        } @else if (recentDrops().length === 0) {
+        <p class="no-drops-message">No recent drops yet. Be the first!</p>
+        } @else {
+        <div class="recent-drops-list">
+          @for (drop of recentDrops(); track $index) {
+          <div class="drop-item">
+            <div class="drop-player">
+              <span class="player-name">{{ drop.displayName }}</span>
+            </div>
+
+            <div class="drop-reward">
+              @if (drop.rewardItemType === 'DISC') {
+              @if (getDiscInfo(drop.rewardItemCode); as disc) {
+              @if (disc.type === 'color') {
+              <div class="drop-disc-preview" [style.background-color]="disc.value"></div>
+              } @else {
+              <img [src]="disc.value" [alt]="disc.displayName" class="drop-disc-img" />
+              }
+              } @else {
+              <span class="disc-icon-small">🎨</span>
+              }
+              <span class="drop-item-name">
+                {{ getDiscInfo(drop.rewardItemCode)?.displayName || drop.rewardItemCode }}
+              </span>
+              } @else {
+              <span class="gold-icon-small">🪙</span>
+              <span class="drop-item-name">{{ drop.rewardGoldAmount }} Gold</span>
+              }
+            </div>
+
+            <div class="drop-time">
+              {{ formatTimestamp(drop.openedAt) }}
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+    } @else {
+    <div class="lootbox-animation">
+      <div class="animation-header">
+        <h2>{{ lootbox.name }}</h2>
+        @if (wonItem() && !isOpening()) {
+        <div class="won-item-display">
+          <h3>You won!</h3>
+          <div class="won-item-visual">
+            @if ((wonItem()!.actualRewardType || wonItem()!.itemType) === 'DISC') {
+            @if (wonItem()!.skinType === 'color') {
+            <div class="won-disc-preview" [style.background-color]="wonItem()!.value"></div>
+            } @else if (wonItem()!.skinType === 'image') {
+            <img [src]="wonItem()!.value" [alt]="wonItem()!.displayName" class="won-disc-preview-img" />
+            } @else {
+            <span class="disc-icon-large">🎨</span>
+            }
+            } @else {
+            <span class="gold-icon-huge">🪙</span>
+            }
+          </div>
+          <div class="won-item-name">
+            @if ((wonItem()!.actualRewardType || wonItem()!.itemType) === 'DISC') {
+            {{ wonItem()!.displayName }}
+            } @else {
+            {{ wonItem()!.goldAmount }} Gold
+            }
+          </div>
+          @if (wonItem()!.customMessage) {
+          <div class="custom-message">
+            {{ wonItem()!.customMessage }}
+          </div>
+          }
+          <button class="btn btn-primary" (click)="closeModal()">Close</button>
+        </div>
+        }
+      </div>
+
+      <div class="reel-container">
+        <div class="reel-arrow">▼</div>
+        <div class="reel-viewport">
+          <div class="reel" [style.transform]="'translateX(' + scrollPosition() + 'px)'">
+            @for (item of reel(); track $index) {
+            <div class="reel-item" [class.won-item]="wonItem() && item === wonItem()">
+              @if (item.itemType === 'DISC') {
+              <div class="item-card disc-card">
+                @if (item.skinType === 'color') {
+                <div class="disc-preview-reel" [style.background-color]="item.value"></div>
+                } @else if (item.skinType === 'image') {
+                <img [src]="item.value" [alt]="item.displayName" class="disc-preview-img-reel" />
+                } @else {
+                <span class="disc-icon">🎨</span>
+                }
+                <span class="item-label">{{ item.displayName }}</span>
               </div>
+              } @else {
+              <div class="item-card gold-card">
+                <span class="gold-icon">🪙</span>
+                <span class="item-label">{{ item.goldAmount }}</span>
+              </div>
+              }
+            </div>
             }
           </div>
         </div>
+        <div class="reel-glow"></div>
       </div>
-    } @else {
-      <div class="lootbox-animation">
-        <div class="animation-header">
-          <h2>{{ lootbox.name }}</h2>
-          @if (wonItem() && !isOpening()) {
-            <div class="won-item-display">
-              <h3>You won!</h3>
-              <div class="won-item-visual">
-                @if ((wonItem()!.actualRewardType || wonItem()!.itemType) === 'DISC') {
-                  @if (wonItem()!.skinType === 'color') {
-                    <div class="won-disc-preview" [style.background-color]="wonItem()!.value"></div>
-                  } @else if (wonItem()!.skinType === 'image') {
-                    <img [src]="wonItem()!.value" [alt]="wonItem()!.displayName" class="won-disc-preview-img" />
-                  } @else {
-                    <span class="disc-icon-large">🎨</span>
-                  }
-                } @else {
-                  <span class="gold-icon-huge">🪙</span>
-                }
-              </div>
-              <div class="won-item-name">
-                @if ((wonItem()!.actualRewardType || wonItem()!.itemType) === 'DISC') {
-                  {{ wonItem()!.displayName }}
-                } @else {
-                  {{ wonItem()!.goldAmount }} Gold
-                }
-              </div>
-              @if (wonItem()!.customMessage) {
-                <div class="custom-message">
-                  {{ wonItem()!.customMessage }}
-                </div>
-              }
-              <button class="btn btn-primary" (click)="closeModal()">Close</button>
-            </div>
-          }
-        </div>
-
-        <div class="reel-container">
-          <div class="reel-arrow">▼</div>
-          <div class="reel-viewport">
-            <div class="reel" [style.transform]="'translateX(' + scrollPosition() + 'px)'">
-              @for (item of reel(); track $index) {
-                <div class="reel-item" [class.won-item]="wonItem() && item === wonItem()">
-                  @if (item.itemType === 'DISC') {
-                    <div class="item-card disc-card">
-                      @if (item.skinType === 'color') {
-                        <div class="disc-preview-reel" [style.background-color]="item.value"></div>
-                      } @else if (item.skinType === 'image') {
-                        <img [src]="item.value" [alt]="item.displayName" class="disc-preview-img-reel" />
-                      } @else {
-                        <span class="disc-icon">🎨</span>
-                      }
-                      <span class="item-label">{{ item.displayName }}</span>
-                    </div>
-                  } @else {
-                    <div class="item-card gold-card">
-                      <span class="gold-icon">🪙</span>
-                      <span class="item-label">{{ item.goldAmount }}</span>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-          <div class="reel-glow"></div>
-        </div>
-      </div>
+    </div>
     }
   </div>
 </div>

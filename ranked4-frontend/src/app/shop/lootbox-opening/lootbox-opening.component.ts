@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Lootbox, LootboxContent } from '../shop.model';
+import { Lootbox, LootboxContent, RecentDrop } from '../shop.model';
+import { ShopService } from '../shop.service';
 import { API_ENDPOINTS } from '../../core/config/api.config';
 
 interface LootboxItem {
@@ -33,6 +34,7 @@ interface DiscInfo {
 export class LootboxOpeningComponent implements OnInit {
   private http = inject(HttpClient);
   private audioContext: AudioContext | null = null;
+  private shopService = inject(ShopService);
 
   @Input() lootbox!: Lootbox;
   @Input() userGold: number = 0;
@@ -46,10 +48,13 @@ export class LootboxOpeningComponent implements OnInit {
   public wonItem: WritableSignal<LootboxItem | null> = signal(null);
   public scrollPosition: WritableSignal<number> = signal(0);
   public discsMap: WritableSignal<Map<string, DiscInfo>> = signal(new Map());
+  public recentDrops: WritableSignal<RecentDrop[]> = signal([]);
+  public recentDropsLoading: WritableSignal<boolean> = signal(true);
 
   ngOnInit(): void {
     this.initAudioContext();
     this.loadDiscsInfo();
+    this.loadRecentDrops();
   }
 
   private initAudioContext(): void {
@@ -82,6 +87,41 @@ export class LootboxOpeningComponent implements OnInit {
 
   getDiscInfo(itemCode: string): DiscInfo | undefined {
     return this.discsMap().get(itemCode);
+  }
+
+  private loadRecentDrops(): void {
+    this.recentDropsLoading.set(true);
+
+    this.shopService.getRecentDrops(this.lootbox.id).subscribe({
+      next: (drops) => {
+        this.recentDrops.set(drops);
+        this.recentDropsLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading recent drops:', err);
+        this.recentDrops.set([]);
+        this.recentDropsLoading.set(false);
+      }
+    });
+  }
+
+  formatTimestamp(timestamp: string): string {
+    return new Date(timestamp).toLocaleString('fr-FR', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getDropItemDisplay(drop: RecentDrop): string {
+    if (drop.rewardItemType === 'GOLD') {
+      return `${drop.rewardGoldAmount} Gold`;
+    } else {
+      const discInfo = this.getDiscInfo(drop.rewardItemCode);
+      return discInfo?.displayName || drop.rewardItemCode;
+    }
   }
 
   private generateReel(): void {
