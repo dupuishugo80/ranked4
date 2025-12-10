@@ -21,7 +21,7 @@ export class LoginComponent {
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
-    password: ['', [Validators.required]],
+    password: ['', [Validators.required]]
   });
 
   onSubmit(): void {
@@ -31,7 +31,7 @@ export class LoginComponent {
 
     this.errorMessage = null;
 
-    const payload = this.loginForm.value as { username: string, password: string };
+    const payload = this.loginForm.value as { username: string; password: string };
 
     this.authService.login(payload).subscribe({
       next: (response) => {

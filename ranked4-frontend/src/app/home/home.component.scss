@@ -19,13 +19,14 @@
 .avatar-container {
   flex-shrink: 0;
 
-  .avatar, .avatar-placeholder {
+  .avatar,
+  .avatar-placeholder {
     width: 80px;
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
   }
-  
+
   .avatar-placeholder {
     background-color: var(--primary-color);
     color: var(--surface-color);
@@ -56,7 +57,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-color);
   margin-bottom: 2rem;
-  
+
   h4 {
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -64,18 +65,18 @@
     font-size: 1.25rem;
     font-weight: 500;
   }
-  
+
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 1rem;
     text-align: center;
   }
-  
+
   .stat-item {
     display: flex;
     flex-direction: column;
-    
+
     .value {
       font-size: 2.25rem;
       font-weight: 600;
@@ -86,20 +87,26 @@
       color: #6c757d;
     }
 
-    &.win .value { color: #28a745; }
-    &.loss .value { color: #dc3545; }
-    &.draw .value { color: #6c757d; }
+    &.win .value {
+      color: #28a745;
+    }
+    &.loss .value {
+      color: #dc3545;
+    }
+    &.draw .value {
+      color: #6c757d;
+    }
   }
 }
 
 .home-actions {
   text-align: center;
-  
+
   h3 {
     font-weight: 500;
   }
 
-  .btn-primary { 
+  .btn-primary {
     background-color: var(--primary-color);
     color: white;
     padding: 0.8rem 2rem;
@@ -109,7 +116,7 @@
     cursor: pointer;
     transition: background-color 0.2s ease;
     font-weight: 500;
-    
+
     &:hover {
       background-color: var(--primary-color-hover);
     }

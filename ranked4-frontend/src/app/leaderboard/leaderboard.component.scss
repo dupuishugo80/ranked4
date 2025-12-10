@@ -3,7 +3,7 @@
   padding: 1.5rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  
+
   h4 {
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -11,7 +11,7 @@
     font-size: 1.25rem;
     font-weight: 500;
   }
-  
+
   .leaderboard-list {
     list-style: none;
     padding-left: 0;
@@ -20,7 +20,7 @@
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .leaderboard-item {
     display: flex;
     align-items: center;
@@ -28,7 +28,7 @@
     padding: 0.75rem 1rem;
     border-radius: 6px;
     transition: background-color 0.2s ease;
-    
+
     .rank {
       font-weight: 700;
       font-size: 1.1rem;
@@ -36,7 +36,7 @@
       width: 20px;
       text-align: center;
     }
-    
+
     .name {
       flex: 1;
       font-weight: 500;
@@ -44,7 +44,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
     .elo {
       font-weight: 600;
       color: #333;
@@ -57,7 +57,8 @@
       flex-shrink: 0;
     }
 
-    .avatar-small, .avatar-placeholder-small {
+    .avatar-small,
+    .avatar-placeholder-small {
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -76,7 +77,9 @@
     &.is-you {
       background-color: #e6f2ff;
       border: 1px solid var(--primary-color);
-      .name, .elo, .winrate {
+      .name,
+      .elo,
+      .winrate {
         color: var(--primary-color);
         font-weight: 700;
       }

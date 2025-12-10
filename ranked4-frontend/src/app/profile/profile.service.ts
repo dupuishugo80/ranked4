@@ -1,8 +1,8 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable, inject } from "@angular/core";
-import { Observable } from "rxjs";
-import { UserProfile } from "./profile.model";
-import { API_ENDPOINTS } from "../core/config/api.config";
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { UserProfile } from './profile.model';
+import { API_ENDPOINTS } from '../core/config/api.config';
 
 @Injectable({
   providedIn: 'root'

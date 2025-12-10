@@ -21,7 +21,7 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
   public elapsedTime: string = '00:00';
 
   ngOnInit(): void {
-    this.statusSub = this.gameService.gameStatus$.subscribe(status => {
+    this.statusSub = this.gameService.gameStatus$.subscribe((status) => {
       switch (status) {
         case 'QUEUEING':
           this.status = 'In queue. Searching for an opponent...';
@@ -35,7 +35,7 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.timeSub = this.gameService.queueTime$.subscribe(seconds => {
+    this.timeSub = this.gameService.queueTime$.subscribe((seconds) => {
       this.elapsedTime = this.formatTime(seconds);
     });
 

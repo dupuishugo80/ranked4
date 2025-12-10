@@ -1,47 +1,35 @@
 <div class="private-match-wrapper">
-    <div class="private-match-container">
-        <h2>Private match (friendly)</h2>
-        <p class="status-message">{{ status }}</p>
+  <div class="private-match-container">
+    <h2>Private match (friendly)</h2>
+    <p class="status-message">{{ status }}</p>
 
-        <section>
-            <button class="btn-primary"
-                *ngIf="gameService.gameStatus$.value === 'IDLE'"
-                (click)="createPrivate()">
-                Create private match
-            </button>
+    <section>
+      <button class="btn-primary" *ngIf="gameService.gameStatus$.value === 'IDLE'" (click)="createPrivate()">Create private match</button>
 
-            <div *ngIf="createdCode" class="code-box">
-                <div class="hint">Share this code with your friend:</div>
-                <code>{{ createdCode }}</code>
+      <div *ngIf="createdCode" class="code-box">
+        <div class="hint">Share this code with your friend:</div>
+        <code>{{ createdCode }}</code>
 
-                <div *ngIf="!guestJoined && gameService.gameStatus$.value === 'QUEUEING'" class="hint">
-                    Waiting for a player to join your private match...
-                </div>
+        <div *ngIf="!guestJoined && gameService.gameStatus$.value === 'QUEUEING'" class="hint">
+          Waiting for a player to join your private match...
+        </div>
 
-                <div *ngIf="guestJoined && gameService.gameStatus$.value === 'QUEUEING'"
-                    class="ready-message">
-                    A player has joined your private match, you can start the match.
-                </div>
+        <div *ngIf="guestJoined && gameService.gameStatus$.value === 'QUEUEING'" class="ready-message">
+          A player has joined your private match, you can start the match.
+        </div>
 
-                <button class="btn-primary"
-                        *ngIf="isHost && gameService.gameStatus$.value === 'QUEUEING' && guestJoined"
-                        (click)="startPrivate()">
-                    Start match
-                </button>
-            </div>
-        </section>
+        <button class="btn-primary" *ngIf="isHost && gameService.gameStatus$.value === 'QUEUEING' && guestJoined" (click)="startPrivate()">
+          Start match
+        </button>
+      </div>
+    </section>
 
-        <ng-container *ngIf="gameService.gameStatus$.value === 'IDLE'">
-            <section class="join-section">
-                <h3>Join a private match</h3>
-                <input type="text"
-                        [(ngModel)]="privateCodeInput"
-                        placeholder="ENTER CODE">
-                <button class="btn-secondary"
-                        (click)="joinPrivate()">
-                    Join by code
-                </button>
-            </section>
-        </ng-container>
-    </div>
+    <ng-container *ngIf="gameService.gameStatus$.value === 'IDLE'">
+      <section class="join-section">
+        <h3>Join a private match</h3>
+        <input type="text" [(ngModel)]="privateCodeInput" placeholder="ENTER CODE" />
+        <button class="btn-secondary" (click)="joinPrivate()">Join by code</button>
+      </section>
+    </ng-container>
+  </div>
 </div>

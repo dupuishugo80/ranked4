@@ -93,7 +93,7 @@ export class LootboxOpeningComponent implements OnInit {
     const items: LootboxItem[] = [];
     const totalWeight = this.lootbox.contents.reduce((sum, c) => sum + c.weight, 0);
 
-    this.lootbox.contents.forEach(content => {
+    this.lootbox.contents.forEach((content) => {
       const count = Math.round((content.weight / totalWeight) * 100);
       const discInfo = content.itemType === 'DISC' ? this.getDiscInfo(content.itemCode) : undefined;
 
@@ -102,9 +102,7 @@ export class LootboxOpeningComponent implements OnInit {
           itemCode: content.itemCode || '',
           itemType: content.itemType,
           goldAmount: content.goldAmount,
-          displayName: content.itemType === 'GOLD'
-            ? `${content.goldAmount} Gold`
-            : (discInfo?.displayName || content.itemCode),
+          displayName: content.itemType === 'GOLD' ? `${content.goldAmount} Gold` : discInfo?.displayName || content.itemCode,
           skinType: discInfo?.type,
           value: discInfo?.value
         });
@@ -158,7 +156,7 @@ export class LootboxOpeningComponent implements OnInit {
 
     this.wonItem.set(result);
 
-    const resultIndex = this.reel().findIndex(item => {
+    const resultIndex = this.reel().findIndex((item) => {
       if (result.itemCode && result.itemCode.trim()) {
         return item.itemCode === result.itemCode;
       }
@@ -185,12 +183,12 @@ export class LootboxOpeningComponent implements OnInit {
     const gapBetweenItems = 10;
 
     const reelViewport = document.querySelector('.reel-viewport');
-    const containerWidth = reelViewport ? reelViewport.clientWidth : (isMobile ? 400 : 600);
+    const containerWidth = reelViewport ? reelViewport.clientWidth : isMobile ? 400 : 600;
 
     const centerOffset = containerWidth / 2 - itemWidth / 2;
     const baseReelLength = Math.floor(this.reel().length / 5);
     const targetRepetition = 2;
-    const adjustedIndex = resultIndex + (targetRepetition * baseReelLength);
+    const adjustedIndex = resultIndex + targetRepetition * baseReelLength;
 
     const reelPadding = 10;
     const targetPosition = -(reelPadding + adjustedIndex * (itemWidth + gapBetweenItems) - centerOffset);
@@ -231,7 +229,13 @@ export class LootboxOpeningComponent implements OnInit {
     }
   }
 
-  private animateScrollTwoPhase(targetPosition: number, fastDuration: number, slowDuration: number, itemWidth: number, gapBetweenItems: number): void {
+  private animateScrollTwoPhase(
+    targetPosition: number,
+    fastDuration: number,
+    slowDuration: number,
+    itemWidth: number,
+    gapBetweenItems: number
+  ): void {
     const startPosition = 0;
     const startTime = Date.now();
     const itemTotalWidth = itemWidth + gapBetweenItems;

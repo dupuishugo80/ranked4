@@ -8,207 +8,196 @@
   </div>
 
   <div class="shop-tabs">
-    <button class="tab-button" [class.active]="activeTab() === 'skins'" (click)="switchTab('skins')">
-      🎨 Skins
-    </button>
-    <button class="tab-button" [class.active]="activeTab() === 'lootboxes'" (click)="switchTab('lootboxes')">
-      📦 Lootboxes
-    </button>
+    <button class="tab-button" [class.active]="activeTab() === 'skins'" (click)="switchTab('skins')">🎨 Skins</button>
+    <button class="tab-button" [class.active]="activeTab() === 'lootboxes'" (click)="switchTab('lootboxes')">📦 Lootboxes</button>
   </div>
 
   <div class="shop-content">
     @if (activeTab() === 'skins') {
-    <div class="filters-container">
-      <div class="filter-group">
-        <label for="rarity-filter">Rarity:</label>
-        <select id="rarity-filter" [(ngModel)]="selectedRarity" (change)="onFilterChange()">
-          <option value="ALL">All</option>
-          <option value="COMMON">Common</option>
-          <option value="UNCOMMON">Uncommon</option>
-          <option value="RARE">Rare</option>
-          <option value="EPIC">Epic</option>
-          <option value="LEGENDARY">Legendary</option>
-        </select>
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="rarity-filter">Rarity:</label>
+          <select id="rarity-filter" [(ngModel)]="selectedRarity" (change)="onFilterChange()">
+            <option value="ALL">All</option>
+            <option value="COMMON">Common</option>
+            <option value="UNCOMMON">Uncommon</option>
+            <option value="RARE">Rare</option>
+            <option value="EPIC">Epic</option>
+            <option value="LEGENDARY">Legendary</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="price-sort">Sort by price:</label>
+          <select id="price-sort" [(ngModel)]="priceSort" (change)="onFilterChange()">
+            <option value="NONE">Default</option>
+            <option value="ASC">Low to High</option>
+            <option value="DESC">High to Low</option>
+          </select>
+        </div>
       </div>
 
-      <div class="filter-group">
-        <label for="price-sort">Sort by price:</label>
-        <select id="price-sort" [(ngModel)]="priceSort" (change)="onFilterChange()">
-          <option value="NONE">Default</option>
-          <option value="ASC">Low to High</option>
-          <option value="DESC">High to Low</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="products-grid">
-      @for (skin of getSkins(); track skin.id) {
-      <div class="product-card" [class.owned]="isOwned(skin)">
-        @if (isOwned(skin)) {
-        <div class="owned-badge">✓ Owned</div>
-        }
-        <div class="rarity-badge" [attr.data-rarity]="extractRarity(skin.itemCode).toLowerCase()">
-          {{ extractRarity(skin.itemCode) }}
-        </div>
-        <div class="product-image">
-          @if (skin.skinType === 'color') {
-          <div class="skin-preview-large" [style.background-color]="skin.value"></div>
-          } @else {
-          <img [src]="skin.value" alt="{{ skin.name }}" class="skin-preview-img-large">
-          }
-        </div>
-        <div class="product-info">
-          <h3 class="product-name">{{ skin.name }}</h3>
-          <p class="product-description">{{ skin.description }}</p>
-          <div class="product-footer">
-            <div class="product-price">
-              <span class="gold-icon">🪙</span>
-              <span>{{ skin.price }}</span>
+      <div class="products-grid">
+        @for (skin of getSkins(); track skin.id) {
+          <div class="product-card" [class.owned]="isOwned(skin)">
+            @if (isOwned(skin)) {
+              <div class="owned-badge">✓ Owned</div>
+            }
+            <div class="rarity-badge" [attr.data-rarity]="extractRarity(skin.itemCode).toLowerCase()">
+              {{ extractRarity(skin.itemCode) }}
             </div>
-            <button class="btn btn-buy" [class.btn-disabled]="!canAfford(skin.price) || isOwned(skin)"
-              [disabled]="!canAfford(skin.price) || isOwned(skin)" (click)="openPurchaseModal(skin)">
-              {{ isOwned(skin) ? 'Owned' : (canAfford(skin.price) ? 'Buy' : 'Insufficient') }}
-            </button>
+            <div class="product-image">
+              @if (skin.skinType === 'color') {
+                <div class="skin-preview-large" [style.background-color]="skin.value"></div>
+              } @else {
+                <img [src]="skin.value" alt="{{ skin.name }}" class="skin-preview-img-large" />
+              }
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">{{ skin.name }}</h3>
+              <p class="product-description">{{ skin.description }}</p>
+              <div class="product-footer">
+                <div class="product-price">
+                  <span class="gold-icon">🪙</span>
+                  <span>{{ skin.price }}</span>
+                </div>
+                <button
+                  class="btn btn-buy"
+                  [class.btn-disabled]="!canAfford(skin.price) || isOwned(skin)"
+                  [disabled]="!canAfford(skin.price) || isOwned(skin)"
+                  (click)="openPurchaseModal(skin)">
+                  {{ isOwned(skin) ? 'Owned' : canAfford(skin.price) ? 'Buy' : 'Insufficient' }}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        } @empty {
+          <div class="empty-state">
+            <p>No skins available at the moment.</p>
+          </div>
+        }
       </div>
-      } @empty {
-      <div class="empty-state">
-        <p>No skins available at the moment.</p>
-      </div>
-      }
-    </div>
 
-    <div class="pagination">
-      <button class="btn btn-secondary" (click)="previousSkinsPage()" [disabled]="skinsCurrentPage === 0">
-        Previous
-      </button>
-      <span>Page {{ skinsCurrentPage + 1 }} of {{ skinsTotalPages }}</span>
-      <button class="btn btn-secondary" (click)="nextSkinsPage()" [disabled]="skinsCurrentPage >= skinsTotalPages - 1">
-        Next
-      </button>
-    </div>
+      <div class="pagination">
+        <button class="btn btn-secondary" (click)="previousSkinsPage()" [disabled]="skinsCurrentPage === 0">Previous</button>
+        <span>Page {{ skinsCurrentPage + 1 }} of {{ skinsTotalPages }}</span>
+        <button class="btn btn-secondary" (click)="nextSkinsPage()" [disabled]="skinsCurrentPage >= skinsTotalPages - 1">Next</button>
+      </div>
     }
 
     @if (activeTab() === 'lootboxes') {
-    <div class="filters-container">
-      <div class="filter-group">
-        <label for="lootbox-price-sort">Sort by price:</label>
-        <select id="lootbox-price-sort" [(ngModel)]="lootboxPriceSort" (change)="onLootboxSortChange()">
-          <option value="NONE">Default</option>
-          <option value="ASC">Low to High</option>
-          <option value="DESC">High to Low</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="products-grid">
-      @for (lootbox of lootboxes(); track lootbox.id) {
-      <div class="product-card lootbox-card" [class.daily-free-card]="lootbox.dailyFree" (click)="openLootboxModal(lootbox)">
-        <div class="product-image">
-          <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-image">
-          @if (lootbox.dailyFree) {
-          <div class="lootbox-badge daily-free-badge-on-image">🎁 DAILY FREE</div>
-          } @else {
-          <div class="lootbox-badge">Mystery Box</div>
-          }
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="lootbox-price-sort">Sort by price:</label>
+          <select id="lootbox-price-sort" [(ngModel)]="lootboxPriceSort" (change)="onLootboxSortChange()">
+            <option value="NONE">Default</option>
+            <option value="ASC">Low to High</option>
+            <option value="DESC">High to Low</option>
+          </select>
         </div>
-        <div class="product-info">
-          <h3 class="product-name">{{ lootbox.name }}</h3>
-          <p class="product-description">{{ lootbox.description }}</p>
-          <div class="product-footer">
-            <div class="product-price">
+      </div>
+
+      <div class="products-grid">
+        @for (lootbox of lootboxes(); track lootbox.id) {
+          <div class="product-card lootbox-card" [class.daily-free-card]="lootbox.dailyFree" (click)="openLootboxModal(lootbox)">
+            <div class="product-image">
+              <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-image" />
               @if (lootbox.dailyFree) {
-              <span class="free-label">FREE</span>
+                <div class="lootbox-badge daily-free-badge-on-image">🎁 DAILY FREE</div>
               } @else {
-              <span class="gold-icon">🪙</span>
-              <span>{{ lootbox.price }}</span>
+                <div class="lootbox-badge">Mystery Box</div>
               }
             </div>
-            <button class="btn btn-buy btn-lootbox">
-              See details
-            </button>
+            <div class="product-info">
+              <h3 class="product-name">{{ lootbox.name }}</h3>
+              <p class="product-description">{{ lootbox.description }}</p>
+              <div class="product-footer">
+                <div class="product-price">
+                  @if (lootbox.dailyFree) {
+                    <span class="free-label">FREE</span>
+                  } @else {
+                    <span class="gold-icon">🪙</span>
+                    <span>{{ lootbox.price }}</span>
+                  }
+                </div>
+                <button class="btn btn-buy btn-lootbox">See details</button>
+              </div>
+            </div>
           </div>
-        </div>
+        } @empty {
+          <div class="empty-state">
+            <p>No lootboxes available at the moment.</p>
+          </div>
+        }
       </div>
-      } @empty {
-      <div class="empty-state">
-        <p>No lootboxes available at the moment.</p>
-      </div>
-      }
-    </div>
 
-    <div class="pagination">
-      <button class="btn btn-secondary" (click)="previousLootboxesPage()" [disabled]="lootboxesCurrentPage === 0">
-        Previous
-      </button>
-      <span>Page {{ lootboxesCurrentPage + 1 }} of {{ lootboxesTotalPages }}</span>
-      <button class="btn btn-secondary" (click)="nextLootboxesPage()"
-        [disabled]="lootboxesCurrentPage >= lootboxesTotalPages - 1">
-        Next
-      </button>
-    </div>
+      <div class="pagination">
+        <button class="btn btn-secondary" (click)="previousLootboxesPage()" [disabled]="lootboxesCurrentPage === 0">Previous</button>
+        <span>Page {{ lootboxesCurrentPage + 1 }} of {{ lootboxesTotalPages }}</span>
+        <button class="btn btn-secondary" (click)="nextLootboxesPage()" [disabled]="lootboxesCurrentPage >= lootboxesTotalPages - 1">Next</button>
+      </div>
     }
   </div>
 </div>
 
 @if (showPurchaseModal()) {
-<div class="modal-overlay" (click)="closePurchaseModal()">
-  <div class="modal-content purchase-modal" (click)="$event.stopPropagation()">
-    <h3>Confirm purchase</h3>
+  <div class="modal-overlay" (click)="closePurchaseModal()">
+    <div class="modal-content purchase-modal" (click)="$event.stopPropagation()">
+      <h3>Confirm purchase</h3>
 
-    @if (selectedProduct()) {
-    <div class="purchase-details">
-      <p class="product-name-modal">{{ selectedProduct()!.name }}</p>
-      <p class="product-description-modal">{{ selectedProduct()!.description }}</p>
+      @if (selectedProduct()) {
+        <div class="purchase-details">
+          <p class="product-name-modal">{{ selectedProduct()!.name }}</p>
+          <p class="product-description-modal">{{ selectedProduct()!.description }}</p>
 
-      <div class="price-info">
-        <span class="label">Price:</span>
-        <span class="value">
-          <span class="gold-icon">🪙</span>
-          {{ selectedProduct()!.price }}
-        </span>
+          <div class="price-info">
+            <span class="label">Price:</span>
+            <span class="value">
+              <span class="gold-icon">🪙</span>
+              {{ selectedProduct()!.price }}
+            </span>
+          </div>
+
+          <div class="balance-info">
+            <span class="label">Current balance:</span>
+            <span class="value" [class.insufficient]="!canAfford(selectedProduct()!.price)">
+              <span class="gold-icon">🪙</span>
+              {{ userGold() }}
+            </span>
+          </div>
+
+          <div class="new-balance-info">
+            <span class="label">New balance:</span>
+            <span class="value">
+              <span class="gold-icon">🪙</span>
+              {{ userGold() - selectedProduct()!.price }}
+            </span>
+          </div>
+        </div>
+
+        @if (purchaseMessage()) {
+          <div class="purchase-message" [class.success]="purchaseMessage() === 'Purchase successful!'">
+            {{ purchaseMessage() }}
+          </div>
+        }
+      }
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closePurchaseModal()" [disabled]="isPurchasing()">Cancel</button>
+        <button class="btn btn-primary" (click)="confirmPurchase()" [disabled]="isPurchasing() || !canAfford(selectedProduct()!.price)">
+          {{ isPurchasing() ? 'Purchasing...' : 'Confirm' }}
+        </button>
       </div>
-
-      <div class="balance-info">
-        <span class="label">Current balance:</span>
-        <span class="value" [class.insufficient]="!canAfford(selectedProduct()!.price)">
-          <span class="gold-icon">🪙</span>
-          {{ userGold() }}
-        </span>
-      </div>
-
-      <div class="new-balance-info">
-        <span class="label">New balance:</span>
-        <span class="value">
-          <span class="gold-icon">🪙</span>
-          {{ userGold() - selectedProduct()!.price }}
-        </span>
-      </div>
-    </div>
-
-    @if (purchaseMessage()) {
-    <div class="purchase-message" [class.success]="purchaseMessage() === 'Purchase successful!'">
-      {{ purchaseMessage() }}
-    </div>
-    }
-    }
-
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closePurchaseModal()" [disabled]="isPurchasing()">
-        Cancel
-      </button>
-      <button class="btn btn-primary" (click)="confirmPurchase()"
-        [disabled]="isPurchasing() || !canAfford(selectedProduct()!.price)">
-        {{ isPurchasing() ? 'Purchasing...' : 'Confirm' }}
-      </button>
     </div>
   </div>
-</div>
 }
 
 @if (showLootboxOpening() && selectedLootbox()) {
-<app-lootbox-opening [lootbox]="selectedLootbox()!" [userGold]="userGold()"
-  [isDailyFreeAvailable]="isDailyFreeAvailable()" (close)="closeLootboxModal()" (open)="handleLootboxOpen()">
-</app-lootbox-opening>
+  <app-lootbox-opening
+    [lootbox]="selectedLootbox()!"
+    [userGold]="userGold()"
+    [isDailyFreeAvailable]="isDailyFreeAvailable()"
+    (close)="closeLootboxModal()"
+    (open)="handleLootboxOpen()">
+  </app-lootbox-opening>
 }

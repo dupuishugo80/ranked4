@@ -6,16 +6,14 @@ import { Gif } from './gif.model';
 
 @Injectable({ providedIn: 'root' })
 export class GifService {
-    private gifs$?: Observable<Gif[]>;
+  private gifs$?: Observable<Gif[]>;
 
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-    getGifs(): Observable<Gif[]> {
-        if (!this.gifs$) {
-        this.gifs$ = this.http
-            .get<Gif[]>(`${API_BASE_URL}/gifs`)
-            .pipe(shareReplay(1));
-        }
-        return this.gifs$;
+  getGifs(): Observable<Gif[]> {
+    if (!this.gifs$) {
+      this.gifs$ = this.http.get<Gif[]>(`${API_BASE_URL}/gifs`).pipe(shareReplay(1));
     }
+    return this.gifs$;
+  }
 }

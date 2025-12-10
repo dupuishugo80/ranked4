@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the **ranked4-frontend** Angular application for Ranked4, a Connect Four game with ELO ranking. It provides the user interface for authentication, matchmaking, gameplay, leaderboard, and administration.
 
 Part of a larger microservices architecture including:
+
 - auth-service (JWT authentication)
 - game-service (game logic, WebSocket)
 - matchmaking-service (queue management)
@@ -27,6 +28,7 @@ Part of a larger microservices architecture including:
 ## Build and Run Commands
 
 ### Development
+
 ```bash
 # Install dependencies
 npm install
@@ -51,6 +53,7 @@ ng test
 ```
 
 ### Angular CLI Commands
+
 ```bash
 # Generate a new component
 ng generate component component-name
@@ -68,6 +71,7 @@ ng generate --help
 ## Architecture
 
 ### Authentication Flow
+
 - JWT-based authentication with access/refresh token pattern
 - Tokens stored in localStorage
 - `LoginService` handles login/logout and token refresh
@@ -78,9 +82,11 @@ ng generate --help
 - `publicGuard` redirects authenticated users away from login/register
 
 ### API Configuration
+
 All backend communication goes through the gateway at `http://localhost:8080/api`.
 
 API endpoints are centralized in `src/app/core/config/api.config.ts`:
+
 - AUTH: `/api/auth`
 - PROFILES: `/api/profiles`
 - MATCHMAKING_JOIN/LEAVE: `/api/matchmaking/*`
@@ -91,9 +97,11 @@ API endpoints are centralized in `src/app/core/config/api.config.ts`:
 WebSocket connection: `ws://localhost:8080/ws`
 
 ### WebSocket Architecture
+
 Real-time game communication uses STOMP over WebSocket (`@stomp/stompjs`):
 
 **WebSocketService** (`src/app/game/websocket/websocket.service.ts`):
+
 - Manages STOMP client lifecycle
 - Handles connection states: DISCONNECTED, CONNECTING, CONNECTED
 - Auto-reconnect with 5-second delay
@@ -130,26 +138,32 @@ src/app/
 ```
 
 ### Route Structure
+
 Routes are defined in `src/app/app.routes.ts`:
 
 **Public routes** (publicGuard):
+
 - `/login` - Login page
 - `/register` - Registration page
 
 **Authenticated routes** (authGuard):
+
 - `/home` - Home/dashboard
 - `/matchmaking` - Matchmaking queue
 - `/game/:id` - Active game by ID
 - `/private-game` - Private game lobby
 
 **Admin routes** (adminGuard):
+
 - `/admin` - Admin dashboard
 - `/admin-users` - User management
 - `/admin-lootboxes` - Lootbox management
 - `/admin-skins` - Skin management
 
 ### Token Management
+
 `LoginService` provides:
+
 - `login(payload)` - Authenticate and store tokens
 - `logout()` - Clear tokens and redirect to login
 - `getAccessToken()` / `getRefreshToken()` - Retrieve tokens from localStorage
@@ -159,6 +173,7 @@ Routes are defined in `src/app/app.routes.ts`:
 - `handle401Error()` - Automatic token refresh with request retry
 
 JWT payload structure:
+
 ```typescript
 {
   sub: string;        // username
@@ -170,7 +185,9 @@ JWT payload structure:
 ```
 
 ### HTTP Interceptors
+
 `authInterceptor` (`src/app/interceptors/auth.interceptor.ts`):
+
 - Adds `Authorization: Bearer <token>` header to all requests
 - Catches 401 errors and triggers token refresh flow
 - Skips refresh for `/api/auth/` endpoints to prevent infinite loops
@@ -187,12 +204,14 @@ JWT payload structure:
 ## Development Workflow
 
 ### Typical Development Tasks
+
 1. Start backend services: `docker-compose up` (from parent directory)
 2. Start frontend: `npm start` (runs on http://localhost:4200)
 3. Frontend automatically proxies API calls to gateway at localhost:8080
 4. Make changes - Angular auto-reloads on file changes
 
 ### Common Patterns
+
 - Services are provided at root level (`providedIn: 'root'`)
 - Use functional guards (CanActivateFn) instead of class-based guards
 - Use functional interceptors (HttpInterceptorFn) instead of class-based
@@ -217,6 +236,7 @@ The frontend communicates with the backend microservices through:
 Frontend can be run in Docker as part of the full stack (see parent docker-compose.yml).
 
 Backend services in docker-compose:
+
 - postgres (5432) - Database
 - redis (6379) - Caching/sessions
 - kafka (9092) - Event streaming

@@ -2,180 +2,172 @@
   <h1>My Profile</h1>
 
   @if (successMessage()) {
-  <div class="alert alert-success">
-    {{ successMessage() }}
-  </div>
+    <div class="alert alert-success">
+      {{ successMessage() }}
+    </div>
   }
 
   @if (errorMessage()) {
-  <div class="alert alert-error">
-    {{ errorMessage() }}
-  </div>
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
   }
 
   @if (profile(); as p) {
-  <div class="profile-content">
-    <div class="profile-header">
-      <div class="avatar-section">
-        <div class="avatar-container">
-          @if (p.avatarUrl) {
-          <img [src]="p.avatarUrl" [alt]="p.displayName" class="avatar">
-          } @else {
-          <div class="avatar-placeholder">
-            <span class="avatar-initial">{{ p.displayName.charAt(0).toUpperCase() }}</span>
-          </div>
-          }
-        </div>
-        <button class="btn btn-secondary btn-change-avatar" (click)="openAvatarModal()">
-          Change avatar
-        </button>
-      </div>
-
-      <div class="profile-info">
-        <h2>{{ p.displayName }}</h2>
-        <p class="email">{{ p.email }}</p>
-
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-label">ELO</span>
-            <span class="stat-value">{{ p.elo }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Gold</span>
-            <span class="stat-value gold">
-              <span class="gold-icon">🪙</span>
-              {{ p.gold }}
-            </span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Games played</span>
-            <span class="stat-value">{{ p.gamesPlayed }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Victories</span>
-            <span class="stat-value wins">{{ p.wins }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Defeats</span>
-            <span class="stat-value losses">{{ p.losses }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Win rate</span>
-            <span class="stat-value">{{ getWinRate() }}%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="discs-section">
-      <h3>My Discs</h3>
-
-      @if (getSortedDiscs().length > 0 || true) {
-      <div class="discs-grid">
-        <div class="disc-card default-disc-card" [class.equipped]="isNoDiscEquipped()"
-          [class.selectable]="!isNoDiscEquipped()" (click)="selectNoDisc()">
-
-          @if (isNoDiscEquipped()) {
-          <div class="equipped-badge">✓ Equipped</div>
-          }
-
-          <div class="disc-visual">
-            <div class="default-disc-preview"></div>
-          </div>
-
-          <div class="disc-name">
-            Default disc
-          </div>
-
-          @if (!isNoDiscEquipped()) {
-          <div class="disc-action">
-            <span class="action-hint">Click to equip</span>
-          </div>
-          }
-        </div>
-
-        @for (disc of getSortedDiscs(); track disc.itemCode) {
-        <div class="disc-card" [class.equipped]="isDiscEquipped(disc)" [class.selectable]="!isDiscEquipped(disc)"
-          (click)="selectDisc(disc)">
-
-          @if (isDiscEquipped(disc)) {
-          <div class="equipped-badge">✓ Equipped</div>
-          }
-
-          <div class="disc-visual">
-            @if (disc.type === 'color') {
-            <div class="disc-preview" [style.background-color]="disc.value"></div>
+    <div class="profile-content">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar-container">
+            @if (p.avatarUrl) {
+              <img [src]="p.avatarUrl" [alt]="p.displayName" class="avatar" />
             } @else {
-            <img [src]="disc.value" [alt]="disc.displayName || disc.itemCode" class="disc-preview-img">
+              <div class="avatar-placeholder">
+                <span class="avatar-initial">{{ p.displayName.charAt(0).toUpperCase() }}</span>
+              </div>
             }
           </div>
-
-          <div class="disc-name">
-            {{ disc.displayName || disc.itemCode }}
-          </div>
-
-          @if (!isDiscEquipped(disc)) {
-          <div class="disc-action">
-            <span class="action-hint">Click to equip</span>
-          </div>
-          }
+          <button class="btn btn-secondary btn-change-avatar" (click)="openAvatarModal()">Change avatar</button>
         </div>
+
+        <div class="profile-info">
+          <h2>{{ p.displayName }}</h2>
+          <p class="email">{{ p.email }}</p>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">ELO</span>
+              <span class="stat-value">{{ p.elo }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Gold</span>
+              <span class="stat-value gold">
+                <span class="gold-icon">🪙</span>
+                {{ p.gold }}
+              </span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Games played</span>
+              <span class="stat-value">{{ p.gamesPlayed }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Victories</span>
+              <span class="stat-value wins">{{ p.wins }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Defeats</span>
+              <span class="stat-value losses">{{ p.losses }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Win rate</span>
+              <span class="stat-value">{{ getWinRate() }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="discs-section">
+        <h3>My Discs</h3>
+
+        @if (getSortedDiscs().length > 0 || true) {
+          <div class="discs-grid">
+            <div
+              class="disc-card default-disc-card"
+              [class.equipped]="isNoDiscEquipped()"
+              [class.selectable]="!isNoDiscEquipped()"
+              (click)="selectNoDisc()">
+              @if (isNoDiscEquipped()) {
+                <div class="equipped-badge">✓ Equipped</div>
+              }
+
+              <div class="disc-visual">
+                <div class="default-disc-preview"></div>
+              </div>
+
+              <div class="disc-name">Default disc</div>
+
+              @if (!isNoDiscEquipped()) {
+                <div class="disc-action">
+                  <span class="action-hint">Click to equip</span>
+                </div>
+              }
+            </div>
+
+            @for (disc of getSortedDiscs(); track disc.itemCode) {
+              <div class="disc-card" [class.equipped]="isDiscEquipped(disc)" [class.selectable]="!isDiscEquipped(disc)" (click)="selectDisc(disc)">
+                @if (isDiscEquipped(disc)) {
+                  <div class="equipped-badge">✓ Equipped</div>
+                }
+
+                <div class="disc-visual">
+                  @if (disc.type === 'color') {
+                    <div class="disc-preview" [style.background-color]="disc.value"></div>
+                  } @else {
+                    <img [src]="disc.value" [alt]="disc.displayName || disc.itemCode" class="disc-preview-img" />
+                  }
+                </div>
+
+                <div class="disc-name">
+                  {{ disc.displayName || disc.itemCode }}
+                </div>
+
+                @if (!isDiscEquipped(disc)) {
+                  <div class="disc-action">
+                    <span class="action-hint">Click to equip</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>You don't own any custom disc.</p>
+            <p>Visit the shop to buy some!</p>
+          </div>
         }
       </div>
-      } @else {
-      <div class="empty-state">
-        <p>You don't own any custom disc.</p>
-        <p>Visit the shop to buy some!</p>
-      </div>
-      }
     </div>
-  </div>
   } @else {
-  <div class="loading">
-    <p>Loading profile...</p>
-  </div>
+    <div class="loading">
+      <p>Loading profile...</p>
+    </div>
   }
 </div>
 
 @if (showAvatarModal()) {
-<div class="modal-overlay" (click)="closeAvatarModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Change avatar</h3>
+  <div class="modal-overlay" (click)="closeAvatarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Change avatar</h3>
 
-    <div class="form-group">
-      <label for="avatarUrl">Image URL :</label>
-      <input type="url" id="avatarUrl" [(ngModel)]="newAvatarUrl" placeholder="https://example.com/avatar.jpg"
-        class="input-text">
-    </div>
+      <div class="form-group">
+        <label for="avatarUrl">Image URL :</label>
+        <input type="url" id="avatarUrl" [(ngModel)]="newAvatarUrl" placeholder="https://example.com/avatar.jpg" class="input-text" />
+      </div>
 
-    @if (newAvatarUrl()) {
-    <div class="avatar-preview">
-      <p class="preview-label">Preview :</p>
-      <img [src]="newAvatarUrl()" alt="Preview" class="preview-image"
-        (error)="errorMessage.set('URL d\'image invalide')">
-    </div>
-    }
+      @if (newAvatarUrl()) {
+        <div class="avatar-preview">
+          <p class="preview-label">Preview :</p>
+          <img [src]="newAvatarUrl()" alt="Preview" class="preview-image" (error)="errorMessage.set('URL d\'image invalide')" />
+        </div>
+      }
 
-    @if (errorMessage()) {
-    <div class="error-message">
-      {{ errorMessage() }}
-    </div>
-    }
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
 
-    @if (successMessage()) {
-    <div class="success-message">
-      {{ successMessage() }}
-    </div>
-    }
+      @if (successMessage()) {
+        <div class="success-message">
+          {{ successMessage() }}
+        </div>
+      }
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="closeAvatarModal()" [disabled]="isUpdatingAvatar()">
-        Cancel
-      </button>
-      <button class="btn btn-primary" (click)="updateAvatar()" [disabled]="isUpdatingAvatar() || !newAvatarUrl()">
-        {{ isUpdatingAvatar() ? 'Updating...' : 'Save' }}
-      </button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeAvatarModal()" [disabled]="isUpdatingAvatar()">Cancel</button>
+        <button class="btn btn-primary" (click)="updateAvatar()" [disabled]="isUpdatingAvatar() || !newAvatarUrl()">
+          {{ isUpdatingAvatar() ? 'Updating...' : 'Save' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 }

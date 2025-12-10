@@ -1,11 +1,11 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, signal, WritableSignal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { map, Observable } from "rxjs";
-import { DiscCustomization } from "../admin-skin/admin-skins.model";
-import { AdminSkinsService } from "../admin-skin/admin-skins.service";
-import { ApiLootboxesResponse, CreateLootboxRequest, Lootbox, LootboxContent, LootboxDetail } from "./admin-lootboxes.model";
-import { AdminLootboxesService } from "./admin-lootboxes.service";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { map, Observable } from 'rxjs';
+import { DiscCustomization } from '../admin-skin/admin-skins.model';
+import { AdminSkinsService } from '../admin-skin/admin-skins.service';
+import { ApiLootboxesResponse, CreateLootboxRequest, Lootbox, LootboxContent, LootboxDetail } from './admin-lootboxes.model';
+import { AdminLootboxesService } from './admin-lootboxes.service';
 
 @Component({
   selector: 'app-admin',
@@ -15,7 +15,6 @@ import { AdminLootboxesService } from "./admin-lootboxes.service";
   styleUrl: './admin-lootboxes.component.scss'
 })
 export class AdminLootboxesComponent implements OnInit {
-
   private adminLootboxesService = inject(AdminLootboxesService);
   private adminSkinsService = inject(AdminSkinsService);
 
@@ -56,9 +55,7 @@ export class AdminLootboxesComponent implements OnInit {
   }
 
   private loadAvailableDiscs(): void {
-    this.availableDiscs$ = this.adminSkinsService.getAllDiscs(0, 100).pipe(
-      map(response => response.content)
-    );
+    this.availableDiscs$ = this.adminSkinsService.getAllDiscs(0, 100).pipe(map((response) => response.content));
   }
 
   openCreateModal(): void {
@@ -117,7 +114,7 @@ export class AdminLootboxesComponent implements OnInit {
       imageUrl: this.formData.imageUrl,
       price: this.formData.price,
       dailyFree: this.formData.dailyFree,
-      contents: this.formData.contents.map(c => ({
+      contents: this.formData.contents.map((c) => ({
         itemCode: c.itemCode,
         itemType: c.itemType,
         weight: c.weight,
@@ -144,7 +141,7 @@ export class AdminLootboxesComponent implements OnInit {
       imageUrl: this.formData.imageUrl,
       price: this.formData.price,
       dailyFree: this.formData.dailyFree,
-      contents: this.formData.contents.map(c => ({
+      contents: this.formData.contents.map((c) => ({
         itemCode: c.itemCode,
         itemType: c.itemType,
         weight: c.weight,

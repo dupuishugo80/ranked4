@@ -1,21 +1,20 @@
 <div class="register-container">
   <h2>Register</h2>
-  
+
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    
     <div class="form-group">
       <label for="username">Username</label>
-      <input id="username" type="text" formControlName="username">
+      <input id="username" type="text" formControlName="username" />
       @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
         <div class="error-validation-list">
           <div class="error-validation">Username is required (min. 3 chars).</div>
         </div>
       }
     </div>
-    
+
     <div class="form-group">
       <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email">
+      <input id="email" type="email" formControlName="email" />
       @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
         <div class="error-validation-list">
           <div class="error-validation">Email is invalid.</div>
@@ -25,10 +24,9 @@
 
     <div class="form-group">
       <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password">
+      <input id="password" type="password" formControlName="password" />
       @if (registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)) {
         <div class="error-validation-list">
-          
           @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
             <div class="error-validation">Password is required.</div>
           }
@@ -58,17 +56,12 @@
     @if (successMessage) {
       <div class="success-message">{{ successMessage }}</div>
     }
-    
-    <button 
-      type="submit" 
-      class="btn btn-primary"
-      [disabled]="registerForm.invalid || successMessage">
-      Register
-    </button>
+
+    <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || successMessage">Register</button>
   </form>
-  
+
   <p>
-    Already have an account ? 
+    Already have an account ?
     <a routerLink="/login">Log in</a>
   </p>
 </div>

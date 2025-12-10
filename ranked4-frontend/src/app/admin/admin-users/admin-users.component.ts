@@ -1,9 +1,9 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, signal, WritableSignal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { map, Observable } from "rxjs";
-import { AdminUsersService } from "./admin-users.service";
-import { ApiUserProfile, ApiUsersResponse } from "./admin-users.model";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { map, Observable } from 'rxjs';
+import { AdminUsersService } from './admin-users.service';
+import { ApiUserProfile, ApiUsersResponse } from './admin-users.model';
 
 @Component({
   selector: 'app-admin',
@@ -13,7 +13,6 @@ import { ApiUserProfile, ApiUsersResponse } from "./admin-users.model";
   styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit {
-
   private adminUsersService = inject(AdminUsersService);
 
   public users$!: Observable<ApiUserProfile[]>;

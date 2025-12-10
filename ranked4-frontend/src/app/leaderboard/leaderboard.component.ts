@@ -1,8 +1,8 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, Input } from "@angular/core";
-import { Observable } from "rxjs";
-import { LeaderboardService } from "./leaderboard.service";
-import { UserProfile } from "../profile/profile.model";
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, Input } from '@angular/core';
+import { Observable } from 'rxjs';
+import { LeaderboardService } from './leaderboard.service';
+import { UserProfile } from '../profile/profile.model';
 
 @Component({
   selector: 'app-leaderboard',

@@ -50,7 +50,6 @@ export class GameService {
   private myGameId: string | null = null;
   private myPlayerDisc: PlayerDisc | null = null;
 
-
   constructor() {
     this.myUserId = this.authService.getUserId();
   }
@@ -71,7 +70,10 @@ export class GameService {
     this.wsService.connect();
 
     this.wsService.connectionState
-      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .pipe(
+        filter((state) => state === 'CONNECTED'),
+        take(1)
+      )
       .subscribe(() => {
         this.subscribeToGameTopic(gameId);
         this.sendJoinMessage(gameId, this.myUserId!);
@@ -92,7 +94,10 @@ export class GameService {
     this.wsService.connect();
 
     this.wsService.connectionState
-      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .pipe(
+        filter((state) => state === 'CONNECTED'),
+        take(1)
+      )
       .subscribe(() => {
         this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
           playerId: this.myUserId
@@ -135,7 +140,10 @@ export class GameService {
     this.wsService.connect();
 
     this.wsService.connectionState
-      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .pipe(
+        filter((state) => state === 'CONNECTED'),
+        take(1)
+      )
       .subscribe(() => {
         this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
           playerId: this.myUserId
@@ -143,10 +151,7 @@ export class GameService {
 
         this.subscribeToLobby();
 
-        this.http.post<{ code: string; expiresInSeconds: number }>(
-          this.API_URL_PRIVATE_CREATE,
-          {}
-        ).subscribe({
+        this.http.post<{ code: string; expiresInSeconds: number }>(this.API_URL_PRIVATE_CREATE, {}).subscribe({
           next: (res) => {
             this.currentPrivateCodeSubject.next(res.code);
           },
@@ -173,7 +178,10 @@ export class GameService {
     this.wsService.connect();
 
     this.wsService.connectionState
-      .pipe(filter(state => state === 'CONNECTED'), take(1))
+      .pipe(
+        filter((state) => state === 'CONNECTED'),
+        take(1)
+      )
       .subscribe(() => {
         this.wsService.publishMessage(this.LOBBY_REGISTER_DEST, {
           playerId: this.myUserId
@@ -181,11 +189,8 @@ export class GameService {
 
         this.subscribeToLobby();
 
-        this.http.post(
-          this.API_URL_PRIVATE_JOIN,
-          { code: normalized }
-        ).subscribe({
-          next: (res: any) => { },
+        this.http.post(this.API_URL_PRIVATE_JOIN, { code: normalized }).subscribe({
+          next: (res: any) => {},
           error: (err) => {
             console.error('[PRIVATE] Failed to join private lobby', err);
             this.gameStatus$.next('IDLE');
@@ -202,11 +207,8 @@ export class GameService {
       return;
     }
 
-    this.http.post<{ matchId: string }>(
-      this.API_URL_PRIVATE_START,
-      { code }
-    ).subscribe({
-      next: (res) => { },
+    this.http.post<{ matchId: string }>(this.API_URL_PRIVATE_START, { code }).subscribe({
+      next: (res) => {},
       error: (err) => {
         console.error('[PRIVATE] Failed to start private match', err);
       }
@@ -217,9 +219,7 @@ export class GameService {
     const code = this.currentPrivateCodeSubject.value;
     if (!code) return;
 
-    this.http.get<{ hostUserId: string; guestUserId: string | null }>(
-      `${this.API_URL_PRIVATE_LOBBY}/${code}`
-    ).subscribe({
+    this.http.get<{ hostUserId: string; guestUserId: string | null }>(`${this.API_URL_PRIVATE_LOBBY}/${code}`).subscribe({
       next: (res) => {
         this.hasGuestJoined$.next(!!res.guestUserId);
       },
@@ -234,45 +234,39 @@ export class GameService {
       return;
     }
 
-    this.lobbySub = this.wsService.subscribeToTopic(this.LOBBY_TOPIC)
-      .subscribe(message => {
-        const gameUpdate: GameUpdate = JSON.parse(message.body);
+    this.lobbySub = this.wsService.subscribeToTopic(this.LOBBY_TOPIC).subscribe((message) => {
+      const gameUpdate: GameUpdate = JSON.parse(message.body);
 
-        if (!this.myUserId) {
-          console.error('myUserId est null, impossible de confirmer le match.');
-          return;
-        }
+      if (!this.myUserId) {
+        console.error('myUserId est null, impossible de confirmer le match.');
+        return;
+      }
 
-        const isMe =
-          String(gameUpdate.playerOne.userId) === String(this.myUserId) ||
-          String(gameUpdate.playerTwo.userId) === String(this.myUserId);
+      const isMe = String(gameUpdate.playerOne.userId) === String(this.myUserId) || String(gameUpdate.playerTwo.userId) === String(this.myUserId);
 
-        if (!isMe) {
-          return;
-        }
+      if (!isMe) {
+        return;
+      }
 
-        if (this.matchmakingTimeout) {
-          clearTimeout(this.matchmakingTimeout);
-          this.matchmakingTimeout = null;
-        }
+      if (this.matchmakingTimeout) {
+        clearTimeout(this.matchmakingTimeout);
+        this.matchmakingTimeout = null;
+      }
 
-        this.myGameId = gameUpdate.gameId;
-        this.myPlayerDisc =
-          String(gameUpdate.playerOne.userId) === String(this.myUserId)
-            ? 'PLAYER_ONE'
-            : 'PLAYER_TWO';
+      this.myGameId = gameUpdate.gameId;
+      this.myPlayerDisc = String(gameUpdate.playerOne.userId) === String(this.myUserId) ? 'PLAYER_ONE' : 'PLAYER_TWO';
 
-        this.gameStatus$.next('IN_GAME');
-        this.gameState$.next(gameUpdate);
+      this.gameStatus$.next('IN_GAME');
+      this.gameState$.next(gameUpdate);
 
-        this.sendJoinMessage(this.myGameId, this.myUserId!);
-        this.subscribeToGameTopic(this.myGameId);
+      this.sendJoinMessage(this.myGameId, this.myUserId!);
+      this.subscribeToGameTopic(this.myGameId);
 
-        this.router.navigate(['/game', this.myGameId]);
+      this.router.navigate(['/game', this.myGameId]);
 
-        this.lobbySub?.unsubscribe();
-        this.lobbySub = null;
-      });
+      this.lobbySub?.unsubscribe();
+      this.lobbySub = null;
+    });
   }
 
   private startQueueTimer(): void {
@@ -304,7 +298,7 @@ export class GameService {
     if (this.gameSub) return;
 
     const gameTopic = `/topic/game/${gameId}`;
-    this.gameSub = this.wsService.subscribeToTopic(gameTopic).subscribe(message => {
+    this.gameSub = this.wsService.subscribeToTopic(gameTopic).subscribe((message) => {
       const gameUpdate: GameUpdate = JSON.parse(message.body);
 
       if (!this.myPlayerDisc && this.myUserId) {
@@ -326,21 +320,19 @@ export class GameService {
 
       this.gameState$.next(gameUpdate);
     });
-    this.wsService
-      .subscribeToTopic(`/topic/game/${gameId}/gif`)
-      .subscribe((message) => {
-        try {
-          const event = JSON.parse(message.body) as GifReactionEvent;
-          this.gifReactionsSubject.next(event);
-        } catch (e) {
-          console.error('Invalid GIF reaction event', e);
-        }
-      });
+    this.wsService.subscribeToTopic(`/topic/game/${gameId}/gif`).subscribe((message) => {
+      try {
+        const event = JSON.parse(message.body) as GifReactionEvent;
+        this.gifReactionsSubject.next(event);
+      } catch (e) {
+        console.error('Invalid GIF reaction event', e);
+      }
+    });
   }
 
   makeMove(column: number): void {
     if (this.gameStatus$.value !== 'IN_GAME' || !this.myGameId || !this.myUserId) {
-      console.error("Impossible de jouer, pas dans une partie.");
+      console.error('Impossible de jouer, pas dans une partie.');
       return;
     }
 
@@ -360,7 +352,10 @@ export class GameService {
     }
 
     this.wsService.connectionState
-      .pipe(filter(state => state !== 'CONNECTED'), take(1))
+      .pipe(
+        filter((state) => state !== 'CONNECTED'),
+        take(1)
+      )
       .subscribe(() => {
         console.warn('[GIF] WebSocket non connecté, réaction ignorée');
         return;
@@ -379,7 +374,7 @@ export class GameService {
   leaveGame(): void {
     if (this.gameStatus$.value === 'QUEUEING') {
       this.http.post(this.API_URL_MATCHMAKING_LEAVE, {}).subscribe({
-        next: () => { },
+        next: () => {},
         error: (err) => console.error('[HTTP] Erreur pour quitter la file:', err)
       });
     }

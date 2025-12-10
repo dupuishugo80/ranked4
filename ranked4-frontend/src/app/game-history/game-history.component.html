@@ -6,26 +6,27 @@
       <ol class="history-list">
         @for (game of games; track historyTrack($index, game)) {
           <li class="history-item">
-
             <div class="players">
-              <span class="player-name" 
-                    [class.winner]="game.winner === 'PLAYER_ONE'"
-                    [class.loser]="game.winner === 'PLAYER_TWO'"
-                    [class.draw]="!game.winner">
+              <span
+                class="player-name"
+                [class.winner]="game.winner === 'PLAYER_ONE'"
+                [class.loser]="game.winner === 'PLAYER_TWO'"
+                [class.draw]="!game.winner">
                 {{ game.playerOneName }}
               </span>
 
               <span class="vs">vs</span>
 
-              <span class="player-name"
-                    [class.winner]="game.winner === 'PLAYER_TWO'"
-                    [class.loser]="game.winner === 'PLAYER_ONE'"
-                    [class.draw]="!game.winner">
+              <span
+                class="player-name"
+                [class.winner]="game.winner === 'PLAYER_TWO'"
+                [class.loser]="game.winner === 'PLAYER_ONE'"
+                [class.draw]="!game.winner">
                 {{ game.playerTwoName }}
               </span>
             </div>
 
-            <span class="date">{{ game.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="date">{{ game.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
           </li>
         }
       </ol>

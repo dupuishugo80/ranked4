@@ -23,21 +23,21 @@ export class AiDifficultySelectionComponent {
       name: 'Easy',
       description: 'Perfect for beginners and practice',
       goldOnWin: 50,
-      goldOnDraw: 25,
+      goldOnDraw: 25
     },
     {
       level: 2,
       name: 'Medium',
       description: 'A balanced challenge',
       goldOnWin: 100,
-      goldOnDraw: 50,
+      goldOnDraw: 50
     },
     {
       level: 3,
       name: 'Hard',
       description: 'For experienced players only',
       goldOnWin: 200,
-      goldOnDraw: 100,
+      goldOnDraw: 100
     }
   ];
 
@@ -48,7 +48,7 @@ export class AiDifficultySelectionComponent {
     this.error = null;
 
     this.aiGameService.createAiGame(difficulty).subscribe({
-      next: () => { },
+      next: () => {},
       error: (err) => {
         console.error('[AI] Error creating game:', err);
         this.error = 'Failed to create AI game. Please try again.';
@@ -56,5 +56,4 @@ export class AiDifficultySelectionComponent {
       }
     });
   }
-
 }

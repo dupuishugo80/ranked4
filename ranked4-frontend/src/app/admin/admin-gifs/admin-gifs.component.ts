@@ -162,10 +162,10 @@ export class AdminGifsComponent implements OnInit {
   }
 
   updateNewGifField(field: keyof CreateGifRequest, value: any): void {
-    this.newGif.update(gif => ({ ...gif, [field]: value }));
+    this.newGif.update((gif) => ({ ...gif, [field]: value }));
   }
 
   updateEditGifField(field: keyof UpdateGifRequest, value: any): void {
-    this.editGifData.update(data => ({ ...data, [field]: value }));
+    this.editGifData.update((data) => ({ ...data, [field]: value }));
   }
 }

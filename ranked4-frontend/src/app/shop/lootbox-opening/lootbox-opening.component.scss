@@ -42,10 +42,15 @@
   line-height: 1;
   padding: 0;
 
-  &:hover { background: rgba(0, 0, 0, 0.2); transform: scale(1.1); }
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+  }
 }
 
-.lootbox-details { padding: 2rem; }
+.lootbox-details {
+  padding: 2rem;
+}
 
 .lootbox-header {
   display: flex;
@@ -104,7 +109,11 @@
 .contents-section {
   margin-bottom: 2rem;
 
-  h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--primary-color); }
+  h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
 }
 
 .contents-grid {
@@ -173,7 +182,14 @@
   }
 }
 
-.modal-actions { display: flex; gap: 1rem; justify-content: center; .btn { min-width: 150px; } }
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  .btn {
+    min-width: 150px;
+  }
+}
 
 .btn-open-lootbox {
   background: var(--primary-color);
@@ -213,7 +229,11 @@
   text-align: center;
   margin-bottom: 2rem;
 
-  h2 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--primary-color); }
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
 }
 
 .won-item-display {
@@ -223,7 +243,11 @@
   border: 2px solid #28a745;
   border-radius: 12px;
 
-  h3 { color: #28a745; font-size: 1.5rem; margin-bottom: 1rem; }
+  h3 {
+    color: #28a745;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 
   .won-item-visual {
     display: flex;
@@ -242,7 +266,9 @@
     }
 
     .disc-icon-large,
-    .gold-icon-huge { font-size: 5rem; }
+    .gold-icon-huge {
+      font-size: 5rem;
+    }
   }
 
   .won-item-name {
@@ -317,7 +343,13 @@
   }
 }
 
-.reel { display: flex; gap: 10px; padding: 10px; transition: none; will-change: transform; }
+.reel {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  transition: none;
+  will-change: transform;
+}
 
 .reel-item {
   flex-shrink: 0;
@@ -354,7 +386,9 @@
     }
 
     .disc-icon,
-    .gold-icon { font-size: 2.5rem; }
+    .gold-icon {
+      font-size: 2.5rem;
+    }
 
     .item-label {
       font-size: 0.85rem;
@@ -381,9 +415,24 @@
 }
 
 @media (max-width: 768px) {
-  .lootbox-opening-modal { width: 95%; }
-  .lootbox-details { padding: 1rem; }
-  .lootbox-header .lootbox-image-large { width: 150px; height: 150px; }
-  .reel-viewport { width: 100%; max-width: 400px; }
-  .reel-item { width: 90px; .item-card { height: 110px; } }
+  .lootbox-opening-modal {
+    width: 95%;
+  }
+  .lootbox-details {
+    padding: 1rem;
+  }
+  .lootbox-header .lootbox-image-large {
+    width: 150px;
+    height: 150px;
+  }
+  .reel-viewport {
+    width: 100%;
+    max-width: 400px;
+  }
+  .reel-item {
+    width: 90px;
+    .item-card {
+      height: 110px;
+    }
+  }
 }
