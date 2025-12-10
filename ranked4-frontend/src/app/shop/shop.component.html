@@ -104,7 +104,7 @@
 
     <div class="products-grid">
       @for (lootbox of lootboxes(); track lootbox.id) {
-      <div class="product-card lootbox-card" [class.daily-free-card]="lootbox.dailyFree">
+      <div class="product-card lootbox-card" [class.daily-free-card]="lootbox.dailyFree" (click)="openLootboxModal(lootbox)">
         <div class="product-image">
           <img [src]="lootbox.imageUrl" alt="{{ lootbox.name }}" class="lootbox-image">
           @if (lootbox.dailyFree) {
@@ -125,7 +125,7 @@
               <span>{{ lootbox.price }}</span>
               }
             </div>
-            <button class="btn btn-buy btn-lootbox" (click)="openLootboxModal(lootbox)">
+            <button class="btn btn-buy btn-lootbox">
               See details
             </button>
           </div>
