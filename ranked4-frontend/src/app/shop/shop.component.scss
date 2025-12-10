@@ -80,6 +80,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
+  cursor: pointer;
 
   &:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); border-color: var(--primary-color); }
   &.lootbox-card .product-image { position: relative; }
