@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from './security/login/login.service';
 import { ProfileService } from './profile/profile.service';
@@ -25,6 +25,16 @@ export class AppComponent implements OnInit {
     return this.authService.isAdmin();
   }
 
+  @ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onClick(event: MouseEvent) {
+    const clickedInside = this.dropdownMenu.nativeElement.contains(event.target);
+    if (!clickedInside) {
+      this.togglePlayMenu(false);
+    }
+  }
+
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.loadUserProfile();
@@ -44,7 +54,12 @@ export class AppComponent implements OnInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  togglePlayMenu(): void {
+  togglePlayMenu(newValue?: boolean): void {
+    if (newValue !== undefined) {
+      this.isPlayMenuOpen = newValue;
+      return;
+    }
+
     this.isPlayMenuOpen = !this.isPlayMenuOpen;
   }
 

@@ -6,7 +6,7 @@
 
     <div class="header-center desktop-only">
       @if (authService.isAuthenticated()) {
-        <div class="play-dropdown" [class.is-open]="isPlayMenuOpen">
+        <div class="play-dropdown" [class.is-open]="isPlayMenuOpen" #dropdownMenu>
           <button class="btn btn-primary btn-play" (click)="togglePlayMenu()">Play</button>
           <div class="dropdown-menu">
             <button class="dropdown-item" (click)="playRankedGame()">🎮 Find a ranked match</button>
