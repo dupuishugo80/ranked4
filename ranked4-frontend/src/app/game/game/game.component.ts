@@ -402,10 +402,10 @@ export class GameComponent implements OnInit, OnDestroy {
     this.errorSub?.unsubscribe();
     this.stopLocalTimer();
 
-    // Only cleanup if the game is still in progress
-    // Finished games will be cleaned up when starting a new game
     if (this.gameStatus === 'IN_PROGRESS') {
       this.gameService.leaveGame();
     }
+
+    this.gameService.resetState();
   }
 }
