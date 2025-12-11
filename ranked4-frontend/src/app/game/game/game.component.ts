@@ -243,8 +243,12 @@ export class GameComponent implements OnInit, OnDestroy {
             goldDraw = 50;
             break;
           case 3: // Hard
-            goldWin = 200;
-            goldDraw = 100;
+            goldWin = 400;
+            goldDraw = 200;
+            break;
+          case 4: // Very Hard
+            goldWin = 1000;
+            goldDraw = 500;
             break;
           default:
             goldWin = 100;
@@ -255,7 +259,6 @@ export class GameComponent implements OnInit, OnDestroy {
         goldDraw = isRanked ? 50 : 25;
       }
 
-      // Déterminer le message et le gold gagné
       if (state.winner === this.myDisc) {
         this.gameMessage = 'You won!';
         this.goldEarned = goldWin;
