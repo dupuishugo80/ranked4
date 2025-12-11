@@ -57,9 +57,9 @@ public class Connect4AiService {
         Integer winner = checkWinner(grid);
         if (winner != null) {
             if (winner == aiPlayerId)
-                return MAX_SCORE - depth;
+                return MAX_SCORE + depth;
             if (winner == opponentId)
-                return -MAX_SCORE + depth;
+                return -MAX_SCORE - depth;
             return 0;
         }
 
