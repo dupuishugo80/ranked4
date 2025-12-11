@@ -1,5 +1,9 @@
 package com.ranked4.auth.auth_service.auth.controller;
 
+import java.nio.charset.StandardCharsets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +21,8 @@ import com.ranked4.auth.auth_service.auth.service.AuthService;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
@@ -36,10 +42,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        log.info("=== HTTP POST /api/auth/login received ===");
+        log.info("Request username: '{}'", request.username());
+        log.debug("Username length: {}", request.username() != null ? request.username().length() : 0);
+        log.debug("Username bytes: {}", request.username() != null ? java.util.Arrays.toString(request.username().getBytes(StandardCharsets.UTF_8)) : "null");
+        log.debug("Username contains whitespace at start: {}, at end: {}",
+            request.username() != null && request.username().startsWith(" "),
+            request.username() != null && request.username().endsWith(" "));
+
         AuthResponse authResponse = authService.login(
             request.username(),
             request.password()
         );
+
+        log.info("Login successful via HTTP for username: '{}'", request.username());
         return ResponseEntity.ok(authResponse);
     }
 

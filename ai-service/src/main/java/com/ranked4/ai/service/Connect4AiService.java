@@ -18,10 +18,10 @@ public class Connect4AiService {
         int opponentId = aiPlayerId == 1 ? 2 : 1;
 
         int maxDepth = switch (difficulty) {
-            case 1 -> 3; // Easy
-            case 2 -> 4; // Medium
-            case 3 -> 5; // Hard
-            default -> 4;
+            case 1 -> 4; // Easy
+            case 2 -> 5; // Medium
+            case 3 -> 6; // Hard
+            default -> 5;
         };
 
         if (difficulty == 1 && random.nextInt(100) < 80) {

@@ -9,11 +9,14 @@ import com.ranked4.auth.auth_service.auth.repository.UserRepository;
 import com.ranked4.auth.auth_service.auth.security.JwtService;
 import com.ranked4.auth.auth_service.auth.util.KafkaProducerConfig;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService implements UserDetailsService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -60,14 +65,32 @@ public class AuthService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new BadCredentialsException("User not found : " + username));
+        String cleanedUsername = username != null ? username.trim() : "";
+
+        log.info("=== Login attempt for username: '{}' ===", cleanedUsername);
+        log.debug("Original username length: {}, cleaned length: {}", username != null ? username.length() : 0, cleanedUsername.length());
+        log.debug("Original username bytes: {}", username != null ? java.util.Arrays.toString(username.getBytes(StandardCharsets.UTF_8)) : "null");
+        log.debug("Cleaned username bytes: {}", java.util.Arrays.toString(cleanedUsername.getBytes(StandardCharsets.UTF_8)));
+
+        return userRepository.findByUsername(cleanedUsername)
+                .orElseThrow(() -> {
+                    log.error("User not found in database: '{}' (length: {})", cleanedUsername, cleanedUsername.length());
+                    return new BadCredentialsException("User not found : " + cleanedUsername);
+                });
     }
 
     @Transactional(readOnly = true)
     public User loadUserEntityByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new BadCredentialsException("User not found : " + username));
+        String cleanedUsername = username != null ? username.trim() : "";
+
+        log.info("=== Loading user entity for username: '{}' ===", cleanedUsername);
+        log.debug("Original username length: {}, cleaned length: {}", username != null ? username.length() : 0, cleanedUsername.length());
+
+        return userRepository.findByUsername(cleanedUsername)
+                .orElseThrow(() -> {
+                    log.error("User entity not found in database: '{}' (length: {})", cleanedUsername, cleanedUsername.length());
+                    return new BadCredentialsException("User not found : " + cleanedUsername);
+                });
     }
 
     @Transactional
@@ -104,14 +127,23 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public AuthResponse login(String username, String password) {
+        log.info("Login request received - Username: '{}', password provided: {}", username, password != null && !password.isEmpty());
+
         User user = (User) loadUserByUsername(username);
 
+        log.info("User found in database: ID={}, Username='{}', Email='{}'", user.getId(), user.getUsername(), user.getEmail());
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
+            log.warn("Password mismatch for user: '{}'", user.getUsername());
             throw new BadCredentialsException("Incorrect password");
         }
 
+        log.info("Password validated successfully for user: '{}'", user.getUsername());
+
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = createAndSaveRefreshToken(user);
+
+        log.info("Login successful for user: '{}'", user.getUsername());
 
         return new AuthResponse(accessToken, refreshToken.getToken());
     }
