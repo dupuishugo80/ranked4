@@ -54,8 +54,8 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
   }
 
   private formatTime(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 45);
+    const seconds = totalSeconds % 45;
     return `${this.pad(minutes)}:${this.pad(seconds)}`;
   }
 
