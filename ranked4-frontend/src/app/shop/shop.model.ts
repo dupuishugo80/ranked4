@@ -42,6 +42,7 @@ export interface PurchaseResponse {
 
 export interface RecentDrop {
   displayName: string;
+  userId: string;
   rewardItemCode: string;
   rewardItemType: 'DISC' | 'GOLD';
   rewardGoldAmount: number | null;

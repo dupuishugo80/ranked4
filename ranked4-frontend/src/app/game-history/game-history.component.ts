@@ -3,6 +3,7 @@ import { Component, OnInit, inject, Input, OnChanges, SimpleChanges } from '@ang
 import { Observable, of } from 'rxjs';
 import { GameHistoryEntry } from './game-history.model';
 import { GameHistoryService } from './game-history.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game-history',
@@ -13,6 +14,7 @@ import { GameHistoryService } from './game-history.service';
 })
 export class GameHistoryComponent implements OnInit, OnChanges {
   private gameHistoryService = inject(GameHistoryService);
+  private router = inject(Router);
 
   @Input() mode: 'global' | 'player' = 'global';
   @Input() userId: string | null = null;
@@ -53,5 +55,18 @@ export class GameHistoryComponent implements OnInit, OnChanges {
   isCurrentUser(game: GameHistoryEntry): boolean {
     if (!this.currentUserId) return false;
     return game.playerOneId === this.currentUserId || game.playerTwoId === this.currentUserId;
+  }
+
+  navigateToProfile(userId: string): void {
+    if (!userId) {
+      console.error('userId is undefined');
+      return;
+    }
+
+    if (userId === this.currentUserId) {
+      this.router.navigate(['/profile']);
+    } else {
+      this.router.navigate(['/profile', userId]);
+    }
   }
 }

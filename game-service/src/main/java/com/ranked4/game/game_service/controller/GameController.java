@@ -3,8 +3,13 @@ package com.ranked4.game.game_service.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +33,15 @@ public class GameController {
     @GetMapping("/history")
     public ResponseEntity<List<GameHistoryDTO>> getGameHistory() {
         List<GameHistoryDTO> history = gameService.getGameHistory();
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/history/user/{userId}")
+    public ResponseEntity<Page<GameHistoryDTO>> getUserGameHistory(
+        @PathVariable UUID userId,
+        @PageableDefault(size = 10, sort = "finishedAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<GameHistoryDTO> history = gameService.getUserGameHistory(userId, pageable);
         return ResponseEntity.ok(history);
     }
 

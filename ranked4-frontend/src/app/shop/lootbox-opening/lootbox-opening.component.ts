@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Lootbox, LootboxContent, RecentDrop } from '../shop.model';
 import { ShopService } from '../shop.service';
 import { API_ENDPOINTS } from '../../core/config/api.config';
+import { Router } from '@angular/router';
 
 interface LootboxItem {
   itemCode: string;
@@ -35,6 +36,7 @@ export class LootboxOpeningComponent implements OnInit {
   private http = inject(HttpClient);
   private audioContext: AudioContext | null = null;
   private shopService = inject(ShopService);
+  private router = inject(Router);
 
   @Input() lootbox!: Lootbox;
   @Input() userGold: number = 0;
@@ -58,7 +60,6 @@ export class LootboxOpeningComponent implements OnInit {
   }
 
   private initAudioContext(): void {
-    // Initialiser l'AudioContext une seule fois pour de meilleures performances
     this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
 
@@ -335,6 +336,10 @@ export class LootboxOpeningComponent implements OnInit {
     this.wonItem.set(null);
     this.scrollPosition.set(0);
     this.isOpening.set(false);
+  }
+
+  navigateToProfile(userId: string): void {
+    this.router.navigate(['/profile', userId]);
   }
 
   ngOnDestroy(): void {

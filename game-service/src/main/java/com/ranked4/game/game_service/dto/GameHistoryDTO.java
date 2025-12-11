@@ -12,5 +12,8 @@ public record GameHistoryDTO(
     UUID playerTwoId,
     String playerTwoName,
     Disc winner,
-    Instant createdAt
+    Instant finishedAt,
+    boolean ranked,
+    String origin,
+    Integer aiDifficulty
 ) {}

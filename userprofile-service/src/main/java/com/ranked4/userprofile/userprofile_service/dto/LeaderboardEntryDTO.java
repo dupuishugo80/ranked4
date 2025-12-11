@@ -1,8 +1,11 @@
 package com.ranked4.userprofile.userprofile_service.dto;
 
+import java.util.UUID;
+
 import com.ranked4.userprofile.userprofile_service.model.UserProfile;
 
 public record LeaderboardEntryDTO(
+    UUID userId,
     String displayName,
     String avatarUrl,
     int elo,
@@ -13,6 +16,7 @@ public record LeaderboardEntryDTO(
 ) {
     public LeaderboardEntryDTO(UserProfile entity) {
         this(
+            entity.getUserId(),
             entity.getDisplayName(),
             entity.getAvatarUrl(),
             entity.getElo(),

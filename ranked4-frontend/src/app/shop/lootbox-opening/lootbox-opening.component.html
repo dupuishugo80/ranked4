@@ -75,7 +75,7 @@
           @for (drop of recentDrops(); track $index) {
           <div class="drop-item">
             <div class="drop-player">
-              <span class="player-name">{{ drop.displayName }}</span>
+              <span class="player-name clickable" (click)="navigateToProfile(drop.userId)">{{ drop.displayName }}</span>
             </div>
 
             <div class="drop-reward">

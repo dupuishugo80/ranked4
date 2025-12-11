@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UserProfile } from './profile.model';
+import { GameHistoryResponse, UserProfile } from './profile.model';
 import { API_ENDPOINTS } from '../core/config/api.config';
 
 @Injectable({
@@ -35,5 +35,11 @@ export class ProfileService {
 
   isDailyFreeAvailable(): Observable<{ available: boolean }> {
     return this.http.get<{ available: boolean }>(`${this.API_URL}/daily-free-available`);
+  }
+
+  getGameHistory(userId: string, page: number, size: number): Observable<GameHistoryResponse> {
+    return this.http.get<GameHistoryResponse>(
+      `${API_ENDPOINTS.GAME}/history/user/${userId}?page=${page}&size=${size}&sort=finishedAt,desc`
+    );
   }
 }

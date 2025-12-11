@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -228,7 +230,7 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public List<GameHistoryDTO> getGameHistory() {
-        List<Game> games = gameRepository.findTop5ByRankedTrueAndStatusOrderByFinishedAtDesc(GameStatus.FINISHED);
+        List<Game> games = gameRepository.findTop5RankedFinishedGames(GameStatus.FINISHED);
         Set<UUID> playerIds = games.stream()
                 .flatMap(game -> Stream.of(game.getPlayerOneId(), game.getPlayerTwoId()))
                 .filter(id -> !AI_PLAYER_UUID.equals(id))
@@ -265,9 +267,49 @@ public class GameService {
                             game.getPlayerTwoId(),
                             p2Name,
                             game.getWinner(),
-                            game.getCreatedAt());
+                            game.getFinishedAt(),
+                            game.isRanked(),
+                            game.getOrigin(),
+                            game.getAiDifficulty());
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<GameHistoryDTO> getUserGameHistory(UUID userId, Pageable pageable) {
+        Page<Game> gamesPage = gameRepository.findByUserIdAndStatus(userId, GameStatus.FINISHED, pageable);
+
+        Set<UUID> playerIds = gamesPage.getContent().stream()
+                .flatMap(game -> Stream.of(game.getPlayerOneId(), game.getPlayerTwoId()))
+                .filter(id -> !AI_PLAYER_UUID.equals(id))
+                .collect(Collectors.toSet());
+
+        Map<UUID, PlayerInfoDTO> infoMap = getPlayerInfoMap(playerIds);
+
+        return gamesPage.map(game -> {
+            PlayerInfoDTO p1Info = AI_PLAYER_UUID.equals(game.getPlayerOneId())
+                    ? createAiPlayerInfo()
+                    : infoMap.get(game.getPlayerOneId());
+
+            PlayerInfoDTO p2Info = AI_PLAYER_UUID.equals(game.getPlayerTwoId())
+                    ? createAiPlayerInfo()
+                    : infoMap.get(game.getPlayerTwoId());
+
+            String p1Name = (p1Info != null && p1Info.displayName() != null) ? p1Info.displayName() : "Unknown";
+            String p2Name = (p2Info != null && p2Info.displayName() != null) ? p2Info.displayName() : "Unknown";
+
+            return new GameHistoryDTO(
+                    game.getGameId(),
+                    game.getPlayerOneId(),
+                    p1Name,
+                    game.getPlayerTwoId(),
+                    p2Name,
+                    game.getWinner(),
+                    game.getFinishedAt(),
+                    game.isRanked(),
+                    game.getOrigin(),
+                    game.getAiDifficulty());
+        });
     }
 
     public Map<UUID, PlayerInfoDTO> getPlayerInfoMap(Set<UUID> playerIds) {

@@ -5,5 +5,5 @@ export interface GameHistoryEntry {
   playerTwoId: string;
   playerTwoName: string;
   winner: 'PLAYER_ONE' | 'PLAYER_TWO' | null;
-  createdAt: string;
+  finishedAt: string;
 }

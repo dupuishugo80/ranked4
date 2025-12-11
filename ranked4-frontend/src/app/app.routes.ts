@@ -54,9 +54,16 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'profile/:userId',
+    component: ProfileComponent,
+    canActivate: [authGuard],
+    runGuardsAndResolvers: 'always'
+  },
+  {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'private-game',

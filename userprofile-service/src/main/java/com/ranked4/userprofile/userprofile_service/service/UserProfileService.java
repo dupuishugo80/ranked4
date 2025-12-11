@@ -73,6 +73,7 @@ public class UserProfileService {
                 .mapToObj(index -> {
                     UserProfile profile = topProfiles.get(index);
                     return new LeaderboardEntryDTO(
+                        profile.getUserId(),
                         profile.getDisplayName(),
                         profile.getAvatarUrl(),
                         profile.getElo(),

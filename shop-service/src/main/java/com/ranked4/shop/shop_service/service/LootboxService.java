@@ -49,8 +49,10 @@ public class LootboxService {
         List<Lootbox> allLootboxes = lootboxRepository.findAll();
 
         allLootboxes.sort((a, b) -> {
-            if (a.isDailyFree() && !b.isDailyFree()) return -1;
-            if (!a.isDailyFree() && b.isDailyFree()) return 1;
+            if (a.isDailyFree() && !b.isDailyFree())
+                return -1;
+            if (!a.isDailyFree() && b.isDailyFree())
+                return 1;
             return Long.compare(b.getId(), a.getId());
         });
 
@@ -59,7 +61,7 @@ public class LootboxService {
         List<Lootbox> pageContent = allLootboxes.subList(start, end);
 
         Page<Lootbox> lootboxPage = new org.springframework.data.domain.PageImpl<>(
-            pageContent, pageable, allLootboxes.size());
+                pageContent, pageable, allLootboxes.size());
         return lootboxPage.map(LootboxDTO::fromEntity);
     }
 
@@ -304,27 +306,27 @@ public class LootboxService {
     public List<RecentDropDTO> getRecentDrops(Long lootboxId) {
         Pageable limit5 = PageRequest.of(0, 5);
         List<LootboxOpening> recentOpenings = lootboxOpeningRepository
-            .findTop5ByLootboxIdOrderByOpenedAtDesc(lootboxId, limit5);
+                .findTop5ByLootboxIdOrderByOpenedAtDesc(lootboxId, limit5);
 
         if (recentOpenings.isEmpty()) {
             return Collections.emptyList();
         }
 
         Set<UUID> userIds = recentOpenings.stream()
-            .map(LootboxOpening::getUserId)
-            .collect(Collectors.toSet());
+                .map(LootboxOpening::getUserId)
+                .collect(Collectors.toSet());
 
         Map<UUID, String> displayNameMap = fetchDisplayNames(userIds);
 
         return recentOpenings.stream()
-            .map(opening -> new RecentDropDTO(
-                displayNameMap.getOrDefault(opening.getUserId(), "Unknown Player"),
-                opening.getRewardItemCode(),
-                opening.getRewardItemType(),
-                opening.getRewardGoldAmount(),
-                opening.getOpenedAt()
-            ))
-            .toList();
+                .map(opening -> new RecentDropDTO(
+                        displayNameMap.getOrDefault(opening.getUserId(), "Unknown Player"),
+                        opening.getUserId().toString(),
+                        opening.getRewardItemCode(),
+                        opening.getRewardItemType(),
+                        opening.getRewardGoldAmount(),
+                        opening.getOpenedAt()))
+                .toList();
     }
 
     private Map<UUID, String> fetchDisplayNames(Set<UUID> userIds) {
@@ -334,22 +336,21 @@ public class LootboxService {
 
         try {
             List<UserIdNamePair> pairs = userProfileClient.post()
-                .uri("/api/profiles/batch-display-names")
-                .bodyValue(userIds)
-                .retrieve()
-                .bodyToFlux(UserIdNamePair.class)
-                .collectList()
-                .block();
+                    .uri("/api/profiles/batch-display-names")
+                    .bodyValue(userIds)
+                    .retrieve()
+                    .bodyToFlux(UserIdNamePair.class)
+                    .collectList()
+                    .block();
 
             if (pairs == null) {
                 return Collections.emptyMap();
             }
 
             return pairs.stream()
-                .collect(Collectors.toMap(
-                    UserIdNamePair::userId,
-                    UserIdNamePair::displayName
-                ));
+                    .collect(Collectors.toMap(
+                            UserIdNamePair::userId,
+                            UserIdNamePair::displayName));
 
         } catch (Exception e) {
             System.err.println("Failed to fetch display names: " + e.getMessage());

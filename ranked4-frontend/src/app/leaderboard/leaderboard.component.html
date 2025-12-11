@@ -1,22 +1,25 @@
 <section class="leaderboard-container">
   <h4>Leaderboard</h4>
   @if (leaderboard$ | async; as players) {
-    <ol class="leaderboard-list">
-      @for (player of players; track playerTrack($index, player); let i = $index) {
-        <li class="leaderboard-item" [class.is-you]="player.userId === currentUserId">
-          <span class="rank">{{ i + 1 }}</span>
+  <ol class="leaderboard-list">
+    @for (player of players; track playerTrack($index, player); let i = $index) {
+    <li 
+      class="leaderboard-item clickable" 
+      [class.is-you]="player.userId === currentUserId"
+      (click)="navigateToProfile(player.userId)">
+      <span class="rank">{{ i + 1 }}</span>
 
-          @if (player.avatarUrl) {
-            <img [src]="player.avatarUrl" alt="Avatar" class="avatar-small" />
-          }
-
-          <span class="name">{{ player.displayName }}</span>
-          <span class="elo">{{ player.elo }} R4P</span>
-          <span class="winrate">({{ getWinRate(player) }}%)</span>
-        </li>
+      @if (player.avatarUrl) {
+      <img [src]="player.avatarUrl" alt="Avatar" class="avatar-small" />
       }
-    </ol>
+
+      <span class="name">{{ player.displayName }}</span>
+      <span class="elo">{{ player.elo }} R4P</span>
+      <span class="winrate">({{ getWinRate(player) }}%)</span>
+    </li>
+    }
+  </ol>
   } @else {
-    <p>Loading leaderboard...</p>
+  <p>Loading leaderboard...</p>
   }
 </section>

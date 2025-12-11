@@ -17,6 +17,17 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  elo: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  rank: number;
+}
+
 export interface DiscCustomization {
   itemCode?: string;
   displayName?: string;
@@ -24,4 +35,25 @@ export interface DiscCustomization {
   value: string;
   price?: number | null;
   availableForPurchase?: boolean;
+}
+
+export interface GameHistoryItem {
+  gameId: string;
+  playerOneId: string;
+  playerOneName: string;
+  playerTwoId: string;
+  playerTwoName: string;
+  winner: 'PLAYER_ONE' | 'PLAYER_TWO' | null;
+  finishedAt: string;
+  ranked: boolean;
+  origin: string;
+  aiDifficulty: number | null;
+}
+
+export interface GameHistoryResponse {
+  content: GameHistoryItem[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
 }
