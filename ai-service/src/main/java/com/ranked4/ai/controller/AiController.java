@@ -25,7 +25,13 @@ public class AiController {
             request.aiPlayerId()
         );
 
-        return ResponseEntity.ok(new AiMoveResponse(bestMove));
+        boolean isWinningMove = aiService.isWinningMove(
+            request.grid(),
+            bestMove,
+            request.aiPlayerId()
+        );
+
+        return ResponseEntity.ok(new AiMoveResponse(bestMove, isWinningMove));
     }
 
     @GetMapping("/health")

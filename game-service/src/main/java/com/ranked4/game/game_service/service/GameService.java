@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +24,7 @@ import com.ranked4.game.game_service.dto.AiMoveResponse;
 import com.ranked4.game.game_service.dto.GameFinishedEvent;
 import com.ranked4.game.game_service.dto.GameHistoryDTO;
 import com.ranked4.game.game_service.dto.GameUpdateDTO;
+import com.ranked4.game.game_service.dto.GifReactionEvent;
 import com.ranked4.game.game_service.dto.PlayerInfoDTO;
 import com.ranked4.game.game_service.dto.UserProfileDataDTO;
 import com.ranked4.game.game_service.model.Disc;
@@ -48,15 +50,20 @@ public class GameService {
     private final KafkaTemplate<String, GameFinishedEvent> kafkaTemplate;
 
     private final RestTemplate restTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final GifService gifService;
     private final String USER_PROFILE_SERVICE_URL = "http://userprofile-service:8080/api/profiles/fullprofilesbyids";
     private final String AI_SERVICE_URL = "http://ai-service:8080/api/ai/next-move";
 
     public GameService(GameRepository gameRepository, MoveRepository moveRepository,
-            KafkaTemplate<String, GameFinishedEvent> kafkaTemplate, RestTemplate restTemplate) {
+            KafkaTemplate<String, GameFinishedEvent> kafkaTemplate, RestTemplate restTemplate,
+            SimpMessagingTemplate messagingTemplate, GifService gifService) {
         this.gameRepository = gameRepository;
         this.moveRepository = moveRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.restTemplate = restTemplate;
+        this.messagingTemplate = messagingTemplate;
+        this.gifService = gifService;
     }
 
     @Transactional
@@ -385,7 +392,7 @@ public class GameService {
         return playerInfo;
     }
 
-    public int getAiMove(Game game) {
+    public AiMoveResponse getAiMove(Game game) {
         if (game.getGameType() != GameType.PVE) {
             throw new IllegalStateException("Cannot get AI move for non-PVE game");
         }
@@ -408,7 +415,7 @@ public class GameService {
                 throw new IllegalStateException("AI service returned null response");
             }
 
-            return response.column();
+            return response;
         } catch (Exception e) {
             log.error("Error calling AI service for game {}", game.getGameId(), e);
             throw new IllegalStateException("Failed to get AI move", e);
@@ -423,7 +430,42 @@ public class GameService {
             return game;
         }
 
-        int aiColumn = getAiMove(game);
-        return applyMove(gameId, AI_PLAYER_UUID, aiColumn);
+        AiMoveResponse aiResponse = getAiMove(game);
+
+        if (aiResponse.isWinningMove()) {
+            sendGoodBoyGif(gameId);
+
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                log.warn("AI taunt delay interrupted for game {}", gameId);
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        return applyMove(gameId, AI_PLAYER_UUID, aiResponse.column());
+    }
+
+    private void sendGoodBoyGif(UUID gameId) {
+        try {
+            var gifOpt = gifService.getByCode("good_boy");
+            if (gifOpt.isPresent()) {
+                var gif = gifOpt.get();
+                GifReactionEvent event = new GifReactionEvent(
+                        gameId,
+                        AI_PLAYER_UUID,
+                        gif.getCode(),
+                        gif.getAssetPath(),
+                        System.currentTimeMillis());
+
+                String topic = "/topic/game/" + gameId + "/gif";
+                messagingTemplate.convertAndSend(topic, event);
+                log.info("AI sent 'good_boy' taunt before winning move in game {}", gameId);
+            } else {
+                log.warn("GIF 'good_boy' not found in database");
+            }
+        } catch (Exception e) {
+            log.error("Error sending AI taunt GIF for game {}", gameId, e);
+        }
     }
 }

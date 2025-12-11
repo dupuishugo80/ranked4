@@ -52,6 +52,12 @@ public class Connect4AiService {
         return bestMove;
     }
 
+    public boolean isWinningMove(String grid, int column, int aiPlayerId) {
+        String newGrid = makeMove(grid, column, aiPlayerId);
+        Integer winner = checkWinner(newGrid);
+        return winner != null && winner == aiPlayerId;
+    }
+
     private int minimax(String grid, int depth, boolean isMaximizing, int aiPlayerId, int opponentId, int alpha,
             int beta) {
         Integer winner = checkWinner(grid);
