@@ -30,8 +30,10 @@ public class EloCalculService {
     private static final int GOLD_ON_DRAW_PVE_EASY = 25;
     private static final int GOLD_ON_WIN_PVE_MEDIUM = 100;
     private static final int GOLD_ON_DRAW_PVE_MEDIUM = 50;
-    private static final int GOLD_ON_WIN_PVE_HARD = 200;
-    private static final int GOLD_ON_DRAW_PVE_HARD = 100;
+    private static final int GOLD_ON_WIN_PVE_HARD = 400;
+    private static final int GOLD_ON_DRAW_PVE_HARD = 200;
+    private static final int GOLD_ON_WIN_PVE_VERY_HARD = 1000;
+    private static final int GOLD_ON_DRAW_PVE_VERY_HARD = 500;
 
     private static final java.util.UUID AI_PLAYER_UUID = java.util.UUID
             .fromString("00000000-0000-0000-0000-000000000001");
@@ -157,7 +159,8 @@ public class EloCalculService {
         return switch (difficulty) {
             case 1 -> new int[] { GOLD_ON_WIN_PVE_EASY, GOLD_ON_DRAW_PVE_EASY }; // Easy: 50/25
             case 2 -> new int[] { GOLD_ON_WIN_PVE_MEDIUM, GOLD_ON_DRAW_PVE_MEDIUM }; // Medium: 100/50
-            case 3 -> new int[] { GOLD_ON_WIN_PVE_HARD, GOLD_ON_DRAW_PVE_HARD }; // Hard: 200/100
+            case 3 -> new int[] { GOLD_ON_WIN_PVE_HARD, GOLD_ON_DRAW_PVE_HARD }; // Hard: 400/200
+            case 4 -> new int[] { GOLD_ON_WIN_PVE_VERY_HARD, GOLD_ON_DRAW_PVE_VERY_HARD }; // Very Hard: 1000/500
             default -> new int[] { GOLD_ON_WIN_PVE_MEDIUM, GOLD_ON_DRAW_PVE_MEDIUM }; // Default to medium
         };
     }

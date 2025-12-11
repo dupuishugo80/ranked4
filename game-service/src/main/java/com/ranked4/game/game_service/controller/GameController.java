@@ -38,19 +38,17 @@ public class GameController {
 
     @GetMapping("/history/user/{userId}")
     public ResponseEntity<Page<GameHistoryDTO>> getUserGameHistory(
-        @PathVariable UUID userId,
-        @PageableDefault(size = 10, sort = "finishedAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PathVariable UUID userId,
+            @PageableDefault(size = 10, sort = "finishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<GameHistoryDTO> history = gameService.getUserGameHistory(userId, pageable);
         return ResponseEntity.ok(history);
     }
 
     @PostMapping("/pve")
     public ResponseEntity<PveGameResponse> createPveGame(
-        @RequestHeader("X-User-Id") UUID userId,
-        @RequestParam(defaultValue = "2") int difficulty
-    ) {
-        if (difficulty < 1 || difficulty > 3) {
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestParam(defaultValue = "2") int difficulty) {
+        if (difficulty < 1 || difficulty > 4) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -58,9 +56,8 @@ public class GameController {
         Game game = gameService.createPveGame(gameId, userId, difficulty);
 
         return ResponseEntity.ok(new PveGameResponse(
-            game.getGameId(),
-            userId,
-            difficulty
-        ));
+                game.getGameId(),
+                userId,
+                difficulty));
     }
 }

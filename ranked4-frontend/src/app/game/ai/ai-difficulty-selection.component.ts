@@ -36,8 +36,15 @@ export class AiDifficultySelectionComponent {
       level: 3,
       name: 'Hard',
       description: 'For experienced players only',
-      goldOnWin: 200,
-      goldOnDraw: 100
+      goldOnWin: 400,
+      goldOnDraw: 200
+    },
+    {
+      level: 4,
+      name: 'Very Hard',
+      description: 'Impossible to beat',
+      goldOnWin: 1000,
+      goldOnDraw: 500
     }
   ];
 

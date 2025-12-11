@@ -21,6 +21,7 @@ public class Connect4AiService {
             case 1 -> 4; // Easy
             case 2 -> 5; // Medium
             case 3 -> 6; // Hard
+            case 4 -> 8; // Very Hard
             default -> 5;
         };
 
